@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.3" provider-name="Lary_Loose">
   <requires>
-    <import addon="xbmc.python" version="2.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>image</provides>

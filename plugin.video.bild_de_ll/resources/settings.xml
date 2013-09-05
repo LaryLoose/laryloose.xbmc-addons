@@ -2,4 +2,5 @@
    <setting id="useThumbAsFanart" type="bool" label="30101" default="true"/>
    <setting id="forceViewMode" type="bool" label="30102" default="true"/>
    <setting id="viewMode" type="number" label="30103" default="400"/>
+   <setting id="searchInMostClicked" type="bool" label="30104" default="false"/>
 </settings>

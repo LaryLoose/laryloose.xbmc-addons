@@ -14,6 +14,7 @@ settings = xbmcaddon.Addon(id='plugin.video.bild_de_ll')
 translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("forceViewMode") == "true"
 useThumbAsFanart = settings.getSetting("useThumbAsFanart") == "true"
+searchInMostClicked = settings.getSetting("searchInMostClicked") == "true"
 viewMode = str(settings.getSetting("viewMode"))
 
 startpage = 'http://www.bild.de'
@@ -40,7 +41,8 @@ def showVideos(params):
 		elif ins == True:
 			addDir(cleanTitle(v[2]), v[2] + ';' + startpage + v[1], 'showVideos', '')
 
-	for k, (fid, cid) in enumerate(uniq(re.compile('(tb-.+?-videos-.+?),.*?contentContextId=(.+?)\.bild\.html', re.DOTALL).findall(content))):
+	vidrex = '(tb-.+?-videos-.+?)' if searchInMostClicked else '(tb-neueste-videos-.+?)'
+	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',.*?contentContextId=(.+?)\.bild\.html', re.DOTALL).findall(content))):
 		page, pages = 0, 0
 		while page <= pages:
 			url = baseurl

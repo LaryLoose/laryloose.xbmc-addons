@@ -55,6 +55,6 @@ foreach my $folder (get_addon_folder($sourcepath))
 
 	if (!-e $zipfile) { print "creating file $zipfile\n"; `zip -r $zipfile $folder`; }
 	if (-e $changefile) { print "copy file $changefile\n"; `cp $changefile $actzipfolder/changelog.txt`; }
-	if (-e $iconfile) { print "copy file $iconfile\n"; `zip -r $zipfile $actzipfolder/icon.png`; }
+	if (-e $iconfile) { print "copy file $iconfile\n"; `cp $iconfile $actzipfolder/icon.png`; }
     }
 }

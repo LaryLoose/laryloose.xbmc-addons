@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Repository" version="0.1.1" provider-name="Lary_loose">
+	<extension point="xbmc.addon.repository" name="Lary_Loose Repository">
+		<info compressed="false">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml</info>
+		<checksum>https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/zips</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Install Add-ons from Lary_Loose's Addon Repository</summary>
+		<description>Several Add-ons for XBMC</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+

@@ -50,11 +50,11 @@ foreach my $folder (get_addon_folder($sourcepath))
 	my $actzipfolder = "$destpath/$id";
 	if ((!-e $actzipfolder) && !mkdir($actzipfolder)) { print "could not create dir $actzipfolder"; exit 3; }
 	my $zipfile = "$actzipfolder/$id-$version.zip";
-	if (!-e $zipfile)
-	{
-	    print "creating file $zipfile\n";
-	    `zip -r $zipfile $folder`;
-	}
-	#print $id.' -> '.$version
+	my $changefile = "$folder/changelog.txt";
+	my $iconfile = "$folder/icon.png";
+
+	if (!-e $zipfile) { print "creating file $zipfile\n"; `zip -r $zipfile $folder`; }
+	if (-e $changefile) { print "copy file $changefile\n"; `cp $changefile $actzipfolder/changelog.txt`; }
+	if (-e $iconfile) { print "copy file $iconfile\n"; `zip -r $zipfile $actzipfolder/icon.png`; }
     }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
+  <requires>
+    <import addon="xbmc.python" version="2.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>image</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="de">Bilder von sachsen-modelle.de</summary>
+    <summary lang="en">View photos from sachsen-modelle.de</summary>
+    <description lang="de"></description>
+    <description lang="en"></description>
+  </extension>
+</addon>

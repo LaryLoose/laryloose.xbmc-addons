@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.mlehd" name="MLE-HD" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">MLE-HD (Movies live erleben)</summary>
+        <summary lang="en">MLE-HD (movies live erleben)</summary>
+        <description lang="de">HD Filme von mle-hd.se (Movies Live Erleben)</description>
+        <description lang="en">HD movies from mle-hd.se (Movies Live Erleben)</description>
+    </extension>
+</addon>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.assembly_archive" name="Assembly Archive" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+        <import addon="plugin.video.youtube" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">Inhalte aus dem Assembly Archive</summary>
+        <summary lang="en">Contents from the Assembly Archive</summary>
+        <description lang="de">Das Assembly Archive beinhaltet alle web-tauglichen Daten der Assembly-Veranstaltungen beginnend mit der ersten Assembly im Jahre 1992.</description>
+        <description lang="en">Assembly Archive holds all web-viewable data from Assembly events all the way from the first event on year 1992.</description>
+    </extension>
+</addon>

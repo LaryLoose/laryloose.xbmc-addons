@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Add-on Repository" version="1.0.0" provider-name="Lary_loose">
+	<extension point="xbmc.addon.repository" name="Lary_Loose Add-on Repository">
+		<info compressed="false">http://laryloose-xbmc-addons.googlecode.com/git/addons.xml</info>
+		<checksum>http://laryloose-xbmc-addons.googlecode.com/git/addons.xml.md5</checksum>
+		<datadir zip="false">http://laryloose-xbmc-addons.googlecode.com/git/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Install Add-ons from Lary_Loose's Addon Repository</summary>
+		<description>Video and Picture plug-ins for XBMC</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+

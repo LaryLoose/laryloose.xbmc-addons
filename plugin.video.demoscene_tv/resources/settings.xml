@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<setting id="force_viewmode" type="bool" label="30100" default="false"/>
+	<setting id="hd_quality" type="bool" label="30101" default="true"/>
+	<setting id="items_per_page" type="enum" label="30102" values="20|40|60|80|100|120|140|160|180|200" default="4"/>
+</settings>

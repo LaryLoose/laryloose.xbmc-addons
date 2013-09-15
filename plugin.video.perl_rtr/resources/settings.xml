@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<setting id="forceViewMode" type="bool" label="30102" default="true"/>
+	<setting id="ViewMode" type="number" label="30103" default="400"/>
+</settings>

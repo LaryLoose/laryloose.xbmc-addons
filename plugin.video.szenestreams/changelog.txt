@@ -1,0 +1,15 @@
+0.2
+* Release von dirtylion
+
+0.3
+* Menüeintrag 'Letzte Updates'
+* Anzahl der Einträge hinter den Kategorien
+* Menüeintrag Serien mit Unterkategorien
+* Dateiname wird hinter dem Hoster angezeigt (wird für Serien benötigt)
+* Anzahl der Menüeinträge kann konfiguriert werden
+* View der Filmlisten kann erzwungen und per ViewID festgelegt werden
+
+0.3.2
+* Versions-schema angepasst
+* urlresolver komplett überarbeitet
+* unterstützung zahlreicher Hoster aktualisiert

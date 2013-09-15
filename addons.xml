@@ -17,6 +17,23 @@
     </extension>
 </addon>
 
+<addon id="plugin.video.perl_rtr" name="Rudolphs Technik Ratgeber" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+		<import addon="script.common.plugin.cache" version="0.9.1"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
+        <description lang="de"></description>
+        <description lang="en"></description>
+    </extension>
+</addon>
+
 <addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.1.6" provider-name="AddonScriptorDE / Lary_Loose">
     <requires>
         <import addon="xbmc.python" version="2.0"/>

@@ -1,5 +1,8 @@
 0.1.0 
-- First Try
+- Release by AddonScriptorDE
 
 0.1.4
-- many inprovements
+- fork to bild.de.ll
+- rework complete site parser code
+- show date of videos
+- use of categories and sub catagories

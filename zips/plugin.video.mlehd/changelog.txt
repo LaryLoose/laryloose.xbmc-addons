@@ -1,1 +1,4 @@
-1.0.0 - First Try
+0.1.0
+    - First Try
+0.1.1
+    - add new local player

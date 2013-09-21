@@ -53,9 +53,11 @@ def clean(s):
 
 def PLAYVIDEO(url):
 	data = getUrl(url)
-	mediaspace = re.findall('id="mediaspace"(.*?)</script>', data, re.S|re.I)
-	if mediaspace:
-	    filename = re.findall('file:.*?\'(.*?)\'', str(mediaspace), re.S|re.I)
+	proplayer = re.findall('id="(?:mediaspace|containingBlock)"(.*?)</script>', data, re.S|re.I)
+	if proplayer:
+	    filename = re.findall('file:.*?\'(.*?)\'', proplayer[0], re.S|re.I)
+	    if not filename:
+		filename = re.findall('&amp;file=(.*?)&amp;', proplayer[0], re.S|re.I)
 	    if filename: url = filename[0]
 	else:
 	    iframe = re.findall('id="main".*?<iframe[^>]*src="(.*?)"[^>]*>', data, re.S|re.I)

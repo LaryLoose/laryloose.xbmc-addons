@@ -455,23 +455,26 @@ class get_stream_link:
 				if stream_url: return stream_url[0]
 	
 	def flashx(self, url):
-		print url
+		print 'flashx: ' + url
 		resp = self.net.http_GET(url)
 		data = resp.content
 		info = {}
-		iframe = re.findall('<iframe[^>]*src="([^"]*/player/[^"]*)"[^>]*></iframe>', data, re.S|re.I)
+		iframe = re.findall('<iframe[^>]*src="([^"]*/player/[^"]*)"[^>]*>', data, re.S|re.I)
 		if iframe:
 			url = iframe[0]
 			data = self.net.http_GET(url).content
-		frm = re.findall('<form[^>]*action="view.php"[^>]*>(.*?)</form>', data, re.S|re.I)
+		frm = re.findall('<form[^>]*action="((?:view|play).php)"[^>]*>(.*?)</form>', data, re.S|re.I)
 		if not frm: return 'Error: Konnte URL nicht aufloesen'
-		for name, value in re.findall('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"[^>]*>', frm[0], re.S|re.I):
+		for name, value in re.findall('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"[^>]*>', frm[0][1], re.S|re.I):
 			info[name] = value
-		if info:
-			url = re.sub('/[^/]*$', '/view.php', url)
+		if not info: return 'Error: Input Parameter nicht gefunden'
+		else:
+			url = re.sub('/[^/]*$', '/'+frm[0][0], url)
+			print 'open: ' + url
+			print 'with values: ' + str(info)
 			data = self.net.http_POST(url, info).content
 			if re.match('.*Video not found or deleted', data, re.S|re.I): return 'Error: Die Datei existiert nicht'
-			xml_link = re.findall('data="http://play.flashx.tv/nuevo/player/player.swf.config=(http://play.flashx.tv/nuevo/player/fx.*?)"', data, re.S)
+			xml_link = re.findall('data="http://play.flashx.tv/nuevo/[^"]*config=(http://play.flashx.tv/[^"]*)"', data, re.S)
 			if xml_link:
 				data = self.getUrl(xml_link[0])
 				stream_url = re.findall('<file>(http://.*?flashx.tv.*?)</file>', data)

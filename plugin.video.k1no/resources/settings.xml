@@ -1,0 +1,6 @@
+<settings>
+	<setting id="filterUnknownHoster" type="bool" label="30101" default="true"/>
+	<setting id="forceMovieViewMode" type="bool" label="30102" default="true"/>
+	<setting id="movieViewMode" type="number" label="30103" default="400"/>
+	<setting id="items_per_page" type="enum" label="30104" values="10|20|30|40|50|60|70|80|90|100" default="3"/>
+</settings>

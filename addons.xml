@@ -17,6 +17,23 @@
     </extension>
 </addon>
 
+<addon id="plugin.video.k1no" name="K1no" version="0.1.1" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+        <import addon="script.module.t0mm0.common" version="1.1.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">Filme gratis und online Filme gucken, streamen und downloaden auf k1no.do.am</summary>
+        <summary lang="en">Watch Movies for free from k1no.do.am</summary>
+        <description lang="de">Kostenlos Filme anschauen auf K1no ist einer der besten und am einfachsten Möglichkeiten kostenlose online Film im Internet zu gucken. Die riesige Menge an Kino Filmen und Tv Serien stehen jedem Besucher zur Verfügung. Wählen Sie einfach den Film Ihrer Wahl, ganz kostenlos und ohne Registrierung. ACHTUNG: Wir hosten bzw. uploaden keine Filme/Serien auf die Seite, wir verlinken nur die Videos auf die Seite.</description>
+        <description lang="en"></description>
+    </extension>
+</addon>
+
 <addon id="plugin.video.perl_rtr" name="Rudolphs Technik Ratgeber" version="0.1.0" provider-name="Lary_Loose">
     <requires>
         <import addon="xbmc.python" version="2.0"/>

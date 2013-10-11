@@ -42,8 +42,8 @@ hosterlist = [
 	('movreel', '.*movreel\.com'),
 	('uploadc', '.*uploadc\.com'),
 	('youwatch', '.*youwatch\.org'),
-	('vidx', '.*vidx\.to'),
-	('K1no HD', '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')]
+#	('K1no HD', '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
+	('vidx', '.*vidx\.to')]
 
 
 std_headers = {
@@ -81,7 +81,7 @@ class get_stream_link:
 		elif hoster == 'bitshare': return self.bitshare(link)
 		elif hoster == 'movreel': return self.movreel(link)
 		elif hoster == 'uploadc': return self.uploadc(link)
-		elif hoster == 'youwatch': return self.generic1(link, 'Youwatch', 10)
+		elif hoster == 'youwatch': return self.youwatch(link)
 		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10)
 		elif hoster == 'K1no HD': return link
 		return 'Not Supported'
@@ -114,6 +114,13 @@ class get_stream_link:
 		for (hoster, urlrex) in hosterlist:
 			if re.match(urlrex, link, re.S|re.I): return hoster
 		return 'Not Supported'
+
+	def get_stream_url(self, sUnpacked):
+		if not sUnpacked: return
+		stream_url = re.findall('type="video/divx"src="(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
+		if not stream_url: stream_url = re.findall("file','(.*?)'", sUnpacked, re.S|re.I|re.DOTALL)
+		if not stream_url: stream_url = re.findall('file:"(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
+		if stream_url: return stream_url[0]
 
 	def youtube(self, url, videoPrio=2):
 		# this part is from mtube plugin
@@ -225,19 +232,24 @@ class get_stream_link:
 		if id and fname and ipcount_val:
 			info = {'ipcount_val' : ipcount_val[0], 'op' : 'download2', 'usr_login' : '', 'id' : id[0], 'fname' : fname[0], 'method_free' : 'Slow access'}
 			data2 = self.net.http_POST(url, info).content
-			stream_url = re.findall("'file','(.*?)'", data2, re.S)
+			stream_url = self.get_stream_url(data2)
 			if not stream_url:
 				get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data2, re.S|re.DOTALL)
 				if get_packedjava:
-					sJavascript = get_packedjava[1]
-					sUnpacked = cJsUnpacker().unpackByString(sJavascript)
-					if sUnpacked:
-						if re.match('.*?type="video/divx', sUnpacked):
-							stream_url = re.findall('type="video/divx"src="(.*?)"', sUnpacked)
-						elif re.match(".*?file", sUnpacked):
-							stream_url = re.findall("file','(.*?)'", sUnpacked)
-			if stream_url: return stream_url[0]
+					sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
+					stream_url = self.get_stream_url(sUnpacked)
+			return stream_url
 
+	def youwatch(self, url):
+		data = self.net.http_GET(url).content
+		stream_url = self.get_stream_url(data)
+		if not stream_url:
+			get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data, re.S|re.DOTALL)
+			if get_packedjava:
+				sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
+				stream_url = self.get_stream_url(sUnpacked)
+		return stream_url
+		
 	def movreel(self, url):
 		data = self.net.http_GET(url).content
 		id = re.findall('<input type="hidden" name="id".*?value="(.*?)">', data)
@@ -412,15 +424,16 @@ class get_stream_link:
 		data = self.net.http_POST(url, info).content
 		code = re.findall("code: '(.*?)'", data, re.S)
 		hash = re.findall("hash: '(.*?)'", data, re.S)
-		hash = re.findall("hash: '(.*?)'", data, re.S)
 		xml_link = re.findall("playlist: '(/playlist/.*?)'", data, re.S)
 		if xml_link:
+			print xml_link
 			data = self.net.http_GET("http://www.videoslasher.com"+xml_link[0]).content
 			stream_url = re.findall('<media:content url="(.*?)"', data)
 			if stream_url:
 				info = {'user': "0", 'hash': hash[0], 'code': code[0]}
+				data = self.net.http_POST("http://www.videoslasher.com/service/player/on-start", info).content
+				print data
 				return stream_url[1]
-				#data = self.net.http_POST("http://www.videoslasher.com/service/player/on-start", info).content
 
 	def streamPutlockerSockshare(self, url, provider):
 		data = self.getUrl(url.replace('/file/','/embed/'))

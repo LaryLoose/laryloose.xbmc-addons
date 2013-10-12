@@ -42,6 +42,7 @@ hosterlist = [
 	('movreel', '.*movreel\.com'),
 	('uploadc', '.*uploadc\.com'),
 	('youwatch', '.*youwatch\.org'),
+	('yandex', '.*yandex\.ru'),
 #	('K1no HD', '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
 	('vidx', '.*vidx\.to')]
 
@@ -82,6 +83,7 @@ class get_stream_link:
 		elif hoster == 'movreel': return self.movreel(link)
 		elif hoster == 'uploadc': return self.uploadc(link)
 		elif hoster == 'youwatch': return self.youwatch(link)
+		elif hoster == 'yandex': return self.generic1(link, 'Yandex', 0)
 		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10)
 		elif hoster == 'K1no HD': return link
 		return 'Not Supported'
@@ -90,9 +92,14 @@ class get_stream_link:
 		req = urllib2.Request(url)
 		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
 		response = urllib2.urlopen(req)
-		data=response.read()
+		data = response.read()
 		response.close()
 		return data
+		
+	def get_adfly_link(self, adflink):
+		data = self.net.http_POST('http://dead.comuv.com/bypasser/process.php', {'url':adflink}, {'Referer':'http://dead.comuv.com/', 'X-Requested-With':'XMLHttpRequest'}).content
+		link = re.findall('<a[^>]*href="([^"]*)"', data, re.S|re.I|re.DOTALL)
+		if link: return link[0]
 
 	def waitmsg(self, sec, msg):
 		dialog = xbmcgui.DialogProgress()
@@ -111,8 +118,9 @@ class get_stream_link:
 		dialog.close()
 	
 	def get_hostername(self, link):
-		for (hoster, urlrex) in hosterlist:
-			if re.match(urlrex, link, re.S|re.I): return hoster
+		if link:
+			for (hoster, urlrex) in hosterlist:
+				if re.match(urlrex, link, re.S|re.I): return hoster
 		return 'Not Supported'
 
 	def get_stream_url(self, sUnpacked):
@@ -412,7 +420,6 @@ class get_stream_link:
 		#print "POSTDATA: " + str(info)
 		#self.waitmsg(10, "Streamcloud")
 		data = self.net.http_POST(url, info).content
-		print data
 		if re.match('.*?This video is encoding now', data, re.S): return 'Error: Das Video wird aktuell konvertiert'
 		if re.match('.*?The file you were looking for could not be found', data, re.S): return 'Error: Die Datei existiert nicht'
 		stream_url = re.findall('file: "(.*?)"', data)

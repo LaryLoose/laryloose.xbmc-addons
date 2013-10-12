@@ -71,6 +71,9 @@ def VIDEOLINKS(url, image):
 	streams += re.findall('<span[^>]*style="color[^>]*><div[^>]*>[^<]*<b>([^<]*)</b>[^<]*</div>[^<]*</span>[^<]*<div[^>]*><a[^>]*href="([^"]*)"', data, re.S|re.I|re.DOTALL)
 	if streams:
 		for (filename, stream) in streams:
+			if 'adf.ly' in stream:
+				print 'resolving adfly url: ' + stream
+				stream = get_stream_link().get_adfly_link(stream)
 			hoster = get_stream_link().get_hostername(stream)
 			if filterUnknownHoster and hoster == 'Not Supported': continue
 			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename

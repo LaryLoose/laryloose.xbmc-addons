@@ -51,21 +51,33 @@ def clean(s):
 		except ValueError: pass
 	return urllib.unquote_plus(s)
 
+def selectVideoDialog(videos):
+	titles = []
+	for i in range(1, len(videos)+1):
+		titles.append('Teil ' + str(i))
+	idx = xbmcgui.Dialog().select("", titles)
+	return videos[idx]
+
 def PLAYVIDEO(url):
 	data = getUrl(url)
-	proplayer = re.findall('id="(?:mediaspace|containingBlock)"(.*?)</script>', data, re.S|re.I)
+	videos = []
+	proplayer = re.findall('id="(?:mediaspace|containingBlock)"(.*)</script>', data, re.S|re.I)
 	if proplayer:
-	    filename = re.findall('file:.*?\'(.*?)\'', proplayer[0], re.S|re.I)
-	    if not filename:
-		filename = re.findall('&amp;file=(.*?)&amp;', proplayer[0], re.S|re.I)
-	    if filename: url = filename[0]
+		videos = re.findall('file:.*?\'(.*?)\'', proplayer[0], re.S|re.I)
+		if not videos: videos = re.findall('&amp;file=(.*?)&amp;', proplayer[0], re.S|re.I)
 	else:
-	    iframe = re.findall('id="main".*?<iframe[^>]*src="(.*?)"[^>]*>', data, re.S|re.I)
-	    if iframe: url = getVideoFromIframe(iframe[0])
+		iframes = re.findall('id="main".*?<iframe[^>]*src="(.*?)"[^>]*>', data, re.S|re.I)
+		if iframes:
+			for iframe in iframes:
+				videos.append(getVideoFromIframe(iframe))
+
+	url = selectVideoDialog(videos) if len(videos) > 1 else videos[0]
+
 	if 'playlist-controller' in url:
 		playlist = getUrl(url)
 		loc = re.findall('<location>(.*?)</location>', playlist, re.S|re.I)
 		if loc: url = loc[0]
+	
 	print 'try to play: ' + url
 	return xbmcplugin.setResolvedUrl(pluginhandle, True, xbmcgui.ListItem(path=url))
 
@@ -115,6 +127,7 @@ def addDir(name, url, mode, image, is_folder=False):
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=is_folder)
 
+print 'Arguments:', sys.argv
 params = get_params()
 url = None
 mode = None

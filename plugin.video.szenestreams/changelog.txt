@@ -13,3 +13,6 @@
 * Versions-schema angepasst
 * urlresolver komplett überarbeitet
 * unterstützung zahlreicher Hoster aktualisiert
+
+0.3.4
+* bugfix jsUnpacker

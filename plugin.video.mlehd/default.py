@@ -83,13 +83,14 @@ def PLAYVIDEO(url):
 
 def getVideoFromIframe(url):
 	data = getUrl(url)
+	stream_url = ''
 	get_packedjava = re.findall('<script type=.text.javascript.>eval.function(.*?)</script>', data, re.S|re.DOTALL)
 	if get_packedjava:
-	    sUnpacked = cJsUnpacker().unpackByString(get_packedjava[1])
+	    sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
 	    if re.match('.*?type="video/divx', sUnpacked): stream_url = re.findall('type="video/divx".*?src="(.*?)"', sUnpacked)
 	    elif re.match('.*?file', sUnpacked): stream_url = re.findall("file','(.*?)'", sUnpacked)
-	if stream_url: return stream_url[0]
-	return ''
+	if not stream_url: stream_url = re.findall("file:[ ]*'(.*?)'", data)
+	return stream_url[0] if stream_url else ''
 
 def getUrl(url):
 	req = urllib2.Request(url)

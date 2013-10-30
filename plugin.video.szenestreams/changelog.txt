@@ -16,3 +16,6 @@
 
 0.3.4
 * bugfix jsUnpacker
+
+0.3.5
+* bugfix Vidstream resolver

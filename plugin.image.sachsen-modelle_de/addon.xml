@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
-  <requires>
-  </requires>
+  <broken>deprecated</broken>
+  <requires></requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>image</provides>
   </extension>

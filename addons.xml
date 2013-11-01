@@ -70,6 +70,24 @@
     </extension>
 </addon>
 
+<addon id="plugin.video.cczwei_de" name="Computerclub Zwei" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
+        <language>de</language>
+        <description lang="de"></description>
+        <description lang="en"></description>
+    <platform>all</platform>
+    </extension>
+</addon>
+
 <addon id="plugin.video.mlehd" name="MLE-HD" version="0.1.3" provider-name="Lary_Loose">
     <requires>
         <import addon="xbmc.python" version="2.0"/>
@@ -149,8 +167,8 @@
 </addon>
 
 <addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
-  <requires>
-  </requires>
+  <broken>deprecated</broken>
+  <requires></requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>image</provides>
   </extension>

@@ -13,15 +13,13 @@ viewMode = str(settings.getSetting("viewMode"))
 
 def CATEGORIES():
 	data = getUrl(baseurl)
-	header = re.findall('id="primary-menu"(.*?)id="container"', data, re.S|re.I)
-	cats = re.findall('<li[^>]*id="menu-item[^>]+>[^<]*<a href="(.*?)"[^>]*>([^<]*)</a>', str(header), re.S|re.I)
+	cats = re.findall('<li[^>]*class="cat-item cat-item[^>]+>[^<]*<a href="(.*?)"[^>]*>([^<]*)</a>', data, re.S|re.I)
 	addDir('Letzte Updates', baseurl, 1, '', True)
 	for (url, name) in cats:
-		if re.match('.*Filme.*A-Z.*', name): continue #skip 'Filme A-Z'
-		name = re.sub('Kom.*?dien', 'Komödien', name) #ugly workaround for unicode literals in this string
+		#if re.match('.*Filme.*A-Z.*', name): continue #skip 'Filme A-Z'
+		#name = re.sub('Kom.*?dien', 'Komödien', name) #ugly workaround for unicode literals in this string
 		name = re.sub('[ ]*/[ ]*', ' / ', name)       #normalize all entries with a '/'
 		if 'http:' not in url: url = baseurl + url
-#		print name
 		addDir(clean(name), url, 1, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
@@ -128,7 +126,6 @@ def addDir(name, url, mode, image, is_folder=False):
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=is_folder)
 
-print 'Arguments:', sys.argv
 params = get_params()
 url = None
 mode = None

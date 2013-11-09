@@ -442,8 +442,7 @@ class get_stream_link:
 				if stream_url: return stream_url[0]
 
 	def generic2(self, url):
-		if re.match('.*?&amp', url, re.S):
-			url = re.findall('(^.*?)&amp.*$', url)[0]
+		url = re.sub('[ ]+', '', url)
 		data = self.net.http_GET(url).content
 		if re.match('.*?The file is being converted', data, re.S|re.I): return "Error: Das Video wird aktuell konvertiert"
 		dom = re.findall('flashvars.domain="(.*?)"', data)

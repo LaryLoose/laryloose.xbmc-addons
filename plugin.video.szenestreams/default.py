@@ -87,7 +87,8 @@ def VIDEOLINKS(url, image):
 			addLink(entry, clean(stream), 3, image)
 
 def clean(s):
-	s = htmlparser.unescape(s)
+	try: s = htmlparser.unescape(s)
+	except: print "could not unescape string '%s'"%(s)
 	s = re.sub('<[^>]*>', '', s)
 	s = s.replace('_', ' ')
 	s = re.sub('[ ]+', ' ', s)

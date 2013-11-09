@@ -72,11 +72,11 @@ class get_stream_link:
 		elif hoster == 'streamcloud': return self.streamcloud(link)
 		elif hoster == 'vidstream': return self.vidstream(link)
 		elif hoster == 'xvidstage': return self.xvidstage(link)
-		elif hoster == 'nowvideo': return self.nowvideo(link)
-		elif hoster == 'movshare': return self.movshare(link)
-		elif hoster == 'divxstage': return self.divxstage(link)
 		elif hoster == 'videoweed': return self.videoweed(link)
-		elif hoster == 'novamov': return self.novamov(link)
+		elif hoster == 'nowvideo': return self.generic2(link)
+		elif hoster == 'movshare': return self.generic2(link)
+		elif hoster == 'divxstage': return self.generic2(link)
+		elif hoster == 'novamov': return self.generic2(link)
 		elif hoster == 'primeshare': return self.primeshare(link)
 		elif hoster == 'videomega': return self.videomega(link)
 		elif hoster == 'bitshare': return self.bitshare(link)
@@ -285,8 +285,7 @@ class get_stream_link:
 	def videomega(self, url):
 		if not re.match('.*?iframe.php', url):
 			id = url.split('ref=')
-			if id:
-				url = "http://videomega.tv/iframe.php?ref=%s" % id[1]
+			if id: url = "http://videomega.tv/iframe.php?ref=%s" % id[1]
 		data = self.net.http_GET(url).content
 		unescape = re.findall('unescape."(.*?)"', data, re.S)
 		if unescape:
@@ -305,18 +304,6 @@ class get_stream_link:
 			stream_url = re.findall('url: \'(.*?)\'', data, re.S)
 			if stream_url: return stream_url[2]
 
-	def novamov(self, url):
-		data = self.net.http_GET(url).content
-		file = re.findall('flashvars.file="(.*?)"', data)
-		key = re.findall('flashvars.filekey="(.*?)"', data)
-		if file and key:
-			url = "http://www.novamov.com/api/player.api.php?file=%s&key=%s" % (file[0], key[0])
-			data = self.net.http_GET(url).content
-			ar = re.search('url=(.+?)&title', data)
-			if ar:
-				stream_url = ar.group(1)
-				if stream_url: return stream_url
-
 	def videoweed(self, url):
 		data = self.net.http_GET(url).content
 		r = re.search('flashvars.domain="(.+?)".*flashvars.file="(.+?)".*' + 'flashvars.filekey="(.+?)"', data, re.DOTALL)
@@ -329,46 +316,6 @@ class get_stream_link:
 				if rapi:
 					stream_url = rapi.group(1)
 					if stream_url: return stream_url
-
-	def divxstage(self, url):
-		data = self.net.http_GET(url).content
-		file = re.findall('flashvars.file="(.*?)"', data)
-		key = re.findall('flashvars.filekey="(.*?)"', data)
-		if file and key:
-			url = "http://www.divxstage.eu/api/player.api.php?file=%s&key=%s" % (file[0], key[0])
-			data = self.net.http_GET(url).content
-			if re.match('.*?The video has failed to convert', data, re.S): return "Error: Das Video wurde nicht fehlerfrei konvertiert"
-			rapi = re.search('url=(.+?)&title=', data)
-			if rapi:
-				stream_url = rapi.group(1)
-				if stream_url: return stream_url
-
-	def movshare(self, url):
-		data = self.net.http_GET(url).content
-		if re.match('.*?The file is being converted', data, re.S): return "Error: Das Video wird aktuell konvertiert"
-		file = re.findall('flashvars.file="(.*?)"', data)
-		key = re.findall('flashvars.filekey="(.*?)"', data)
-		if file and key:
-			url = "http://www.movshare.net/api/player.api.php?file=%s&key=%s" % (file[0], key[0])
-			data = self.net.http_GET(url).content
-			rapi = re.search('url=(.+?)&title=', data)
-			if rapi:
-				stream_url = rapi.group(1)
-				if stream_url: return stream_url
-
-
-	def nowvideo(self, url):
-		data = self.net.http_GET(url).content
-		file = re.findall('flashvars.file="(.*?)"', data)
-		key = re.findall('flashvars.filekey="(.*?)"', data)
-		if file and key:
-			url = "http://www.nowvideo.eu/api/player.api.php?file=%s&key=%s" % (file[0], key[0])
-			data = self.net.http_GET(url).content
-			if re.match('.*?The video has failed to convert', data, re.S): return "Error: Das Video wurde nicht fehlerfrei konvertiert"
-			rapi = re.search('url=(.+?)&title=', data)
-			if rapi:
-				stream_url = rapi.group(1)
-				if stream_url: return stream_url
 
 	def vk(self, url):
 		data = self.net.http_GET(url).content
@@ -493,7 +440,28 @@ class get_stream_link:
 				if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 
 				stream_url = re.findall('file: "(.*?)"', data, re.S)
 				if stream_url: return stream_url[0]
-	
+
+	def generic2(self, url):
+		if re.match('.*?&amp', url, re.S):
+			url = re.findall('(^.*?)&amp.*$', url)[0]
+		data = self.net.http_GET(url).content
+		if re.match('.*?The file is being converted', data, re.S|re.I): return "Error: Das Video wird aktuell konvertiert"
+		dom = re.findall('flashvars.domain="(.*?)"', data)
+		file = re.findall('flashvars.file="(.*?)"', data)
+		key = re.findall('flashvars.filekey="(.*?)"', data)
+		if file and not key:
+			varname = re.findall('flashvars.filekey=(.*?);', data)
+			if varname: key = re.findall('var[ ]+%s="(.*?)"'%(varname[0]), data)
+		if dom and file and key:
+			url = "%s/api/player.api.php?file=%s&key=%s"%(dom[0], file[0], key[0])
+			if re.match('.*?The video has failed to convert', data, re.S|re.I): return "Error: Das Video wurde nicht fehlerfrei konvertiert"
+			data = self.net.http_GET(url).content
+			rapi = re.search('url=([^&]+)&title=', data)
+			if rapi:
+				stream_url = rapi.group(1)
+				if stream_url: return stream_url
+		else: return "Error: Video wurde nicht gefunden"
+				
 	def flashx(self, url):
 		print 'flashx: ' + url
 		resp = self.net.http_GET(url)

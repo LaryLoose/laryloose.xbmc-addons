@@ -19,3 +19,6 @@
 
 0.3.5
 * bugfix Vidstream resolver
+
+0.3.6
+* Aktualisierung Resolver für nowvideo, movshare, divxstage, novamov

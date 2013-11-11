@@ -37,7 +37,6 @@ def UPDATES(url):
 			addDir(clean(title), url, 2, image, True)
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
-
 def INDEX(url):
 	global itemcnt
 	nextPageUrl = re.sub('-[\d]+$', '', url)
@@ -72,15 +71,17 @@ def VIDEOLINKS(url, image):
 	if streams:
 		for (filename, stream) in streams:
 			if 'adf.ly' in stream:
-				print 'resolving adfly url: ' + stream
-				stream = get_stream_link().get_adfly_link(stream)
+				stream1 = get_stream_link().get_adfly_link(stream)
+				if '000webhost.com' in stream1: stream = get_stream_link().get_adfly_link_2(stream)
+				else: stream = stream1
 			hoster = get_stream_link().get_hostername(stream)
 			if filterUnknownHoster and hoster == 'Not Supported': continue
 			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename
 			addLink(entry, htmlparser.unescape(stream), 3, image)
 
 def clean(s):
-	s = htmlparser.unescape(s)
+	try: s = htmlparser.unescape(s)
+	except: print "could not unescape string '%s'"%(s)
 	s = re.sub('<[^>]*>', '', s)
 	s = s.replace('_', ' ')
 	s = re.sub('[ ]+', ' ', s)
@@ -90,8 +91,8 @@ def clean(s):
 	return s.strip('\n').strip()
 
 def extractFilename(path):
-    path = re.sub('^.*/', '',clean(path)).replace('.html', '').replace('_', ' ')
-    return re.sub('\.[a-zA-Z]{3}', '', path)
+	path = re.sub('^.*/', '',clean(path)).replace('.html', '').replace('_', ' ')
+	return re.sub('\.[a-zA-Z]{3}', '', path)
 
 def GETLINK(url):
 	stream_url = get_stream_link().get_stream(url)
@@ -117,7 +118,7 @@ def getUrl(url):
 	response = urllib2.urlopen(req)
 	data=response.read()
 	response.close()
-	return data
+	return data.decode('utf-8')
 
 def get_params():
 	param=[]

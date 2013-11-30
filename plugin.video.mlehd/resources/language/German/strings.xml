@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
   <string id="30001">Nächste Seite</string>
+  <string id="30100">Benutzername</string>
+  <string id="30101">Passwort</string>
   <string id="30102">View erzwingen</string>
   <string id="30103">ViewID</string>
   <string id="30104">Max Einträge pro Seite</string>

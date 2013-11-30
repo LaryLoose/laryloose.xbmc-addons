@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
+import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc, cookielib
 from jsunpacker import cJsUnpacker
 
 pluginhandle = int(sys.argv[1])
@@ -10,8 +10,12 @@ settings = xbmcaddon.Addon(id='plugin.video.mlehd')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*24
 forceViewMode = settings.getSetting("forceViewMode") == 'true'
 viewMode = str(settings.getSetting("viewMode"))
+userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
+cookieFile = xbmc.translatePath( "special://home/addons/plugin.video.mlehd/resources/cookie.dat");
 
 def CATEGORIES():
+	if not settings.getSetting('username'):
+		settings.openSettings()
 	data = getUrl(baseurl)
 	cats = re.findall('<li[^>]*class="cat-item cat-item[^>]+>[^<]*<a href="(.*?)"[^>]*>([^<]*)</a>', data, re.S|re.I)
 	addDir('Letzte Updates', baseurl, 1, '', True)
@@ -90,10 +94,40 @@ def getVideoFromIframe(url):
 	if not stream_url: stream_url = re.findall("file:[ ]*'(.*?)'", data)
 	return stream_url[0] if stream_url else ''
 
+def getCookie():
+	cookie = cookielib.LWPCookieJar(cookieFile)
+	try:
+		cookie.revert(ignore_discard = True) 
+		#print "cached cookies found"
+		for c in cookie:
+			if c.name.startswith("wordpress_logged_in"):
+				#print "auth cookie found"
+				return cookie
+	except IOError:
+		print "IOError at loading session cookie"
+		pass
+		
+	cookie.clear()
+	postData = {
+		'log' : settings.getSetting('username'),
+		'pwd' : settings.getSetting('password'),
+		'nd_login' : 'true',
+		'rememberme' : 'forever',
+		'redirect_to' : baseurl
+	}
+	
+	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
+	opener.addheaders = [('User-Agent', userAgent), ('Referer', baseurl), ('X-Requested-With', 'XMLHttpRequest')]
+	response = opener.open(baseurl, urllib.urlencode(postData))
+	cookie.save(ignore_discard = True)
+	print 'session cookie saved'
+	response.close()
+	return cookie
+
 def getUrl(url):
-	req = urllib2.Request(url)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	response = urllib2.urlopen(req)
+	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(getCookie()))
+	opener.addheaders = [('User-Agent', userAgent), ('Referer', url) ]
+	response = opener.open(url)	
 	data = response.read()
 	response.close()
 	return data.decode('utf-8')

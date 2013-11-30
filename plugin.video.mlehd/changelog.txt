@@ -1,14 +1,12 @@
+0.1.5
+	- login implemented
 0.1.4
-* update navigation changes
-
+	- update navigation changes
 0.1.3
-* bugfix iframes
-
+	- bugfix iframes
 0.1.2
-* support of multiple episodes per main entry
-
+	- support of multiple episodes per main entry
 0.1.1
-* add new local player
-
+    - add new local player
 0.1.0
-* First Try
+    - First Try

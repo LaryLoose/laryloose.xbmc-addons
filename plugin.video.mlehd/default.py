@@ -72,8 +72,15 @@ def PLAYVIDEO(url):
 		if iframes:
 			for iframe in iframes:
 				videos.append(getVideoFromIframe(iframe))
+		else:
+			videos = re.findall('<embed[^>]*divx[^>]*src="([^"]+)"', data, re.S|re.I)
 
-	url = selectVideoDialog(videos) if len(videos) > 1 else videos[0]
+	lv = len(videos)
+	if lv == 0:
+		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
+		return
+	
+	url = selectVideoDialog(videos) if lv > 1 else videos[0]
 
 	if 'playlist-controller' in url:
 		playlist = getUrl(url)
@@ -101,21 +108,14 @@ def getCookie():
 		#print "cached cookies found"
 		for c in cookie:
 			if c.name.startswith("wordpress_logged_in"):
-				#print "auth cookie found"
+				print "auth cookie found"
 				return cookie
 	except IOError:
 		print "IOError at loading session cookie"
 		pass
-		
+
 	cookie.clear()
-	postData = {
-		'log' : settings.getSetting('username'),
-		'pwd' : settings.getSetting('password'),
-		'nd_login' : 'true',
-		'rememberme' : 'forever',
-		'redirect_to' : baseurl
-	}
-	
+	postData = { 'log' : settings.getSetting('username'), 'pwd' : settings.getSetting('password'), 'nd_login' : 'true', 'rememberme' : 'forever', 'redirect_to' : baseurl }
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 	opener.addheaders = [('User-Agent', userAgent), ('Referer', baseurl), ('X-Requested-With', 'XMLHttpRequest')]
 	response = opener.open(baseurl, urllib.urlencode(postData))
@@ -130,7 +130,7 @@ def getUrl(url):
 	response = opener.open(url)	
 	data = response.read()
 	response.close()
-	return data.decode('utf-8')
+	return data#.decode('utf-8')
 
 def get_params():
 	param = []

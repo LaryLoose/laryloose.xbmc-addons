@@ -1,3 +1,5 @@
+0.1.8
+  - login fixed
 0.1.7
   - categories fixed
 0.1.6

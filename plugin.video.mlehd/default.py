@@ -6,12 +6,13 @@ from jsunpacker import cJsUnpacker
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://mle-hd.se/'
+loginurl = baseurl + 'wp-login.php'
 settings = xbmcaddon.Addon(id='plugin.video.mlehd')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*24
 forceViewMode = settings.getSetting("forceViewMode") == 'true'
 viewMode = str(settings.getSetting("viewMode"))
 userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
-cookieFile = xbmc.translatePath( "special://home/addons/plugin.video.mlehd/resources/cookie.dat");
+cookieFile = xbmc.translatePath( "special://home/userdata/addon_data/plugin.video.mlehd/cookie.dat");
 
 def CATEGORIES():
 	if not settings.getSetting('username'):
@@ -60,6 +61,7 @@ def selectVideoDialog(videos):
 
 def PLAYVIDEO(url):
 	data = getUrl(url)
+	if not data: return
 	videos = []
 	proplayer = re.findall('id="(?:mediaspace|containingBlock)"(.*)</script>', data, re.S|re.I)
 	if proplayer:
@@ -89,6 +91,7 @@ def PLAYVIDEO(url):
 
 def getVideoFromIframe(url):
 	data = getUrl(url)
+	if not data: return
 	stream_url = ''
 	get_packedjava = re.findall('<script type=.text.javascript.>eval.function(.*?)</script>', data, re.S|re.DOTALL)
 	if get_packedjava:
@@ -112,17 +115,25 @@ def getCookie():
 		pass
 
 	cookie.clear()
-	postData = { 'log' : settings.getSetting('username'), 'pwd' : settings.getSetting('password'), 'nd_login' : 'true', 'rememberme' : 'forever', 'redirect_to' : baseurl }
+	cookie.set_cookie(cookielib.Cookie(version=0, name='wordpress_test_cookie', value='WP+Cookie+check', port=None, port_specified=False, domain='mle-hd.se', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False))
+	postData = { 'log' : settings.getSetting('username'), 'pwd' : settings.getSetting('password'), 'wp-submit' : 'Anmelden', 'testcookie' : '1', 'redirect_to' : baseurl }
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
-	opener.addheaders = [('User-Agent', userAgent), ('Referer', baseurl), ('X-Requested-With', 'XMLHttpRequest')]
-	response = opener.open(baseurl, urllib.urlencode(postData))
+	opener.addheaders = [('User-Agent', userAgent), ('Referer', loginurl)]
+	response = opener.open(loginurl, urllib.urlencode(postData))
 	cookie.save(ignore_discard = True)
-	print 'session cookie saved'
 	response.close()
-	return cookie
+	for c in cookie:
+		if c.name.startswith("wordpress_logged_in"):
+			print 'auth cookie saved'
+			return cookie
+	return
 
 def getUrl(url):
-	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(getCookie()))
+	cookie = getCookie()
+	if not cookie:
+		xbmc.executebuiltin("XBMC.Notification(Fehler!, Anmeldung war nicht erfolgreich, 4000)")
+		return
+	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 	opener.addheaders = [('User-Agent', userAgent), ('Referer', url) ]
 	response = opener.open(url)	
 	data = response.read()

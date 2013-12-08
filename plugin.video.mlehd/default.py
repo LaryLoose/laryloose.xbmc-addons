@@ -17,13 +17,11 @@ def CATEGORIES():
 	if not settings.getSetting('username'):
 		settings.openSettings()
 	data = getUrl(baseurl)
-	cats = re.findall('<li[^>]*class="cat-item cat-item[^>]+>[^<]*<a href="(.*?)"[^>]*>([^<]*)</a>', data, re.S|re.I)
+	cats = re.findall('<option[^>]*class="level-0"[^>]*value="([^"]*)">([^<]*)</option>', data, re.S|re.I)
 	addDir('Letzte Updates', baseurl, 1, '', True)
-	for (url, name) in cats:
-		#if re.match('.*Filme.*A-Z.*', name): continue #skip 'Filme A-Z'
-		#name = re.sub('Kom.*?dien', 'Komödien', name) #ugly workaround for unicode literals in this string
-		name = re.sub('[ ]*/[ ]*', ' / ', name)       #normalize all entries with a '/'
-		if 'http:' not in url: url = baseurl + url
+	for (value, name) in cats:
+		name = re.sub('[ ]*/[ ]*', ' / ', name) #normalize all entries with a '/'
+		url = baseurl + '?cat=' + value
 		addDir(clean(name), url, 1, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
@@ -79,7 +77,6 @@ def PLAYVIDEO(url):
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
 		return
-	
 	url = selectVideoDialog(videos) if lv > 1 else videos[0]
 
 	if 'playlist-controller' in url:
@@ -130,7 +127,7 @@ def getUrl(url):
 	response = opener.open(url)	
 	data = response.read()
 	response.close()
-	return data#.decode('utf-8')
+	return data.decode('utf-8')
 
 def get_params():
 	param = []

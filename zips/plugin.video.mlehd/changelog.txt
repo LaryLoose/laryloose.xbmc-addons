@@ -1,3 +1,5 @@
+0.1.7
+  - categories fixed
 0.1.6
   - add support for divx player
 0.1.5

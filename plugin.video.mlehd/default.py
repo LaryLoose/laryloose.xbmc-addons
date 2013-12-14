@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc, cookielib
+import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc, cookielib, time
 from jsunpacker import cJsUnpacker
 
 pluginhandle = int(sys.argv[1])
@@ -109,14 +109,17 @@ def getCookie():
 		for c in cookie:
 			if c.name.startswith("wordpress_logged_in"):
 				print "auth cookie found"
-				return cookie
+				if c.expires > time.time():
+					print "auth cookie is valid"
+					return cookie
+
 	except IOError:
 		print "IOError at loading session cookie"
 		pass
 
 	cookie.clear()
 	cookie.set_cookie(cookielib.Cookie(version=0, name='wordpress_test_cookie', value='WP+Cookie+check', port=None, port_specified=False, domain='mle-hd.se', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False))
-	postData = { 'log' : settings.getSetting('username'), 'pwd' : settings.getSetting('password'), 'wp-submit' : 'Anmelden', 'testcookie' : '1', 'redirect_to' : baseurl }
+	postData = { 'log' : settings.getSetting('username'), 'pwd' : settings.getSetting('password'), 'wp-submit' : 'Anmelden', 'testcookie' : '1', 'redirect_to' : baseurl, 'nd_login' : 'true', 'rememberme' : 'forever' }
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 	opener.addheaders = [('User-Agent', userAgent), ('Referer', loginurl)]
 	response = opener.open(loginurl, urllib.urlencode(postData))
@@ -138,6 +141,10 @@ def getUrl(url):
 	response = opener.open(url)	
 	data = response.read()
 	response.close()
+	#if re.match('.*?Hallo lieber Gast', data, re.I):
+	#	print "delete inavlid cookie"
+	#	try: os.remove(cookieFile)
+	#	except IOError: pass	
 	return data.decode('utf-8')
 
 def get_params():

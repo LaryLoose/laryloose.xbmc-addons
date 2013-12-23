@@ -99,7 +99,7 @@ def getElements(entry):
 
 def getFolders():
 	folders = []
-	match = re.compile('>BILD.TV<(.+?)</nav>', re.DOTALL).findall(getUrl(startpage))
+	match = re.compile('>Video<(.+?)</nav>', re.DOTALL).findall(getUrl(startpage))
 	match = re.compile('(<li>[^<]*?<a href="[^<]+?"[^<]*?>[^<]*?</a>[^<]*?<ol.+?</ol>[^<]*?</li>)|(<li>[^<]*?<a href="[^<]+?"[^<]*?>[^<]*?</a>[^<]*?</li>)', re.DOTALL).findall(match[0])
 	for i in range(0, len(match), 1):
 		if match[i][0] != '':

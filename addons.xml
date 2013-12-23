@@ -51,7 +51,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.1.6" provider-name="AddonScriptorDE / Lary_Loose">
+<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.1.7" provider-name="Lary_Loose">
     <requires>
         <import addon="xbmc.python" version="2.0"/>
         <import addon="script.common.plugin.cache" version="0.9.1"/>

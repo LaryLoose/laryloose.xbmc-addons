@@ -61,6 +61,24 @@ def getStream_Uploadnet(url):
 	stream_url = re.findall('file["\']*:[^"\']*["\']([^"\']*)["\']', data)
 	if stream_url:
 		return stream_url[0]
+
+def getStream_Divxpress(url):
+	from t0mm0.common.net import Net
+	from jsunpacker import cJsUnpacker
+	net = Net()
+	data = net.http_GET(url).content
+	info = {}
+	for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^">]*)"[^>]*>', data):
+		info[i.group(1)] = i.group(2)
+	if len(info) == 0: 
+		print 'Error: could not find login data'
+		return
+	data = net.http_POST(url, info).content
+	for packedjava in re.findall('javascript["\']*>eval.function(.*?)</script>', data, re.S|re.DOTALL):
+		sUnpacked = cJsUnpacker().unpackByString(packedjava)
+		stream_url = re.findall("file','(.*?)'", sUnpacked)
+	if stream_url:
+		return stream_url[0]
 	
 def getStream_Mightyupload(url):
 	data = getUrl(url)
@@ -71,18 +89,34 @@ def getStream_Mightyupload(url):
 	if stream_url:
 		return stream_url[0]
 
+def selectVideoDialog(videos):
+	titles = []
+	for i in range(0, len(videos)):
+		print videos[i][0]
+		titles.append(videos[i][0])
+	idx = xbmcgui.Dialog().select("", titles)
+	return videos[idx][1]
+	
 def VIDEOLINKS(url):
 	content = getUrl(url)
-	match = re.compile('(http://www.uploadnetwork.eu/embed-.*?.html)').findall(content)
-	if match: 
-		print "found player: " + match[0]
-		stream_url = getStream_Uploadnet(match[0])
+	players = []
+	for match in re.compile('(http://www.uploadnetwork.eu/embed-.*?.html)').findall(content):
+		print "found player: " + match
+		players.append(('Uploadnetwork', getStream_Uploadnet(match)))
+	for match in re.compile('(http://www.mightyupload.com/embed-.*?.html)').findall(content):
+		print "found player: " + match
+		players.append(('Uploadnetwork', getStream_Mightyupload(match)))
+	for match in re.compile('(http://www.divxpress.com/embed-.*?.html)').findall(content):
+		print "found player: " + match
+		players.append(('Uploadnetwork', getStream_Divxpress(match)))
+	
+	lv = len(players)
+	if lv == 0:
+		xbmc.executebuiltin("XBMC.Notification(Fehler!, Kein passender Player gefunden, 4000)")
+		print content
+		return
 	else:
-		match = re.compile('(http://www.mightyupload.com/embed-.*?.html)').findall(content)
-		if match:
-			print "found player: " + match[0]
-			stream_url = getStream_Mightyupload(match[0])
-	if stream_url:
+		stream_url = selectVideoDialog(players) if lv > 1 else players[0][1]
 		listitem = xbmcgui.ListItem(path = stream_url)
 		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
 

@@ -120,7 +120,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.streamoase_ll" version="1.1.0" name="Streamoase" provider-name="lary_loose">
+<addon id="plugin.video.streamoase_ll" version="1.1.2" name="Streamoase" provider-name="lary_loose">
   <requires>
    <import addon="xbmc.python" version="2.0"/>
    <import addon="script.module.t0mm0.common" version="1.1.0"/>

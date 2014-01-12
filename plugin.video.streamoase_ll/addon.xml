@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.streamoase_ll" version="1.1.0" name="Streamoase" provider-name="lary_loose">
+  <requires>
+   <import addon="xbmc.python" version="2.0"/>
+   <import addon="script.module.t0mm0.common" version="1.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+   <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Watch HD-Movies from streamoase</summary>
+    <description></description>
+    <platform>all</platform>
+  </extension>
+</addon>

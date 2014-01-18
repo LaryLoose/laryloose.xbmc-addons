@@ -19,23 +19,12 @@ def CATEGORIES(idx):
 	cats = re.findall('<a[^>]*class="load"[^>]*>(.*?)</ul>', data, re.S|re.I|re.DOTALL)
 	cats = re.findall('<li[^>]*>.*?<a[^>]*href="([^"]*?)"[^>]*?>([^<]*?)</a>', cats[idx], re.S|re.I|re.DOTALL)
 	if (idx == 0):
-		addDir('Letzten 30 Filme', baseurl, 4, '', True)
+		addDir('Neueste Filme', baseurl+'/load/0-1', 1, '', True)
 		#addDir('Serien', baseurl, 0, '', True)
 	for (url, name) in cats:
 	    if 'http:' not in url: url =  baseurl + url
 	    addDir(name, url, 1, '', True)
 	xbmc.executebuiltin("Container.SetViewMode(400)")
-
-def UPDATES(url):
-	print url
-	data = getUrl(url)
-	updhtm = re.findall('30lastmovies.png(.*?)"jv-content-inner"', data, re.I|re.S|re.DOTALL)
-	movies = re.findall('<a[^>]*>([^<]*)</a>.*?<a href="([^"]*)"><img src="([^"]*)".*?<a', updhtm[0], re.I|re.S|re.DOTALL)
-	if movies:
-		for (title, url, image) in movies:
-			if 'http:' not in url: url =  baseurl + url
-			addDir(clean(title), url, 2, image, True)
-	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
 def INDEX(url):
 	global itemcnt
@@ -60,14 +49,8 @@ def INDEX(url):
 def VIDEOLINKS(url, image):
 	print url
 	data = getUrl(url)
-	streams = []
-	objects = re.findall('<span[^>]*style="color[^>]*><div[^>]*>[^<]*<b>([^<]*)</b>[^<]*</div>[^<]*</span>[^<]*<div[^>]*><object[^>]*>(.*?)</object>', data, re.S|re.I|re.DOTALL)
-	if objects: 
-		for name, obj in objects:
-			file = re.findall('<param[^>]*name="flashvars"[^>]*value="[^"]*file=([^"]*?)&amp;[^"]*"', obj, re.S|re.I|re.DOTALL)
-			if file: streams += [(name, urllib.unquote_plus(file[0]))]
-	streams += re.findall('<span[^>]*style="color[^>]*>[^<]*<div[^>]*>[^<]*<b>([^<]*)</b>[^<]*</div>[^<]*</span>[^<]*<div[^>]*>[^<]*<iframe[^>]*src="([^"]*)"[^>]*>[^<]*</iframe>', data, re.S|re.I|re.DOTALL)
-	streams += re.findall('<span[^>]*style="color[^>]*><div[^>]*>[^<]*<b>([^<]*)</b>[^<]*</div>[^<]*</span>[^<]*<div[^>]*><a[^>]*href="([^"]*)"', data, re.S|re.I|re.DOTALL)
+	streams = []	
+	streams += re.findall('<span class="jv-title">([^<]*)</span>.*?<iframe[^>]*src="([^"]*)"[^>]*>[^<]*</iframe>', data, re.S|re.I|re.DOTALL)
 	if streams:
 		for (filename, stream) in streams:
 			if 'adf.ly' in stream:
@@ -118,7 +101,7 @@ def getUrl(url):
 	response = urllib2.urlopen(req)
 	data=response.read()
 	response.close()
-	return data.decode('utf-8')
+	return data#.decode('utf-8')
 
 def get_params():
 	param=[]
@@ -142,13 +125,13 @@ def addLink(name, url, mode, image):
 	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=image)
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	liz.setProperty('IsPlayable', 'true')
-	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz)
+	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz)
 
 def addDir(name, url, mode, image, is_folder=False):
 	u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&image="+urllib.quote_plus(image)
 	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=image)
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
-	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=is_folder)
+	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz, isFolder=is_folder)
 
 params = get_params()
 url = mode = image = None
@@ -165,6 +148,5 @@ elif mode==0: CATEGORIES(1)
 elif mode==1: INDEX(url)
 elif mode==2: VIDEOLINKS(url, image)
 elif mode==3: GETLINK(url)
-elif mode==4: UPDATES(url)
 
-xbmcplugin.endOfDirectory(int(sys.argv[1]))
+xbmcplugin.endOfDirectory(pluginhandle)

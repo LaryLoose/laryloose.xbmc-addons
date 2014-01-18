@@ -1,3 +1,6 @@
+0.1.5
+* pager parse fix due to site changes
+
 0.1.4
 * add secondary adfly decoder
 * fix utf-8 issues

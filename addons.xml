@@ -117,6 +117,8 @@
         <summary lang="en">MLE-HD (movies live erleben)</summary>
         <description lang="de">HD Filme von mle-hd.se (Movies Live Erleben)</description>
         <description lang="en">HD movies from mle-hd.se (Movies Live Erleben)</description>
+	<broken lang="de">defekt</broken>
+	<broken lang="en">defect</broken>
     </extension>
 </addon>
 

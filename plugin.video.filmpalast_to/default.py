@@ -112,7 +112,7 @@ def getUrl(url):
 	response = urllib2.urlopen(req, timeout=30)
 	data = response.read()
 	response.close()
-	return data#.decode('utf-8')
+	return data.decode('utf-8')
 
 def get_params():
 	param = []

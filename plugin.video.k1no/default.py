@@ -12,18 +12,16 @@ maxitems = (int(settings.getSetting("items_per_page"))+1)*10
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
 forceMovieViewMode = settings.getSetting("forceMovieViewMode") == 'true'
 movieViewMode = str(settings.getSetting("movieViewMode"))
-dbg = False
+dbg = True
 
 def CATEGORIES(idx):
-	data = getUrl(baseurl)
-	cats = re.findall('<a[^>]*class="load"[^>]*>(.*?)</ul>', data, re.S|re.I|re.DOTALL)
-	cats = re.findall('<li[^>]*>.*?<a[^>]*href="([^"]*?)"[^>]*?>([^<]*?)</a>', cats[idx], re.S|re.I|re.DOTALL)
-	if (idx == 0):
-		addDir('Neueste Filme', baseurl+'/load/0-1', 1, '', True)
-		#addDir('Serien', baseurl, 0, '', True)
-	for (url, name) in cats:
-	    if 'http:' not in url: url =  baseurl + url
-	    addDir(name, url, 1, '', True)
+	data = getUrl(baseurl+'/load')
+	addDir('Neueste Filme', baseurl+'/load/0-1', 1, '', True)
+	#addDir('Serien', baseurl, 0, '', True)
+	for cats in re.findall('<table[^>]*class="catsTable"[^>]*>(.*?)</table>', data, re.S|re.I|re.DOTALL):
+		for url, name in re.findall('<a[^>]*href="([^"]+)"[^>]*class="catName"[^>]*>([^<]*)</a>', cats, re.S|re.I|re.DOTALL):
+			if 'http:' not in url: url =  baseurl + url
+			addDir(name, url, 1, '', True)
 	xbmc.executebuiltin("Container.SetViewMode(400)")
 
 def INDEX(url):
@@ -31,20 +29,22 @@ def INDEX(url):
 	nextPageUrl = re.sub('-[\d]+$', '', url)
 	print url
 	data = getUrl(url)
-	updates = re.findall('', data, re.I|re.S|re.DOTALL)
-	movies = re.findall('<div[^>]*class="grid"[^>]*>.*?<a[^>]*>[^<]*<span[^>]*>([^<]*)<.*?<div class="grid-col">[^<]*<a href="([^"]*)"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*>', data, re.I|re.S|re.DOTALL)
-	if movies:
-		for (title, url, image) in movies:
-			if 'http:' not in url: url =  baseurl + url
-			addDir(clean(title), url, 2, image, True)
-			itemcnt = itemcnt + 1
+	for (title, url, image) in re.findall('<div[^>]*class="grid"[^>]*>.*?<a[^>]*>[^<]*<span[^>]*>([^<]*)<.*?<div class="grid-col">[^<]*<a href="([^"]*)"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*>', data, re.I|re.S|re.DOTALL):
+		if 'http:' not in url: url =  baseurl + url
+		addLink(clean(title), url, 10, image)
+		itemcnt = itemcnt + 1
 	nextPage = re.findall('<a class="swchItem"[^>]*? onclick="spages\(\'(\d+)\'[^>]*?"><span>&raquo;</span></a>', data, re.S)
 	if nextPage:
-		if itemcnt >= maxitems:
-		    addDir('Weiter >>', nextPageUrl + '-' + nextPage[0], 1, '',  True)
-		else:
-		    INDEX(nextPageUrl + '-' + nextPage[0])
+		if itemcnt >= maxitems: addDir('Weiter >>', nextPageUrl + '-' + nextPage[0], 1, '',  True)
+		else: INDEX(nextPageUrl + '-' + nextPage[0])
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
+
+def selectVideoDialog(videos):
+	titles = []
+	for name, src in videos:
+		titles.append(name)
+	idx = xbmcgui.Dialog().select("", titles)
+	return videos[idx][1]
 
 def VIDEOLINKS(url, image):
 	print url
@@ -62,22 +62,31 @@ def VIDEOLINKS(url, image):
 			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename
 			addLink(entry, htmlparser.unescape(stream), 3, image)
 
-def clean(s):
-	try: s = htmlparser.unescape(s)
-	except: print "could not unescape string '%s'"%(s)
-	s = re.sub('<[^>]*>', '', s)
-	s = s.replace('_', ' ')
-	s = re.sub('[ ]+', ' ', s)
-	for hit in set(re.findall("&#\d+;", s)):
-		try: s = s.replace(hit, unichr(int(hit[2:-1])))
-		except ValueError: pass
-	return s.strip('\n').strip()
+def PLAYVIDEO(url):
+	print url
+	data = getUrl(url)
+	if not data: return
+	videos = []
+	for stream in re.findall('freevideocoding\.com.flvplayer\.swf\?file=([^>"\'&]*)["&\']', data, re.S|re.I|re.DOTALL):
+		videos += [('freevideocoding', cleanUrl(stream))]
+	for stream in re.findall('<iframe[^>"]*src="([^"]*)"', data, re.S|re.I|re.DOTALL):
+		stream = cleanUrl(stream)
+		hoster = get_stream_link().get_hostername(stream)
+		if hoster == 'Not Supported': continue
+		videos += [(hoster, stream)]
+	lv = len(videos)
+	if lv == 0:
+		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
+		return
+	url = selectVideoDialog(videos) if lv > 1 else videos[0][1]
+	stream_url = GetStream(url)
+	if stream_url:
+		print 'open stream: ' + stream_url
+		listitem = xbmcgui.ListItem(path=stream_url)
+		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
 
-def extractFilename(path):
-	path = re.sub('^.*/', '',clean(path)).replace('.html', '').replace('_', ' ')
-	return re.sub('\.[a-zA-Z]{3}', '', path)
-
-def GETLINK(url):
+def GetStream(url):
+	if 'vk.kinoxx.org' in url: return url
 	stream_url = get_stream_link().get_stream(url)
 	if stream_url is None:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Resolver liefert leeres Ergebnis, 4000)")
@@ -91,9 +100,23 @@ def GETLINK(url):
 		response = urllib2.urlopen(req)
 		stream_url = response.geturl()
 		response.close()
-		print 'open stream: ' + stream_url
-		listitem = xbmcgui.ListItem(path=stream_url)
-		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
+		return stream_url
+
+def cleanUrl(s):
+	try: s = htmlparser.unescape(s)
+	except: print "could not unescape string '%s'"%(s)
+	return s.strip('\n').strip()
+
+def clean(s):
+	try: s = htmlparser.unescape(s)
+	except: print "could not unescape string '%s'"%(s)
+	s = re.sub('<[^>]*>', '', s)
+	s = s.replace('_', ' ')
+	s = re.sub('[ ]+', ' ', s)
+	for hit in set(re.findall("&#\d+;", s)):
+		try: s = s.replace(hit, unichr(int(hit[2:-1])))
+		except ValueError: pass
+	return s.strip('\n').strip()
 
 def getUrl(url):
 	req = urllib2.Request(url)
@@ -146,7 +169,6 @@ except: pass
 if mode==None or url==None or len(url)<1: CATEGORIES(0)
 elif mode==0: CATEGORIES(1)
 elif mode==1: INDEX(url)
-elif mode==2: VIDEOLINKS(url, image)
-elif mode==3: GETLINK(url)
+elif mode==10: PLAYVIDEO(url)
 
 xbmcplugin.endOfDirectory(pluginhandle)

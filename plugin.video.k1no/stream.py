@@ -1,4 +1,4 @@
-import re, urllib2, cookielib, time, xbmcgui, socket, xbmc, os
+import re, urllib, urllib2, cookielib, time, xbmcgui, socket, xbmc, os
 from urllib2 import Request, URLError, urlopen as urlopen2
 from urlparse import parse_qs
 from urllib import quote, urlencode
@@ -259,6 +259,7 @@ class get_stream_link:
 			else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def youwatch(self, url):
+		print url
 		data = self.net.http_GET(url).content
 		stream_url = self.get_stream_url(data)
 		if not stream_url:
@@ -266,6 +267,14 @@ class get_stream_link:
 			if get_packedjava:
 				sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
 				stream_url = self.get_stream_url(sUnpacked)
+		if not stream_url:
+			info = {'imhuman' : 'Slow Download', 'method_premium' : ''}
+			header = {'referer' : url}
+			for i in re.finditer('<input type="hidden".*?name="([^"]*)".*?value="([^"]*)">', data):
+				info[i.group(1)] = i.group(2)
+			print info
+			data = self.net.http_POST(url, info, header).content
+			print data
 		if stream_url: return stream_url
 		else: return 'Error: Konnte Datei nicht extrahieren'
 		
@@ -337,15 +346,13 @@ class get_stream_link:
 		data = self.net.http_GET(url).content
 		vars = re.findall('<param[^>]*name="flashvars"[^>]*value="([^"]*)"', data, re.I|re.S|re.DOTALL)
 		if vars:
-			urls = re.findall('url([0-9]+)=([^&]*)&', vars[0], re.I|re.S|re.DOTALL)
-			if urls:
-				maxres = 0
-				maxurl = ''
-				for (res, url) in urls:
-					if (int(res) > maxres):
-						maxres = int(res)
-						maxurl = url
-				return maxurl
+			maxres = 0
+			maxurl = ''
+			for (res, url) in re.findall('url([0-9]+)=([^&]*)&', vars[0], re.I|re.S|re.DOTALL):
+				if (int(res) > maxres):
+					maxres = int(res)
+					maxurl = url
+			return maxurl
 
 	def xvidstage(self, url):
 		data = self.net.http_GET(url).content
@@ -385,6 +392,7 @@ class get_stream_link:
 		info = {}
 		print url
 		if re.match('.*?No such file with this filename', data, re.S|re.I): return 'Error: Dateiname nicht bekannt'
+		if re.match('.*?file[^<]*not be found', data, re.S|re.I): return 'Error: Datei nicht gefunden'
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2).replace('download1', 'download2')
 		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'

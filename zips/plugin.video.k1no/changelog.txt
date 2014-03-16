@@ -1,3 +1,7 @@
+0.1.7
+* add new player
+* clean wrong quoted URLs
+
 0.1.6
 * rework due to site changes
 

@@ -46,27 +46,13 @@ def selectVideoDialog(videos):
 	idx = xbmcgui.Dialog().select("", titles)
 	return videos[idx][1]
 
-def VIDEOLINKS(url, image):
-	print url
-	data = getUrl(url)
-	streams = []	
-	streams += re.findall('<span class="jv-title">([^<]*)</span>.*?<iframe[^>]*src="([^"]*)"[^>]*>[^<]*</iframe>', data, re.S|re.I|re.DOTALL)
-	if streams:
-		for (filename, stream) in streams:
-			if 'adf.ly' in stream:
-				stream1 = get_stream_link().get_adfly_link(stream)
-				if '000webhost.com' in stream1: stream = get_stream_link().get_adfly_link_2(stream)
-				else: stream = stream1
-			hoster = get_stream_link().get_hostername(stream)
-			if filterUnknownHoster and hoster == 'Not Supported': continue
-			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename
-			addLink(entry, htmlparser.unescape(stream), 3, image)
-
 def PLAYVIDEO(url):
 	print url
 	data = getUrl(url)
 	if not data: return
 	videos = []
+	for (host, stream) in re.findall('<object[^>]*data="([^"]*)/[^"]*"[^>]*>.*?<param[^>]*value="flv=([^"&;]*)', data, re.S|re.I|re.DOTALL):
+		videos += [(host, cleanUrl(stream))]
 	for stream in re.findall('freevideocoding\.com.flvplayer\.swf\?file=([^>"\'&]*)["&\']', data, re.S|re.I|re.DOTALL):
 		videos += [('freevideocoding', cleanUrl(stream))]
 	for stream in re.findall('<iframe[^>"]*src="([^"]*)"', data, re.S|re.I|re.DOTALL):
@@ -105,6 +91,10 @@ def GetStream(url):
 def cleanUrl(s):
 	try: s = htmlparser.unescape(s)
 	except: print "could not unescape string '%s'"%(s)
+	s = urllib2.unquote(s)
+	if 'http' in s:
+	    s = re.sub('http.*?//','',s)
+	    s = 'http://' + urllib2.quote(s)
 	return s.strip('\n').strip()
 
 def clean(s):

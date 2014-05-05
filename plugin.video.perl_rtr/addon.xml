@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.perl_rtr" name="Rudolphs Technik Ratgeber" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.perl_rtr" name="Rudolphs Technik Ratgeber" version="0.1.1" provider-name="Lary_Loose">
     <requires>
-        <import addon="xbmc.python" version="2.0"/>
-		<import addon="script.common.plugin.cache" version="0.9.1"/>
+	<import addon="script.common.plugin.cache" version="0.9.1"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides>

@@ -40,7 +40,6 @@ def INDEX(caturl):
 	print caturl
 	global itemcnt
 	data = getUrl(caturl)
-	print data
 	for entry in re.findall('id="content"[^>]*>(.+?)<[^>]*id="paging"', data, re.S|re.I):
 		print entry
 		for url, title, image in re.findall('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*src=["\']([^"\']*)["\'][^>]*>', entry, re.S|re.I):
@@ -112,7 +111,7 @@ def getUrl(url):
 	response = urllib2.urlopen(req, timeout=30)
 	data = response.read()
 	response.close()
-	return data.decode('utf-8')
+	return data#.decode('utf-8')
 
 def get_params():
 	param = []

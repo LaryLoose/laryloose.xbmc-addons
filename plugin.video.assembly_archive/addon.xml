@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.assembly_archive" name="Assembly Archive" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.assembly_archive" name="Assembly Archive" version="0.1.1" provider-name="Lary_Loose">
     <requires>
-        <import addon="xbmc.python" version="2.0"/>
         <import addon="plugin.video.youtube" version="3.0.0"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">

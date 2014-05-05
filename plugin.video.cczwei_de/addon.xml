@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.cczwei_de" name="Computerclub Zwei" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.cczwei_de" name="Computerclub Zwei" version="0.1.1" provider-name="Lary_Loose">
     <requires>
-        <import addon="xbmc.python" version="2.0"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides>

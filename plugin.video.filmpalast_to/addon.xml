@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.1" provider-name="Lary_Loose">
     <requires>
-        <import addon="xbmc.python" version="2.0"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>

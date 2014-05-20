@@ -18,6 +18,7 @@ searchInMostClicked = settings.getSetting("searchInMostClicked") == "true"
 viewMode = str(settings.getSetting("viewMode"))
 
 startpage = 'http://www.bild.de'
+videodropdown = 'http://www.bild.de/navi/-35652780,contentContextId=15799990,view=dropdown.bild.html'
 baseurl = 'http://www.bild.de/video/clip/<fid>,zeigeTSLink=true,page=<pn>,isVideoStartseite=true,view=ajax,contentContextId=<cid>.bild.html'
 
 def index():
@@ -34,15 +35,8 @@ def showVideos(params):
 	content = getUrl(url)
 	entrycache = {}
 
-	ins = False
-	for k, v in enumerate(getFolders()):
-		if v[0] == 0:
-			ins = v[2] == name
-		elif ins == True:
-			addDir(cleanTitle(v[2]), v[2] + ';' + startpage + v[1], 'showVideos', '')
-
-	vidrex = '(tb-.+?-videos-.+?)' if searchInMostClicked else '(tb-neueste-videos-.+?)'
-	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',.*?contentContextId=(.+?)\.bild\.html', re.DOTALL).findall(content))):
+	vidrex = '(tb-[^"]+-videos-[^"]+)' if searchInMostClicked else '(tb-neueste-videos-[^"]+)'
+	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',[^"]*contentContextId=([^"]+)\.bild\.html', re.DOTALL).findall(content))):
 		page, pages = 0, 0
 		while page <= pages:
 			url = baseurl
@@ -99,19 +93,11 @@ def getElements(entry):
 
 def getFolders():
 	folders = []
-	match = re.compile('>Video<(.+?)</nav>', re.DOTALL).findall(getUrl(startpage))
-	match = re.compile('(<li>[^<]*?<a href="[^<]+?"[^<]*?>[^<]*?</a>[^<]*?<ol.+?</ol>[^<]*?</li>)|(<li>[^<]*?<a href="[^<]+?"[^<]*?>[^<]*?</a>[^<]*?</li>)', re.DOTALL).findall(match[0])
-	for i in range(0, len(match), 1):
-		if match[i][0] != '':
-			cats = re.compile('<a[^>]*?href="(.*?)"[^>]*?>(.+?)</a>[^<]*?<ol[^>]*?class=".*?">(.*?)</ol>', re.DOTALL).findall(match[i][0])
-			for j in range(0, len(cats), 1):
-				folders.append((0, cats[j][0], cats[j][1]))
-				subcats = re.compile('<a[^>]*?href="(.*?)"[^>]*?>(.+?)</a>', re.DOTALL).findall(cats[j][2])
-				for k in range(0, len(subcats), 1):
-					folders.append((1, subcats[k][0], subcats[k][1]))
-		elif match[i][1] != '':
-			cats = re.compile('<a[^>]*?href="(.*?)"[^>]*?>(.+?)</a>', re.DOTALL).findall(match[i][1])
-			folders.append((0, cats[0][0], cats[0][1]))
+	if dbg: print 'open URL ' + videodropdown
+	content = getUrl(videodropdown)
+	for href, cat in re.compile('<li>[^<]*<a href="(/video[^"]*)"[^<]*>([^<]*)</a>[^<]*</li>', re.DOTALL).findall(content):
+		if dbg: print cat + ' --> ' + href
+		folders.append((0, href, cat))
 	return folders
 
 def playVideo(url):

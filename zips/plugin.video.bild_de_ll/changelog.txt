@@ -1,3 +1,6 @@
+0.1.9
+- fixes due to homepage changes
+
 0.1.5
 - change category 'Bild.TV' to 'Video'
 

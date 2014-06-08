@@ -1,3 +1,8 @@
+0.2.0
+- remove most clicked videos
+- new page limit per request
+- general speed up
+
 0.1.9
 - fixes due to homepage changes
 

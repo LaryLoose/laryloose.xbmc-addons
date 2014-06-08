@@ -2,19 +2,16 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon
 
-#try:
-#    import StorageServer
-#except:
-#    import storageserverdummy as StorageServer
-#cache = StorageServer.StorageServer('plugin.video.bild_de_ll', 24)
-
-dbg = False
+dbg = True #False
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.bild_de_ll')
 translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("forceViewMode") == "true"
 useThumbAsFanart = settings.getSetting("useThumbAsFanart") == "true"
-searchInMostClicked = settings.getSetting("searchInMostClicked") == "true"
+filterBildPlus = settings.getSetting("filterBildPlus") == "true"
+#searchInMostClicked = settings.getSetting("searchInMostClicked") == "true"
+maxViewPages = int(settings.getSetting("maxViewPages"))*2
+if maxViewPages == 0: maxViewPages = 1
 viewMode = str(settings.getSetting("viewMode"))
 
 startpage = 'http://www.bild.de'
@@ -23,41 +20,44 @@ baseurl = 'http://www.bild.de/video/clip/<fid>,zeigeTSLink=true,page=<pn>,isVide
 
 def index():
 	for k, v in enumerate(getFolders()):
-		if v[0] == 0:
-			addDir(cleanTitle(v[2]), v[2] + ';' + startpage + v[1], 'showVideos', '')
+		if v[0] == 0: addDir(cleanTitle(v[2]), startpage + v[1], 'showVideos', '')
 	xbmcplugin.endOfDirectory(pluginhandle)
-	if forceViewMode:
-	    xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
+	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 
-def showVideos(params):
-	name, url = params.split(';')
+def showVideos(url):
 	if dbg: print 'open ' + url
 	content = getUrl(url)
-	entrycache = {}
+	#vidrex = '(tb-[^"]+-videos-[^"]+?)[,]*' if searchInMostClicked else '(tb-neueste-videos-[^"]+?)[,]*'
+	vidrex = '(tb-neueste-videos-[^"]+?)[,]*'
+	find = re.compile('page=([^,]*)', re.DOTALL).findall(url)
+	page = pages = int(find[0]) if len(find) > 0 else 0
+	cnt = 0
 
-	vidrex = '(tb-[^"]+-videos-[^"]+)' if searchInMostClicked else '(tb-neueste-videos-[^"]+)'
 	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',[^"]*contentContextId=([^"]+)\.bild\.html', re.DOTALL).findall(content))):
-		page, pages = 0, 0
 		while page <= pages:
 			url = baseurl
 			url = url.replace("<fid>", fid).replace("<cid>", cid).replace("<pn>", str(page))
-			if dbg: print 'open ' + url
-			content = getUrl(url)
-			spl = content.split('class="hentry')
-			for i in range(1, len(spl), 1):
-				title, url, thumb, bigthumb = getElements(spl[i])
-				if dbg: print 'got title: %s, url: %s, thumb: %s, bigthumb: %s'%(title, url, thumb, bigthumb)
-				if '(Bild-Plus)' in title: continue
-				if not url in entrycache:
-					entrycache[url] = ''
+			if dbg: print 'page: ' + str(page)
+			if cnt >= maxViewPages:
+				if dbg: print 'next page: ' + url
+				addDir('nächste Seite', url, 'showVideos', '')
+				break
+			else:
+				if dbg: print 'open ' + url
+				content = getUrl(url)
+				spl = content.split('class="hentry')
+				for i in range(1, len(spl), 1):
+					title, url, thumb, bigthumb = getElements(spl[i])
+					if dbg: print 'got title: %s, url: %s, thumb: %s, bigthumb: %s'%(title, url, thumb, bigthumb)
+					if filterBildPlus and '(Bild+)' in title: continue
 					addLink(title, url, 'playVideo', thumb, bigthumb)
-			spl = content.split('href="#" data')
-			for i in range(1,len(spl),1):
-				match = re.compile('page=(.+?),', re.DOTALL).findall(spl[i])
-				p = int(match[0]) if len(match)>0 else -1
-				if p > pages:
-					pages = p
-			page = page +1
+				spl = content.split('href="#" data')
+				for i in range(1, len(spl), 1):
+					match = re.compile('page=(.+?),', re.DOTALL).findall(spl[i])
+					p = int(match[0]) if len(match)>0 else -1
+					if p > pages: pages = p
+				page = page +1
+				cnt = cnt+1
 	xbmcplugin.endOfDirectory(pluginhandle)
 	if forceViewMode:
 	    xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
@@ -66,9 +66,7 @@ def getElements(entry):
 	title, url, thumb, bigthumb, date = '', '', '', '', ''
 	match = re.compile('<time[^<]*>(.+?)</time>', re.DOTALL).findall(entry)
 	if match:
-		date = match[0].strip()
-		date = date[:6]
-		title = title + ' ' + date
+		title = match[0].strip()[:6]
 	if 'class="premium' in entry:
 	    title = title + '[COLOR=red] (Bild-Plus)[/COLOR]'
 	match = re.compile('<span class="kicker">(.+?)</span>', re.DOTALL).findall(entry)
@@ -128,7 +126,7 @@ def uniq(input):
 def getUrl(url):
         req = urllib2.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0')
-        response = urllib2.urlopen(req,timeout=30)
+        response = urllib2.urlopen(req, timeout=30)
         link = response.read()
         response.close()
         return link
@@ -149,22 +147,21 @@ def addLink(name, url, mode, iconimage, fanart):
 	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	liz.setProperty('IsPlayable', 'true')
-	if useThumbAsFanart:
-	    liz.setProperty('fanart_image', fanart)
-	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz)
+	if useThumbAsFanart: liz.setProperty('fanart_image', fanart)
+	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz)
 
 def addDir(name, url, mode, iconimage):
-	name = '* ' + name
+	#name = '* ' + name
 	u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode)
 	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
-	return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
+	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz, isFolder=True)
 
 params = parameters_string_to_dict(sys.argv[2])
 mode = params.get('mode')
 url = params.get('url')
-if type(url)==type(str()):
-  url = urllib.unquote_plus(url)
+
+if type(url) == type(str()): url = urllib.unquote_plus(url)
 
 if mode == 'showVideos': showVideos(url)
 elif mode == 'playVideo': playVideo(url)

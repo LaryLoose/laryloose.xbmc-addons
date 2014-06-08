@@ -49,7 +49,7 @@ def showVideos(url):
 				for i in range(1, len(spl), 1):
 					title, url, thumb, bigthumb = getElements(spl[i])
 					if dbg: print 'got title: %s, url: %s, thumb: %s, bigthumb: %s'%(title, url, thumb, bigthumb)
-					if filterBildPlus and '(Bild+)' in title: continue
+					if filterBildPlus and '(Bild-Plus)' in title: continue
 					addLink(title, url, 'playVideo', thumb, bigthumb)
 				spl = content.split('href="#" data')
 				for i in range(1, len(spl), 1):

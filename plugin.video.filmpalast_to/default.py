@@ -15,9 +15,9 @@ viewMode = str(settings.getSetting("viewMode"))
 userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
 
 def START():
-	addDir('Neu', baseurl, 1, '', True)
-	addDir('Filme', baseurl + '/movies/new', 1, '', True)
-	addDir('Serien', baseurl + '/serien/view', 1, '', True)
+	#addDir('Neu', baseurl, 1, '', True)
+	addDir('Neue Filme', baseurl + '/movies/new', 1, '', True)
+	addDir('Neue Serien', baseurl + '/serien/view', 1, '', True)
 	addDir('Top Filme', baseurl + '/movies/top', 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
 	addDir('Alphabetisch', baseurl, 3, '', True)

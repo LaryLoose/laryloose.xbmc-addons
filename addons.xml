@@ -187,6 +187,20 @@
 	</extension>
 </addon>
 
+<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.0" provider-name="Lary_Loose">
+    <requires></requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">GameStar.de</summary>
+        <summary lang="en">GameStar.de</summary>
+        <description lang="de">Videos von GameStar.de</description>
+        <description lang="en">Videos of GameStar.de</description>
+    </extension>
+</addon>
+
 <addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
   <requires></requires>
   <extension point="xbmc.python.pluginsource" library="default.py">

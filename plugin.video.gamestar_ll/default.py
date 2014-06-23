@@ -12,16 +12,31 @@ settings = xbmcaddon.Addon(id='plugin.video.gamestar_ll')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*10
 forceMovieViewMode = settings.getSetting("forceMovieViewMode") == 'true'
 movieViewMode = str(settings.getSetting("movieViewMode"))
+premium = False
 hirespix = True
-dbg = True
+dbg = False
+
+cats = [
+	('http://www.gamestar.de/videos/latest/','Neueste Videos','',''),
+	('http://www.gamestar.de/videos/popular/','Meist gesehen','',''),
+	('http://www.gamestar.de/videos/was-ist-,96/','Was ist ...?','In »Was ist…?« präsentieren wir Indie-Hits, Geheimtipps und andere Spiele-Kleinode mit kommentierten Spielszenen.',''),
+	('http://www.gamestar.de/videos/feedback,99/','Feedback','In Feedback beantwortet unser Team regelmäßig Fragen der Community und plaudert mit Moderator Andre Peschke aus dem Nähkästchen.',''),
+	('http://www.gamestar.de/videos/kino-und-dvd,26/','Kino und DVD','Aktuelle Trailer zu Kinofilmen und DVD-Neuerscheinungen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2334506/b144x81.jpg'),
+	('http://www.gamestar.de/videos/gamewatch,97/','Gamewatch','Neue Trailer, Gameplay-Videos oder Live-Demos.',''),
+	('http://www.gamestar.de/videos/public-viewing,37/','Public Viewing','Neue Spiele ausführlich angespielt und vorgestellt','http://images.gamestar.de/images/idgwpgsgp/bdb/2121485/b144x81.jpg'),
+	('http://www.gamestar.de/index.cfm?pid=1589&ci=9','Quickplay','Alle Trailer aus dem Action-Genre mit den Unterrubriken Ego-Shooter, Action-Adventures, Flugsimulationen und anderen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2016676/b144x81.jpg')]
 
 def CATEGORIES():
 	if dbg: print channelurl
 	data = getUrl(channelurl)
 	#if dbg: print data	
+	for url, name, desc, img in cats:
+		if desc: addDir(colorstr(name, 'blue') + ' - ' + desc, url, 1, renamepic(img), True)
+		else: addDir(colorstr(name, 'blue'), url, 1, renamepic(img), True)
 	for url, img, title in re.findall('<td[^>]*class="itemtext"[^>]*>[^<]*<a[^>]*href="([^"]*)"[^>]*class="imglink"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*>(.*?)</td>', data, re.S|re.I):
 		name = clean(re.findall('(<a.*?)</a>', title, re.S|re.I)[0])
 		desc = clean(re.findall('(<div.*?)</div>', title, re.S|re.I)[0])
+		if not premium and 'Premium' in desc: continue
 		if 'http' not in url: url = baseurl + url
 		if 'http' not in img: img = 'http:' + img
 		#if dbg: print url, name, img

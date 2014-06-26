@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.mrskin" name="MrSkin" version="0.1.1" provider-name="Lary_Loose">
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
+        <language>de</language>
+        <description lang="de"></description>
+        <description lang="en"></description>
+    <platform>all</platform>
+    </extension>
+</addon>

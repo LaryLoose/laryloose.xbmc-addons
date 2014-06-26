@@ -1,0 +1,7 @@
+0.1.1
+- support HD
+- support of parsing new video player
+
+0.1.0
+- initial release
+

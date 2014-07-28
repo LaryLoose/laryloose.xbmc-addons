@@ -8,17 +8,20 @@ settings = xbmcaddon.Addon(id='plugin.video.cczwei_de')
 
 def index():
 	content = getUrl('http://www.cczwei.de/index.php?id=tvissuearchive')
-	items = re.compile('<item>.*?</item>', re.DOTALL).findall(content)
-	for date, url, issue, desc in re.compile('CLASS="header">([^<]+)<.*?CLASS="text"><a href="([^"]+)"><b>([^<]*)</b>.*?>.*?<ul><li><a[^>]*>(.*?)</a></li></ul>', re.DOTALL|re.I).findall(content):
-		#name = date + ' ' + issue + ' ' + clean(desc)
-		name = date + ' ' + clean(desc)
-		addLink(name, url, 'playVideo', '')
+	for issues in re.compile('(CLASS="header">.*?ico_arrow_right.jpg)', re.DOTALL).findall(content):
+		for date, url, issue, desc in re.compile('CLASS="header">([^<]+)<.*?CLASS="text"><a href="([^"]+)"><b>([^<]*)</b>.*?>.*?<ul><li><a[^>]*>(.*?)</a></li></ul>', re.DOTALL|re.I).findall(issues):
+			#name = date + ' ' + issue + ' ' + clean(desc)
+			url = url.replace('&amp;','&')
+			#print date, url
+			name = date + ' ' + clean(desc)
+			addLink(name, url, 'playVideo', '')
 	xbmcplugin.endOfDirectory(pluginhandle)
 
 def playVideo(url):
 	if 'www.cczwei.de' not in url: url = 'http://www.cczwei.de/' + url
-	print url
+	#print url
 	content = getUrl(url)
+	#print content
 	for video in re.compile('href="([^"]*.mp4)"', re.DOTALL).findall(content):
 		listitem = xbmcgui.ListItem(path = video)
 		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)

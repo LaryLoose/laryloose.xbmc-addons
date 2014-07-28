@@ -8,13 +8,13 @@ settings = xbmcaddon.Addon(id='plugin.video.cczwei_de')
 
 def index():
 	content = getUrl('http://www.cczwei.de/index.php?id=tvissuearchive')
-	for issues in re.compile('(CLASS="header">.*?ico_arrow_right.jpg)', re.DOTALL).findall(content):
-		for date, url, issue, desc in re.compile('CLASS="header">([^<]+)<.*?CLASS="text"><a href="([^"]+)"><b>([^<]*)</b>.*?>.*?<ul><li><a[^>]*>(.*?)</a></li></ul>', re.DOTALL|re.I).findall(issues):
-			#name = date + ' ' + issue + ' ' + clean(desc)
-			url = url.replace('&amp;','&')
-			#print date, url
-			name = date + ' ' + clean(desc)
-			addLink(name, url, 'playVideo', '')
+	#for issues in re.compile('(CLASS="header">.*?ico_arrow_right.jpg)', re.DOTALL).findall(content):
+	for date, url, issue, desc in re.compile('CLASS="header">([^<]+)<.*?CLASS="text"><a href="([^"]+)"><b>([^<]*)</b>.*?>.*?<ul><li><a[^>]*>(.*?)</a></li></ul>', re.DOTALL|re.I).findall(content):
+		#name = date + ' ' + issue + ' ' + clean(desc)
+		url = url.replace('&amp;','&')
+		#print date, url
+		name = date + ' ' + clean(desc)
+		addLink(name, url, 'playVideo', '')
 	xbmcplugin.endOfDirectory(pluginhandle)
 
 def playVideo(url):
@@ -28,7 +28,7 @@ def playVideo(url):
 
 def clean(s):
 	try: s = htmlparser.unescape(s)
-	except: print "could not unescape string '%s'"%(s)
+	except: pass
 	s = re.sub('<[^>]*>', ',', s)
 	s = s.replace('_', ' ')
 	s = re.sub('[ ]+', ' ', s)
@@ -44,7 +44,7 @@ def getUrl(url):
 	response = urllib2.urlopen(req, timeout=30)
 	data = response.read()
 	response.close()
-	return data.decode('utf-8')
+	return data.decode('iso-8859-1')
 
 def addLink(name, url, mode, iconimage):
 	u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)

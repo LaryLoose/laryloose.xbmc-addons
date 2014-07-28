@@ -1,5 +1,8 @@
 <settings>
-   <setting id="forceViewMode" type="bool" label="30102" default="true"/>
-   <setting id="viewMode" type="number" label="30103" default="400"/>
-   <setting id="maxViewPages" type="enum" label="30105" values="1|2|4|8|16|32|64" default="4"/>
+   <setting id="forceViewMode" type="bool" label="30102" default="true" />
+   <setting id="viewMode" type="number" label="30103" default="400" visible="eq(-1,true)" />
+   <setting id="useFQ" type="bool" label="30104" default="true"/>
+   <setting id="format" type="labelenum" label="30105" values="mp4|ios|webm" default="mp4" visible="eq(-1,true)" />
+   <setting id="quality" type="labelenum" label="30106" values="max|180|270|360|720" default="max" visible="eq(-2,true)" />
+   <setting id="maxViewPages" type="enum" label="30107" values="1|2|4|8|16|32|64" default="4" visible="false" />
 </settings>

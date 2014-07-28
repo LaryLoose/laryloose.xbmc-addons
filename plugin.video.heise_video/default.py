@@ -7,14 +7,17 @@ pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.heise_video')
 translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("forceViewMode") == "true"
+viewMode = str(settings.getSetting("viewMode"))
+useFQ = settings.getSetting("useFQ") == "true"
+format = settings.getSetting("format")
+quality = settings.getSetting("quality")
 maxViewPages = int(settings.getSetting("maxViewPages"))*2
 if maxViewPages == 0: maxViewPages = 1
-viewMode = str(settings.getSetting("viewMode"))
 
 baseurl = 'http://www.heise.de'
 
 def index():
-	addDir('Neue Videos', '', 'newVideos', '')
+	addDir('Neue Videos', baseurl + '/video/?teaser=neuste;offset=0;into=reiter_1&hajax=1', 'newVideos', '')
 	addDir('Android', baseurl + '/video/thema/Android', 'showVideos', '')
 	addDir('c\'t Uplink', baseurl + '/video/thema/c%27t-uplink', 'showVideos', '')
 	addDir('c\'t zockt', baseurl + '/video/thema/c%27t-zockt', 'showVideos', '')
@@ -41,9 +44,10 @@ def showVideos(url):
 	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 	
 def newVideos(url):
-	url = baseurl + '/video/?teaser=neuste;offset=0;into=reiter_1&hajax=1'
 	if dbg: print 'open ' + url
-	content = getUrl(url).replace('\\"','"')
+	jsondata = json.loads(getUrl(url))
+	content = jsondata['actions'][1]['html']
+	offset = int(re.search('offset=([\d]+);', url).group(1))
 	for href, img, title in re.compile('class="rahmen"[^<]*<a[^>]*href="([^"]*)">[^<]*<img[^>]*src="([^"]*)"[^>]*(?:title|alt)="([^"]*)"', re.DOTALL).findall(content):
 		if not title: title = re.compile('<a[^>]*href="'+href+'"[^>]*title="([^>]+)">', re.DOTALL).findall(content)[0]
 		if not baseurl in href: href = baseurl + href
@@ -51,6 +55,9 @@ def newVideos(url):
 		title = cleanTitle(title)
 		if dbg: print 'add link: title=' + title + ' href=' +href + ' img=' + img
 		addLink(title, href, 'playVideo', img, '')
+		offset = offset + 1
+	nextpage = re.sub('offset=([\d]+)', 'offset='+str(offset), url)
+	addDir('Nächste Seite', nextpage, 'newVideos', '')
 	xbmcplugin.endOfDirectory(pluginhandle)
 	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 	
@@ -61,42 +68,44 @@ def playVideo(url):
 	for jsonurl in re.compile('json_url:[ ]*"([^"]*)"', re.DOTALL).findall(content):
 		data = json.loads(getUrl(jsonurl))
 		for frm in data['formats']:
-			for res in data['formats'][frm]:
-				videos += [(frm + ' -> ' + res, data['formats'][frm][res]['url'])]
+			for qly in data['formats'][frm]:
+				videos += [(frm, qly, data['formats'][frm][qly]['url'])]
 	if videos: video = selectVideoDialog(videos)
 	if video: return xbmcplugin.setResolvedUrl(pluginhandle, True, xbmcgui.ListItem(path=video))
 	else: xbmc.executebuiltin('Notification(Video not found., 5000)')
 
 def selectVideoDialog(videos):
-	titles = []
-	for name, src in videos: titles.append(name)
-	idx = xbmcgui.Dialog().select("", titles)
-	return videos[idx][1]
+	url = ''
+	if useFQ:
+		actqly = 0
+		for frm, qly, src in videos:
+			if frm == format:
+				if actqly == 0: actqly = qly
+				if quality == 'max' and frm == format and qly >= actqly: url = src
+				elif qly == quality: 
+					url = src
+					break
+	if not url:
+		titles = []
+		for frm, qly, src in videos: titles.append(frm + ' -> ' + qly)
+		idx = xbmcgui.Dialog().select("", titles)
+		url = videos[idx][1]
+	return url
 
-def cleanTitle(title):
-		#title = re.sub('<[^>]*>', ' ', title)
-		#title = re.sub('&#\d{3};', ' ', title)
-		title = title.replace('&lt;','<').replace('&gt;','>').replace('&amp;','&').replace('&quot;','"').replace('&szlig;','ß').replace('&ndash;','-')
-		#title = title.replace('&Auml;','Ä').replace('&Uuml;','Ü').replace('&Ouml;','Ö').replace('&auml;','ä').replace('&uuml;','ü').replace('&ouml;','ö').replace('&nbsp;', ' ')
-		#title = title.replace('„','"').replace('“','"')
-		title = re.sub('Podcast[: ]*', '', title)
-		title = re.sub('\s+', ' ', title)
-		return title.strip()
-
-def clean(s):
-	matches = re.findall("&#\d+;", s)
-	for hit in set(matches):
-		try: s = s.replace(hit, unichr(int(hit[2:-1])))
-		except ValueError: pass
-	return urllib.unquote_plus(s)
+def cleanTitle(s):
+	s = re.sub('&amp;', '&', s)
+	s = re.sub('&quot;', '"', s)
+	s = re.sub('Podcast[: ]*', '', s)
+	s = re.sub('\s+', ' ', s)
+	return s.strip()
 
 def getUrl(url):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0')
 	response = urllib2.urlopen(req, timeout=30)
-	link = response.read()
+	data = response.read()
 	response.close()
-	return link
+	return data
 
 def parameters_string_to_dict(parameters):
 	''' Convert parameters encoded in a URL to a dict. '''

@@ -1,3 +1,7 @@
 0.1.0
+- predefined format / bitrate
+- many bugfixes
+
+0.1.0
 - initial release
 

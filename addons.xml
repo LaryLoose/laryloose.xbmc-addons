@@ -203,6 +203,24 @@
   </extension>
 </addon>
 
+<addon id="plugin.video.recordedgames" name="Recorded Games" version="1.0.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="xbmc.python" version="2.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">Longplays of various Computer Games</summary>
+        <summary lang="en">Longplays of various Computer Games</summary>
+        <language>de</language>
+        <description lang="de">Longplays of various Computer Games</description>
+        <description lang="en">Longplays of various Computer Games</description>
+    <platform>all</platform>
+    </extension>
+</addon>
+
 <addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Repository" version="0.1.1" provider-name="Lary_Loose">
 	<extension point="xbmc.addon.repository" name="Lary_Loose Repository">
 		<info compressed="false">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml</info>

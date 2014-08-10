@@ -203,17 +203,19 @@
   </extension>
 </addon>
 
-<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.1" provider-name="Lary_Loose">
+<addon id="plugin.video.recordedgames" name="Recorded Games" version="0.1.0" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">GameStar.de</summary>
-        <summary lang="en">GameStar.de</summary>
-        <description lang="de">Videos von GameStar.de</description>
-        <description lang="en">Videos of GameStar.de</description>
+        <summary lang="de">Longplays of various Computer Games</summary>
+        <summary lang="en">Longplays of various Computer Games</summary>
+        <language>de</language>
+        <description lang="de">Longplays of various Computer Games</description>
+        <description lang="en">Longplays of various Computer Games</description>
+    <platform>all</platform>
     </extension>
 </addon>
 

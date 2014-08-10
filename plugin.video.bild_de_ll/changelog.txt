@@ -1,3 +1,6 @@
+0.2.2
+- url fixes
+
 0.2.1
 - minor fixes
 

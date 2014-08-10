@@ -16,7 +16,8 @@ viewMode = str(settings.getSetting("viewMode"))
 
 startpage = 'http://www.bild.de'
 videodropdown = 'http://www.bild.de/navi/-35652780,contentContextId=15799990,view=dropdown.bild.html'
-baseurl = 'http://www.bild.de/video/clip/<fid>,zeigeTSLink=true,page=<pn>,isVideoStartseite=true,view=ajax,contentContextId=<cid>.bild.html'
+#baseurl = 'http://www.bild.de/video/clip/<fid>,zeigeTSLink=true,page=<pn>,isVideoStartseite=true,view=ajax,contentContextId=<cid>.bild.html'
+baseurl = 'http://www.bild.de/video/clip/<fid>,contentContextId=<cid>,isVideoStartseite=true,page=<pn>,view=ajax,zeigeTSLink=true.bild.html'
 
 def index():
 	for k, v in enumerate(getFolders()):
@@ -33,7 +34,7 @@ def showVideos(url):
 	page = pages = int(find[0]) if len(find) > 0 else 0
 	cnt = 0
 
-	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',[^"]*contentContextId=([^"]+)\.bild\.html', re.DOTALL).findall(content))):
+	for k, (fid, cid) in enumerate(uniq(re.compile(vidrex + ',[^"]*contentContextId=([^",]+).*?\.bild\.html', re.DOTALL).findall(content))):
 		while page <= pages:
 			url = baseurl
 			url = url.replace("<fid>", fid).replace("<cid>", cid).replace("<pn>", str(page))

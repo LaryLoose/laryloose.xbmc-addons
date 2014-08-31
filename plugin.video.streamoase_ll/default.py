@@ -30,7 +30,8 @@ def CATEGORIES():
 
 def Index(url):
 	content = getUrl(url)
-	pagination = re.compile('"pagination-active".*?href="(.*?).?title').findall(content)
+	print content
+	pagination = re.compile('"pagination-active".*?href="([^"]*)"').findall(content)
 	for find in re.compile('<div id="avs_gallery">(.*?)<div style="clear:both"></div>', re.DOTALL).findall(content):
 		for url, thumbnail, name in re.findall('<a ondragstart="return false;" href="(.*?)">.*?class="image" src="(.*?)".*?<span class="title">(.*?)</span>',find, re.DOTALL):
 			url = mainurl + url

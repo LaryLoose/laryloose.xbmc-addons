@@ -16,7 +16,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.k1no" name="K1no" version="0.1.9" provider-name="Lary_Loose">
+<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.3.7" provider-name="dirtylion / Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -25,10 +25,10 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">Filme gratis und online Filme gucken, streamen und downloaden auf k1no.do.am</summary>
-        <summary lang="en">Watch Movies for free from k1no.do.am</summary>
-        <description lang="de">Kostenlos Filme anschauen auf K1no ist einer der besten und am einfachsten Möglichkeiten kostenlose online Film im Internet zu gucken. Die riesige Menge an Kino Filmen und Tv Serien stehen jedem Besucher zur Verfügung. Wählen Sie einfach den Film Ihrer Wahl, ganz kostenlos und ohne Registrierung. ACHTUNG: Wir hosten bzw. uploaden keine Filme/Serien auf die Seite, wir verlinken nur die Videos auf die Seite.</description>
-        <description lang="en"></description>
+        <summary lang="de">Szene-Streams.com</summary>
+        <summary lang="en">Szene-Streams.com</summary>
+        <description lang="de">Filme und Serien von Szene-Streams.com</description>
+        <description lang="en">Movies and series from Szene-Streams.com</description>
     </extension>
 </addon>
 
@@ -48,13 +48,13 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.mrskin" name="MrSkin" version="0.1.1" provider-name="Lary_Loose">
+<addon id="plugin.video.heise_video" name="Heise Video" version="0.1.1" provider-name="Lary_Loose">
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de"></summary>
+        <summary lang="de">Videos des Heise Zeitschriften Verlages</summary>
         <summary lang="en"></summary>
         <language>de</language>
         <description lang="de"></description>
@@ -63,40 +63,67 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.2" provider-name="Lary_Loose">
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</summary>
-        <summary lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</summary>
-        <language>de</language>
-        <description lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</description>
-        <description lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</description>
+<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.3" provider-name="Lary_Loose">
+  <requires>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>image</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    </extension>
+    <summary lang="de">Stars nackt >> Bilder Videos Wallpaper</summary>
+    <summary lang="en">Nude Stars >> Pictures Videos Wallpaper</summary>
+    <description lang="de">Stars nackt >> Bilder Videos Wallpaper</description>
+    <description lang="en">Nude Stars >> Pictures Videos Wallpaper</description>
+  </extension>
 </addon>
 
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.3" provider-name="Lary_Loose">
+<addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Repository" version="0.1.1" provider-name="Lary_Loose">
+	<extension point="xbmc.addon.repository" name="Lary_Loose Repository">
+		<info compressed="false">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml</info>
+		<checksum>https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/zips</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Install Add-ons from Lary_Loose's Addon Repository</summary>
+		<description>Several Add-ons for XBMC</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+
+<addon id="plugin.video.k1no" name="K1no" version="0.1.9" provider-name="Lary_Loose">
     <requires>
+        <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">FilmPalast.to FiLME &amp; SERiEN sofort &amp; kostenlos online ansehen!</summary>
-        <summary lang="en">FilmPalast.to MOViS &amp; SERiES, watch online instantly &amp; free!</summary>
-        <description lang="de"></description>
+        <summary lang="de">Filme gratis und online Filme gucken, streamen und downloaden auf k1no.do.am</summary>
+        <summary lang="en">Watch Movies for free from k1no.do.am</summary>
+        <description lang="de">Kostenlos Filme anschauen auf K1no ist einer der besten und am einfachsten Möglichkeiten kostenlose online Film im Internet zu gucken. Die riesige Menge an Kino Filmen und Tv Serien stehen jedem Besucher zur Verfügung. Wählen Sie einfach den Film Ihrer Wahl, ganz kostenlos und ohne Registrierung. ACHTUNG: Wir hosten bzw. uploaden keine Filme/Serien auf die Seite, wir verlinken nur die Videos auf die Seite.</description>
         <description lang="en"></description>
     </extension>
 </addon>
 
-<addon id="plugin.video.cczwei_de" name="Computerclub Zwei" version="0.1.3" provider-name="Lary_Loose">
-    <requires>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="addon.py">
+<addon id="plugin.video.streamoase_ll" version="1.1.4" name="Streamoase" provider-name="lary_loose">
+  <requires>
+   <import addon="script.module.t0mm0.common" version="1.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+   <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Watch HD-Movies from streamoase</summary>
+    <description></description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.mrskin" name="MrSkin" version="0.1.1" provider-name="Lary_Loose">
+    <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
@@ -128,79 +155,64 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.demoscene_tv" name="Demoscene.tv" version="0.1.1" provider-name="Lary_Loose">
-    <requires>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="addon.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">Inhalte von Demoscene.tv</summary>
-        <summary lang="en">Content from Demoscene.tv</summary>
-        <description lang="de">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
-        <description lang="en">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
-    </extension>
-</addon>
-
-<addon id="plugin.video.heise_video" name="Heise Video" version="0.1.1" provider-name="Lary_Loose">
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">Videos des Heise Zeitschriften Verlages</summary>
-        <summary lang="en"></summary>
-        <language>de</language>
-        <description lang="de"></description>
-        <description lang="en"></description>
-    <platform>all</platform>
-    </extension>
-</addon>
-
-<addon id="plugin.video.streamoase_ll" version="1.1.4" name="Streamoase" provider-name="lary_loose">
-  <requires>
-   <import addon="script.module.t0mm0.common" version="1.1.0"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-   <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary>Watch HD-Movies from streamoase</summary>
-    <description></description>
-    <platform>all</platform>
-  </extension>
-</addon>
-
-<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.3.7" provider-name="dirtylion / Lary_Loose">
-    <requires>
-        <import addon="script.module.t0mm0.common" version="1.1.0"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">Szene-Streams.com</summary>
-        <summary lang="en">Szene-Streams.com</summary>
-        <description lang="de">Filme und Serien von Szene-Streams.com</description>
-        <description lang="en">Movies and series from Szene-Streams.com</description>
-    </extension>
-</addon>
-
-<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.3" provider-name="Lary_Loose">
-  <requires>
-  </requires>
+<addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
+  <requires></requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>image</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="de">Stars nackt >> Bilder Videos Wallpaper</summary>
-    <summary lang="en">Nude Stars >> Pictures Videos Wallpaper</summary>
-    <description lang="de">Stars nackt >> Bilder Videos Wallpaper</description>
-    <description lang="en">Nude Stars >> Pictures Videos Wallpaper</description>
+    <summary lang="de">Bilder von sachsen-modelle.de</summary>
+    <summary lang="en">View photos from sachsen-modelle.de</summary>
+    <description lang="de"></description>
+    <description lang="en"></description>
+    <broken lang="de">defekt</broken>
+    <broken lang="en">defect</broken>
   </extension>
+</addon>
+
+<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.2" provider-name="Lary_Loose">
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</summary>
+        <summary lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</summary>
+        <language>de</language>
+        <description lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</description>
+        <description lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</description>
+    <platform>all</platform>
+    </extension>
+</addon>
+
+<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.1" provider-name="Lary_Loose">
+    <requires></requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">GameStar.de</summary>
+        <summary lang="en">GameStar.de</summary>
+        <description lang="de">Videos von GameStar.de</description>
+        <description lang="en">Videos of GameStar.de</description>
+    </extension>
+</addon>
+
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.3" provider-name="Lary_Loose">
+    <requires>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">FilmPalast.to FiLME &amp; SERiEN sofort &amp; kostenlos online ansehen!</summary>
+        <summary lang="en">FilmPalast.to MOViS &amp; SERiES, watch online instantly &amp; free!</summary>
+        <description lang="de"></description>
+        <description lang="en"></description>
+    </extension>
 </addon>
 
 <addon id="plugin.video.recordedgames" name="Recorded Games" version="0.1.0" provider-name="Lary_Loose">
@@ -218,47 +230,35 @@
     </extension>
 </addon>
 
-<addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Repository" version="0.1.1" provider-name="Lary_Loose">
-	<extension point="xbmc.addon.repository" name="Lary_Loose Repository">
-		<info compressed="false">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml</info>
-		<checksum>https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml.md5</checksum>
-		<datadir zip="true">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/zips</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>Install Add-ons from Lary_Loose's Addon Repository</summary>
-		<description>Several Add-ons for XBMC</description>
-		<disclaimer></disclaimer>
-		<platform>all</platform>
-	</extension>
-</addon>
-
-<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.1" provider-name="Lary_Loose">
-    <requires></requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
+<addon id="plugin.video.demoscene_tv" name="Demoscene.tv" version="0.1.1" provider-name="Lary_Loose">
+    <requires>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">GameStar.de</summary>
-        <summary lang="en">GameStar.de</summary>
-        <description lang="de">Videos von GameStar.de</description>
-        <description lang="en">Videos of GameStar.de</description>
+        <summary lang="de">Inhalte von Demoscene.tv</summary>
+        <summary lang="en">Content from Demoscene.tv</summary>
+        <description lang="de">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
+        <description lang="en">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
     </extension>
 </addon>
 
-<addon id="plugin.image.sachsen-modelle_de" name="Sachsen-Modelle" version="0.1.0" provider-name="Lary_Loose">
-  <requires></requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-    <provides>image</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
+<addon id="plugin.video.cczwei_de" name="Computerclub Zwei" version="0.1.3" provider-name="Lary_Loose">
+    <requires>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
+        <language>de</language>
+        <description lang="de"></description>
+        <description lang="en"></description>
     <platform>all</platform>
-    <summary lang="de">Bilder von sachsen-modelle.de</summary>
-    <summary lang="en">View photos from sachsen-modelle.de</summary>
-    <description lang="de"></description>
-    <description lang="en"></description>
-    <broken lang="de">defekt</broken>
-    <broken lang="en">defect</broken>
-  </extension>
+    </extension>
 </addon>
 </addons>

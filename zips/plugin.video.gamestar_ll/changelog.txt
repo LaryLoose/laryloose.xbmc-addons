@@ -1,2 +1,2 @@
-0.1.0
-- first try
+0.1.2 - get url src fixed
+0.1.0 - First Try

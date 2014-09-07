@@ -7,14 +7,16 @@ pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://www.gamestar.de'
 channelurl = 'http://www.gamestar.de/videos/video-kanaele/'
-getvideourl = 'http://www.gamestar.de/emb/getVideoData.cfm?vid='
+#getvideourl = 'http://www.gamestar.de/emb/getVideoData.cfm?vid='
+#getvideourl = 'http://www.gamestar.de/emb/getGsEmbed.cfm?vid='
+getvideourl = 'http://www.gamestar.de/_misc/videos/portal/getVideoUrl.cfm?premium=0&videoId='
 settings = xbmcaddon.Addon(id='plugin.video.gamestar_ll')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*10
 forceMovieViewMode = settings.getSetting("forceMovieViewMode") == 'true'
 movieViewMode = str(settings.getSetting("movieViewMode"))
 premium = False
 hirespix = True
-dbg = False
+dbg = True
 
 cats = [
 	('http://www.gamestar.de/videos/latest/','Neueste Videos','',''),
@@ -62,17 +64,27 @@ def INDEX(url):
 		else: INDEX(url)
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
-def PLAYLINK(url):
+def PLAYLINK_OLD(url):
 	if dbg: print url
 	data = getUrl(url)
 	for mediaid in re.findall('mediaid:[ ]*"([^"]*)"', data, re.S):
 		if dbg: print 'mediaid: ' + mediaid
+		print getvideourl + mediaid
 		videodata = getUrl(getvideourl + mediaid)
 		for url in re.findall('<file>([^<]*)</file>', videodata, re.S):
 			print 'open stream: ' + url
 			listitem = xbmcgui.ListItem(path=url)
 			return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
 
+def PLAYLINK(url):
+	if dbg: print url
+	for mediaid in re.findall(',([\d]*?)\.htm', url, re.S): 
+		if dbg: print 'mediaid: ' + mediaid
+		url = getvideourl + mediaid
+		print 'open stream: ' + url
+		listitem = xbmcgui.ListItem(path=url)
+		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)		
+			
 def colorstr(s, color):
 	return '[COLOR=' + color + ']' + s + '[/COLOR]'
 

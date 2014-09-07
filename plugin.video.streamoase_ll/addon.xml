@@ -10,6 +10,7 @@
     <summary>Watch HD-Movies from streamoase</summary>
     <description></description>
     <platform>all</platform>
-    <broken>broken</broken>  
+    <broken lang="de">defekt</broken>
+	<broken lang="en">defect</broken>
 </extension>
 </addon>

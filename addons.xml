@@ -119,7 +119,8 @@
     <summary>Watch HD-Movies from streamoase</summary>
     <description></description>
     <platform>all</platform>
-  </extension>
+    <broken>broken</broken>
+</extension>
 </addon>
 
 <addon id="plugin.video.mrskin" name="MrSkin" version="0.1.1" provider-name="Lary_Loose">

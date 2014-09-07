@@ -10,5 +10,6 @@
     <summary>Watch HD-Movies from streamoase</summary>
     <description></description>
     <platform>all</platform>
-  </extension>
+    <broken>broken</broken>  
+</extension>
 </addon>

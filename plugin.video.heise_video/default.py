@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon, json
 
-dbg = False
+dbg = True
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.heise_video')
 translation = settings.getLocalizedString
@@ -36,6 +36,7 @@ def showVideos(url):
 		if not title: title = re.compile('<a[^>]*href="'+href+'"[^>]*title="([^>]+)">', re.DOTALL).findall(content)[0]
 		if not baseurl in href: href = baseurl + href
 		#if not baseurl in img: img = baseurl + img
+		img = re.sub('^//', 'http://', img)
 		title = cleanTitle(title)
 		if dbg: print 'add link: title=' + title + ' href=' +href + ' img=' + img
 		addLink(title, href, 'playVideo', img, '')

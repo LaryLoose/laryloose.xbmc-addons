@@ -1,6 +1,7 @@
 0.1.2
 - video parser changed due to website changes
 - bugfix in manual quality selection
+- bugfix thumbnails
 
 0.1.1
 - predefined format / bitrate

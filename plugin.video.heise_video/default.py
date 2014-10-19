@@ -15,6 +15,7 @@ maxViewPages = int(settings.getSetting("maxViewPages"))*2
 if maxViewPages == 0: maxViewPages = 1
 
 baseurl = 'http://www.heise.de'
+vidout = 'http://www.heise.de/videout/feed?container={c}&sequenz={s}'
 
 def index():
 	addDir('Neue Videos', baseurl + '/video/?teaser=neuste;offset=0;into=reiter_1&hajax=1', 'newVideos', '')
@@ -65,11 +66,16 @@ def playVideo(url):
 	if dbg: print 'play video: ' + url
 	content = getUrl(url)
 	videos = []
-	for jsonurl in re.compile('json_url:[ ]*"([^"]*)"', re.DOTALL).findall(content):
-		data = json.loads(getUrl(jsonurl))
-		for frm in data['formats']:
-			for qly in data['formats'][frm]:
-				videos += [(frm, qly, data['formats'][frm][qly]['url'])]
+	video = None	
+	for datac, datas in re.compile('id="videoplayerjw-"[^>]*data-container="([0-9]+)"[^>]*data-sequenz="([0-9]+)"', re.DOTALL).findall(content):
+		data = getUrl(vidout.replace('{c}', datac).replace('{s}', datas))
+		for url, qly, frm in re.compile('file="([^"]+)"[ ]*label="([^"]+)"[ ]*type="video/([^"]+)"', re.DOTALL).findall(data):
+			videos += [(frm, qly, url)]
+	#for jsonurl in re.compile('json_url:[ ]*"([^"]*)"', re.DOTALL).findall(content):
+	#	data = json.loads(getUrl(jsonurl))
+	#	for frm in data['formats']:
+	#		for qly in data['formats'][frm]:
+	#			videos += [(frm, qly, data['formats'][frm][qly]['url'])]
 	if videos: video = selectVideoDialog(videos)
 	if video: return xbmcplugin.setResolvedUrl(pluginhandle, True, xbmcgui.ListItem(path=video))
 	else: xbmc.executebuiltin('Notification(Video not found., 5000)')
@@ -89,7 +95,7 @@ def selectVideoDialog(videos):
 		titles = []
 		for frm, qly, src in videos: titles.append(frm + ' -> ' + qly)
 		idx = xbmcgui.Dialog().select("", titles)
-		url = videos[idx][1]
+		url = videos[idx][2]
 	return url
 
 def cleanTitle(s):

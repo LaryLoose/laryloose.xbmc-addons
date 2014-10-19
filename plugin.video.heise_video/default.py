@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon, json
 
-dbg = True
+dbg = False
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.heise_video')
 translation = settings.getLocalizedString

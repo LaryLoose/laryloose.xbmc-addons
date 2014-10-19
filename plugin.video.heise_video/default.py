@@ -22,6 +22,8 @@ def index():
 	addDir('Android', baseurl + '/video/thema/Android', 'showVideos', '')
 	addDir('c\'t Uplink', baseurl + '/video/thema/c%27t-uplink', 'showVideos', '')
 	addDir('c\'t zockt', baseurl + '/video/thema/c%27t-zockt', 'showVideos', '')
+	addDir('IFA', baseurl + '/video/thema/ifa', 'showVideos', '')
+	addDir('Google I/O', baseurl + '/video/thema/Google-I%E2%88%95O', 'showVideos', '')
 	addDir('Microsoft', baseurl + '/video/thema/Microsoft', 'showVideos', '')
 	addDir('Schnurer hilft!', baseurl + '/video/thema/Schnurer-hilft', 'showVideos', '')
 	xbmcplugin.endOfDirectory(pluginhandle)

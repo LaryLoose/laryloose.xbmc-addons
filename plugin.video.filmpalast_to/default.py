@@ -4,6 +4,7 @@ import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
 from jsunpacker import cJsUnpacker
 from stream import *
 
+dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://www.filmpalast.to'
@@ -37,11 +38,11 @@ def ALPHA():
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def INDEX(caturl):
-	print caturl
+	if (dbg): print caturl
 	global itemcnt
 	data = getUrl(caturl)
 	for entry in re.findall('id="content"[^>]*>(.+?)<[^>]*id="paging"', data, re.S|re.I):
-		print entry
+		if (dbg): print entry
 		for url, title, image in re.findall('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*src=["\']([^"\']*)["\'][^>]*>', entry, re.S|re.I):
 			if 'http:' not in url: url =  baseurl + url
 			if 'http:' not in image: image =  baseurl + image
@@ -49,7 +50,7 @@ def INDEX(caturl):
 			itemcnt = itemcnt + 1
 	nextPage = re.findall('<a[^>]*class="[^"]*pageing[^"]*"[^>]*href=["\']([^"\']*)["\'][^>]*>[ ]*vorw', data, re.S|re.I)
 	if nextPage:
-		print nextPage
+		if (dbg): print nextPage
 		if itemcnt >= maxitems: addDir('Weiter >>', nextPage[0], 1, '',  True)
 		else: INDEX(nextPage[0])
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")

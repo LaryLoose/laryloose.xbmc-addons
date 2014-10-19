@@ -1,5 +1,7 @@
-0.1.3
- - minor fixes
+0.1.4
+ - dbg output removed
+
+...
 
 0.1.0
-  - First Try
+ - first try

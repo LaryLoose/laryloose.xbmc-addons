@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.3" provider-name="Lary_Loose">
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.4" provider-name="Lary_Loose">
     <requires>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">

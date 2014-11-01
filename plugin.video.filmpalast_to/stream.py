@@ -22,8 +22,8 @@ net = Net()
 
 hosterlist = [
 	('youtube', '.*www\.youtube\.com'),
-	('putlocker', '.*www\.putlocker\.com/(file|embed)/'),
-	('sockshare', '.*www\.sockshare\.com/(file|embed)/'),
+	('putlocker', '.*www\.putlocker\.com/(?:file|embed)/'),
+	('sockshare', '.*www\.sockshare\.com/(?:file|embed)/'),
 	('videoslasher', '.*www\.videoslasher\.com/embed/'),
 	('faststream', '.*faststream\.in'),
 	('flashx', '.*flashx\.tv'),
@@ -31,9 +31,9 @@ hosterlist = [
 	('streamcloud', '.*streamcloud\.eu'),
 	('vidstream', '.*vidstream\.in'),
 	('xvidstage', '.*xvidstage\.com'),
-	('nowvideo', '.*embed\.nowvideo\.eu'),
+	('nowvideo', '.*nowvideo\.(?:eu|sx)'),
 	('movshare', '.*movshare\.net'),
-	('divxstage', '.*(embed\.divxstage\.eu|divxstage\.eu/video)'),
+	('divxstage', '.*(?:embed\.divxstage\.eu|divxstage\.eu/video)'),
 	('videoweed', '.*videoweed\.es'),
 	('novamov', '.*novamov\.com'),
 	('primeshare', '.*primeshare'),
@@ -44,6 +44,9 @@ hosterlist = [
 	('youwatch', '.*youwatch\.org'),
 	('yandex', '.*yandex\.ru'),
 #	('K1no HD', '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
+	('sharedsx', '.*shared\.sx'),
+	('vivosx', '.*vivo\.sx'),
+	('cloudyvideos', '.*cloudyvideos\.com'),
 	('vidx', '.*vidx\.to')]
 
 
@@ -66,8 +69,8 @@ class get_stream_link:
 		elif hoster == 'sockshare': return self.streamPutlockerSockshare(link, 'sockshare')
 		elif hoster == 'youtube': return self.youtube(link)
 		elif hoster == 'videoslasher': return self.videoslaher(link)
-		elif hoster == 'faststream': return self.generic1(link, 'Faststream', 10)
-		elif hoster == 'flashx': return self.flashx(link)
+		elif hoster == 'faststream': return self.generic1(link, 'Faststream', 10, 0)
+		elif hoster == 'flashx': return self.generic1(link, 'Flashx', 4, 0)
 		elif hoster == 'vk': return self.vk(link)
 		elif hoster == 'streamcloud': return self.streamcloud(link)
 		elif hoster == 'vidstream': return self.vidstream(link)
@@ -83,9 +86,12 @@ class get_stream_link:
 		elif hoster == 'movreel': return self.movreel(link)
 		elif hoster == 'uploadc': return self.uploadc(link)
 		elif hoster == 'youwatch': return self.youwatch(link)
-		elif hoster == 'yandex': return self.generic1(link, 'Yandex', 0)
-		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10)
+		elif hoster == 'yandex': return self.generic1(link, 'Yandex', 0, 0)
+		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10, 0)
 		elif hoster == 'K1no HD': return link
+		elif hoster == 'sharedsx': return self.generic1(link, 'Shared.sx', 0, 1)
+		elif hoster == 'vivosx': return self.generic1(link, 'Vivo.sx', 0, 1)
+		elif hoster == 'cloudyvideos': return self.generic1(link, 'CloudyVideos', 2, 2)
 		return 'Not Supported'
 
 	def getUrl(self, url):
@@ -111,20 +117,20 @@ class get_stream_link:
 		else: return 'empty'
 
 	def waitmsg(self, sec, msg):
-		dialog = xbmcgui.DialogProgress()
-		dialog.create('Resolving', '%s Link.. Wait %s sec.' % (msg, sec))
-		dialog.update(0)
-
-		c = 100 / int(sec)
-		i = 1
-		p = 0
-
-		while i < int(sec)+1:
-			p += int(c)
-			time.sleep(1)
-			dialog.update(int(p))
-			i += 1
-		dialog.close()
+		isec = int(sec)
+		if isec > 0:
+			dialog = xbmcgui.DialogProgress()
+			dialog.create('Resolving', '%s Link.. Wait %s sec.' % (msg, sec))
+			dialog.update(0)
+			c = 100 / isec
+			i = 1
+			p = 0
+			while i < isec+1:
+				p += int(c)
+				time.sleep(1)
+				dialog.update(int(p))
+				i += 1
+			dialog.close()
 	
 	def get_hostername(self, link):
 		if link:
@@ -449,23 +455,26 @@ class get_stream_link:
 								filename = stream_url[1].replace('&amp;','&')
 								if filename: return filename
 								else: return 'Error: Konnte Datei nicht extrahieren'
-	
-	def generic1(self, url, hostername, waitseconds):
+			
+	def generic1(self, url, hostername, waitseconds, filerexid):
+		print hostername + ': ' + url
+		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 
+					'data-url=[\'\"]([^\'\"]+)[\"\']',
+					'<a[^>]*href="([^"]+)">[^<]*<input[^>]*value="Click for your file">' ]
 		resp = self.net.http_GET(url)
 		data = resp.content
-		for frm in re.findall('<Form method="POST" action=\'\'>(.*?)</form>', data, re.S|re.I):
-			op = re.findall('type="hidden" name="op".*?value="(.*?)"', frm, re.S)
-			id = re.findall('type="hidden" name="id".*?value="(.*?)"', frm, re.S)
-			fname = re.findall('type="hidden" name="fname".*?value="(.*?)"', frm, re.S)
-			hash = re.findall('type="hidden" name="hash".*?value="(.*?)"', frm, re.S)
-			if op and id and fname and hash:
-				info = { 'fname': fname[0], 'hash': hash[0], 'id': id[0], 'op': op[0], 'referer': "", 'usr_login': "" }
-				self.waitmsg(int(waitseconds), hostername)
-				data = self.net.http_POST(resp.get_url(), info).content
-				if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 
-				stream_url = re.findall('file: "(.*?)"', data, re.S)
-				if stream_url: return stream_url[0]
-				else: return 'Error: Konnte Datei nicht extrahieren'
+		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
+			info = {}
+			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			info['referer'] = ""
+			self.waitmsg(int(waitseconds), hostername)
+			data = self.net.http_POST(resp.get_url(), info).content
+			if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 
+			print "search for: " + filerex[filerexid]
+			stream_url = re.findall(filerex[filerexid], data, re.S|re.I)
+			if stream_url: return stream_url[0]
+			else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def generic2(self, url):
 		url = re.sub('[ ]+', '', url)
@@ -487,33 +496,3 @@ class get_stream_link:
 				if stream_url: return stream_url
 				else: return 'Error: Konnte Datei nicht extrahieren'
 		else: return "Error: Video wurde nicht gefunden"
-				
-	def flashx(self, url):
-		print 'flashx: ' + url
-		resp = self.net.http_GET(url)
-		data = resp.content
-		info = {}
-		iframe = re.findall('<iframe[^>]*src="([^"]*/player/[^"]*)"[^>]*>', data, re.S|re.I)
-		if iframe:
-			url = iframe[0]
-			data = self.net.http_GET(url).content
-		frm = re.findall('<form[^>]*action="((?:view[^"]*|play[^"]*).php)"[^>]*>(.*?)</form>', data, re.S|re.I)
-		if not frm: return 'Error: Konnte URL nicht aufloesen'
-		for name, value in re.findall('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"[^>]*>', frm[0][1], re.S|re.I):
-			info[name] = value
-		if not info: return 'Error: Input Parameter nicht gefunden'
-		else:
-			url = re.sub('/[^/]*$', '/'+frm[0][0], url)
-			print 'open: ' + url
-			print 'with values: ' + str(info)
-			data = self.net.http_POST(url, info).content
-			if re.match('.*Video not found or deleted', data, re.S|re.I): return 'Error: Die Datei existiert nicht'
-			xml_link = re.findall('data="http://[^"]*flashx.tv/nuevo/[^"]*config=(http://play.flashx.tv/[^"]*)"', data, re.S)
-			if xml_link:
-				print xml_link[0]
-				data = self.getUrl(xml_link[0])
-				if 'wrong user' in data: return 'Error: Falsche User oder falsche IP'
-				stream_url = re.findall('<file>(http://.*?flashx.tv.*?)</file>', data)
-				if stream_url: return stream_url[0]
-				else: return 'Error: Konnte Datei nicht extrahieren'
-			else: return 'Error: Konnte Datei nicht finden'

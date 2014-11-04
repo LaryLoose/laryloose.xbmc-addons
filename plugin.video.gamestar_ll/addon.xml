@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.2" provider-name="Lary_Loose">
+<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.3" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>

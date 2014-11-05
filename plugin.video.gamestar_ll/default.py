@@ -22,14 +22,14 @@ dbg = False
 cats = [
 	('http://www.gamestar.de/videos/latest/','Neueste Videos','',''),
 	('http://www.gamestar.de/videos/popular/','Meist gesehen','',''),
-	('http://www.gamestar.de/videos/popular/','News','Von Montag bis Freitag immer mittags berichten wir in unserer News-Show über die wichtigsten Spiele-Themen des Tages.','http://images.gamestar.de/images/idgwpgsgp/bdb/2558457/b144x81.jpg'),
+	('http://www.gamestar.de/videos/news,100/','News','Von Montag bis Freitag immer mittags berichten wir in unserer News-Show über die wichtigsten Spiele-Themen des Tages.','http://images.gamestar.de/images/idgwpgsgp/bdb/2558457/b144x81.jpg'),
 	('http://www.gamestar.de/videos/was-ist-,96/','Was ist ...?','In »Was ist…?« präsentieren wir Indie-Hits, Geheimtipps und andere Spiele-Kleinode mit kommentierten Spielszenen.',''),
 	('http://www.gamestar.de/videos/feedback,99/','Feedback','In Feedback beantwortet unser Team regelmäßig Fragen der Community und plaudert mit Moderator Andre Peschke aus dem Nähkästchen.',''),
 	('http://www.gamestar.de/videos/kino-und-dvd,26/','Kino und DVD','Aktuelle Trailer zu Kinofilmen und DVD-Neuerscheinungen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2334506/b144x81.jpg'),
 	('http://www.gamestar.de/videos/gamewatch,97/','Gamewatch','Neue Trailer, Gameplay-Videos oder Live-Demos.',''),
 	('http://www.gamestar.de/videos/public-viewing,37/','Public Viewing','Neue Spiele ausführlich angespielt und vorgestellt','http://images.gamestar.de/images/idgwpgsgp/bdb/2121485/b144x81.jpg'),
 	('http://www.gamestar.de/index.cfm?pid=1589&ci=9','Quickplay','Alle Trailer aus dem Action-Genre mit den Unterrubriken Ego-Shooter, Action-Adventures, Flugsimulationen und anderen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2016676/b144x81.jpg'),
-	('http://www.gamestar.de/videos/popular/','Candyland','In diesem Kanal zeigen wir in erster Linie Grafikvergleiche zu PC und Konsolenspielen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2557236/b144x81.jpg')
+	('http://www.gamestar.de/videos/candyland,102/','Candyland','In diesem Kanal zeigen wir in erster Linie Grafikvergleiche zu PC und Konsolenspielen.','http://images.gamestar.de/images/idgwpgsgp/bdb/2557236/b144x81.jpg')
 ]
 
 def CATEGORIES():

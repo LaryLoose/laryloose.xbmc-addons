@@ -1,3 +1,5 @@
+0.1.4
+	- wrong links fixed
 0.1.3 
 	- thumbnails fixed with google resize service
 	- use thumbnails as fanart
@@ -6,4 +8,4 @@
 	- get url src fixed
 
 0.1.0 
-	- First Try
+	- first release

@@ -1,3 +1,6 @@
+0.1.2
+- adding playlists category
+
 0.1.1
 - support HD
 - support of parsing new video player

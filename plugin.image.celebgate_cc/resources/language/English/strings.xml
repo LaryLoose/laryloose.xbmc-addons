@@ -2,10 +2,12 @@
 <strings>
 	<string id="30000">General</string>
 	<string id="30100">Force Thumbnail Viewmode</string>
-	<string id="30101">Cache To Disc</string>
+	<string id="30101">Cache to Disc</string>
+	<string id="30102">Pictures per Site</string>
 	<string id="30201">Updates</string>
 	<string id="30202">Alphabetic</string>
 	<string id="30203">Top 100 Daily</string>
 	<string id="30204">Top 100 Monthly</string>
 	<string id="30205">Top 100 All Time</string>
+	<string id="30301">Next</string>
 </strings>

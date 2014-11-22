@@ -3,5 +3,6 @@
   <category label="30000">
     <setting id="force_viewmode" type="bool" label="30100" default="false"/>
     <setting id="cache_to_disc" type="bool" label="30101" default="true"/>
+	<setting id="max_per_site" type="enum" label="30102" values="10|13|20|28|30|40|43|50|100|all" default="2"/>
   </category>
 </settings>

@@ -1,3 +1,6 @@
+0.1.6
+ - missing requirement fixed
+
 0.1.5
  - hoster fixed
  - hoster added

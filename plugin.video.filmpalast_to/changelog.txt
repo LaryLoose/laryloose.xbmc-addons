@@ -1,3 +1,6 @@
+0.1.7
+ - update flashx resolver
+
 0.1.6
  - missing requirement fixed
 

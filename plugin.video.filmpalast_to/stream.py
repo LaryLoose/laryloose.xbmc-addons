@@ -70,7 +70,7 @@ class get_stream_link:
 		elif hoster == 'youtube': return self.youtube(link)
 		elif hoster == 'videoslasher': return self.videoslaher(link)
 		elif hoster == 'faststream': return self.generic1(link, 'Faststream', 10, 0)
-		elif hoster == 'flashx': return self.generic1(link, 'Flashx', 4, 0)
+		elif hoster == 'flashx': return self.flashx(link)
 		elif hoster == 'vk': return self.vk(link)
 		elif hoster == 'streamcloud': return self.streamcloud(link)
 		elif hoster == 'vidstream': return self.vidstream(link)
@@ -455,7 +455,27 @@ class get_stream_link:
 								filename = stream_url[1].replace('&amp;','&')
 								if filename: return filename
 								else: return 'Error: Konnte Datei nicht extrahieren'
-			
+
+	def flashx(self, url):
+		print 'flashx: ' + url
+		resp = self.net.http_GET(url)
+		data = resp.content								
+		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
+			info = {}
+			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			info['referer'] = ""
+			self.waitmsg(int(4), "flashx")
+			data = self.net.http_POST(resp.get_url(), info).content
+			get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data, re.S|re.DOTALL)
+			if get_packedjava:
+				sJavascript = get_packedjava[0]
+				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
+				if sUnpacked:
+					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
+					if stream_url: return stream_url[0]
+					else: return 'Error: Konnte Datei nicht extrahieren'
+
 	def generic1(self, url, hostername, waitseconds, filerexid):
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 

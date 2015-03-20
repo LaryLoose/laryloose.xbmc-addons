@@ -38,13 +38,13 @@ def INDEX(url):
 	nextPageUrl = re.sub('-[\d]+$', '', url)
 	print url
 	data = getUrl(url)
-	movies = re.findall('<div class="ImgWrapNews">.*?<a href="(.*?.[jpg|png])".*?<a class="newstitl entryLink" href="(.*?)"><h2><b>(.*?)</b></h2></a>.*?<div class="MessWrapsNews2" style="height:110px;">(.*?)<', data, re.S)
+	movies = re.findall('<div class="ImgWrapNews">[^<]*<a[^<]*<img[^>]*src="([^"]*.[jpg|png])"[^>]*alt="([^"]*)"[^>]*>.*?class="[^"]*entryLink[^"]*".*?href="([^"]*)"', data, re.S|re.I)
 	if movies:
-		for (image, url, title, h) in movies:
+		for (image, title, url) in movies:
 			if 'http:' not in url: url =  baseurl + url
 			addDir(clean(title), url, 2, image, True)
-			itemcnt = itemcnt + 1
-	nextPage = re.findall('<a class="swchItem"[^>]*? onclick="spages\(\'(\d+)\'[^>]*?"><span>&raquo;</span></a>', data, re.S)
+			itemcnt = itemcnt + 1                                       
+	nextPage = re.findall('<a class="swchItem"[^>]*onclick="spages\(\'(\d+)\'[^>]*?"[^>]*><span>&raquo;</span>', data, re.S)
 	if nextPage:
 		if itemcnt >= maxitems:
 		    addDir('Weiter >>', nextPageUrl + '-' + nextPage[0], 1, '',  True)

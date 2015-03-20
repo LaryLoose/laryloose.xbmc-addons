@@ -22,3 +22,6 @@
 
 0.3.6
 * Aktualisierung Resolver für nowvideo, movshare, divxstage, novamov
+
+0.3.8
+* Anpassung an Homepage-Änderungen

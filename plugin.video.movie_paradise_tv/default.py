@@ -16,7 +16,7 @@ viewMode = str(settings.getSetting("viewMode"))
 userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
 
 def START():
-	addDir('Neu', baseurl, 1, '', True)
+	addDir('Neue Filme', baseurl, 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
 	addDir('Archiv', baseurl + '/?page_id=14056&pgno=1', 3, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")

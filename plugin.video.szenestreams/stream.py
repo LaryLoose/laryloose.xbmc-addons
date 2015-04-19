@@ -18,8 +18,6 @@ if os.path.isfile(COOKIEFILE):
     xbmc.log( "Cookie is loaded", xbmc.LOGINFO )
 xbmc.log( "Cookie is set, " + COOKIEFILE, xbmc.LOGINFO )
 
-net = Net()
-
 hosterlist = [
 	('youtube', '.*www\.youtube\.com'),
 	('putlocker', '.*www\.putlocker\.com/(?:file|embed)/'),
@@ -145,106 +143,15 @@ class get_stream_link:
 		if not stream_url: stream_url = re.findall('file:"(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
 		if stream_url: return stream_url[0]
 
-	def youtube(self, url, videoPrio=2):
-		# this part is from mtube plugin
-		print "got url: " + str(url)
-		if videoPrio == 0:
-			VIDEO_FMT_PRIORITY_MAP = {
-				'38' : 6, #MP4 Original (HD)
-				'37' : 5, #MP4 1080p (HD)
-				'22' : 4, #MP4 720p (HD)
-				'35' : 2, #FLV 480p
-				'18' : 1, #MP4 360p
-				'34' : 3, #FLV 360p
-			}
-		elif videoPrio == 1:
-			VIDEO_FMT_PRIORITY_MAP = {
-				'38' : 6, #MP4 Original (HD)
-				'37' : 5, #MP4 1080p (HD)
-				'22' : 1, #MP4 720p (HD)
-				'35' : 3, #FLV 480p
-				'18' : 2, #MP4 360p
-				'34' : 4, #FLV 360p
-			}
-		else:
-			VIDEO_FMT_PRIORITY_MAP = {
-				'38' : 3, #MP4 Original (HD)
-				'37' : 1, #MP4 1080p (HD)
-				'22' : 2, #MP4 720p (HD)
-				'35' : 5, #FLV 480p
-				'18' : 4, #MP4 360p
-				'34' : 6, #FLV 360p
-			}
-		video_url = None
-		url = url.replace('/embed/', '/watch?v=')
-		id = re.findall('watch.v=(.*\D)', url, re.S)
-		video_id = id[0]
-		# Getting video webpage
-		#URLs for YouTube video pages will change from the format http://www.youtube.com/watch?v=ylLzyHk54Z0 to http://www.youtube.com/watch#!v=ylLzyHk54Z0.
-		watch_url = 'http://www.youtube.com/watch?v=%s&gl=DE&hl=de' % video_id
-		watchrequest = Request(watch_url, None, std_headers)
-		try:
-			print "[youtubeUrl] trying to find out if a HD Stream is available",watch_url
-			watchvideopage = urlopen2(watchrequest).read()
-		except (URLError, HTTPException, socket.error), err:
-			return "Error: Unable to retrieve watchpage - Error code: %s" % str(err)
-			# Get video info
-		for el in ['&el=embedded', '&el=detailpage', '&el=vevo', '']:
-			info_url = ('http://www.youtube.com/get_video_info?&video_id=%s%s&ps=default&eurl=&gl=DE&hl=de' % (video_id, el))
-			request = Request(info_url, None, std_headers)
-			try:
-				infopage = urlopen2(request).read()
-				videoinfo = parse_qs(infopage)
-				if ('url_encoded_fmt_stream_map' or 'fmt_url_map') in videoinfo: break
-			except (URLError, HTTPException, socket.error), err:
-				return "Error: unable to download video infopage - %s" % str(err)
-		if ('url_encoded_fmt_stream_map' or 'fmt_url_map') not in videoinfo:
-			# Attempt to see if YouTube has issued an error message
-			if 'reason' not in videoinfo:
-				return 'Error: unable to extract "fmt_url_map" or "url_encoded_fmt_stream_map" parameter for unknown reason'
+	def youtube(self, url):
+		print url
+		match = re.compile('youtube.com/embed/([^\?]+)', re.DOTALL).findall(url)
+		if match:
+			youtubeID = match[0]
+			if xbmc.getCondVisibility("System.Platform.xbox") == True:
+				video_url = "plugin://video/YouTube/?path=/root/video&action=play_video&videoid=" + youtubeID
 			else:
-				reason = unquote_plus(videoinfo['reason'][0])
-				return 'Error: YouTube said: %s' % reason.decode('utf-8')
-
-		video_fmt_map = {}
-		fmt_infomap = {}
-		if videoinfo.has_key('url_encoded_fmt_stream_map'):
-			tmp_fmtUrlDATA = videoinfo['url_encoded_fmt_stream_map'][0].split(',')
-		else:
-			tmp_fmtUrlDATA = videoinfo['fmt_url_map'][0].split(',')
-		for fmtstring in tmp_fmtUrlDATA:
-			fmturl = fmtid = fmtsig = ""
-			if videoinfo.has_key('url_encoded_fmt_stream_map'):
-				try:
-					for arg in fmtstring.split('&'):
-						if arg.find('=') >= 0:
-							print arg.split('=')
-							key, value = arg.split('=')
-							if key == 'itag':
-								if len(value) > 3:
-									value = value[:2]
-								fmtid = value
-							elif key == 'url':
-								fmturl = value
-							elif key == 'sig':
-								fmtsig = value
-					if fmtid != "" and fmturl != "" and fmtsig != ""  and VIDEO_FMT_PRIORITY_MAP.has_key(fmtid):
-						video_fmt_map[VIDEO_FMT_PRIORITY_MAP[fmtid]] = { 'fmtid': fmtid, 'fmturl': unquote_plus(fmturl), 'fmtsig': fmtsig }
-						fmt_infomap[int(fmtid)] = "%s&signature=%s" %(unquote_plus(fmturl), fmtsig)
-					fmturl = fmtid = fmtsig = ""
-				except:
-					return "Error: error parsing fmtstring: %s" % fmtstring
-			else:
-				(fmtid,fmturl) = fmtstring.split('|')
-			if VIDEO_FMT_PRIORITY_MAP.has_key(fmtid) and fmtid != "":
-				video_fmt_map[VIDEO_FMT_PRIORITY_MAP[fmtid]] = { 'fmtid': fmtid, 'fmturl': unquote_plus(fmturl) }
-				fmt_infomap[int(fmtid)] = unquote_plus(fmturl)
-		print "[youtubeUrl] got: " + str(sorted(fmt_infomap.iterkeys()))
-		if video_fmt_map and len(video_fmt_map):
-			print "[youtubeUrl] found best available video format: " + str(video_fmt_map[sorted(video_fmt_map.iterkeys())[0]]['fmtid'])
-			best_video = video_fmt_map[sorted(video_fmt_map.iterkeys())[0]]
-			video_url = "%s&signature=%s" %(best_video['fmturl'].split(';')[0], best_video['fmtsig'])
-			print "[youtubeUrl] found best available video url: " + str(video_url)
+				video_url = "plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=" + youtubeID
 			return video_url
 
 	def uploadc(self, url):
@@ -257,7 +164,7 @@ class get_stream_link:
 			data2 = self.net.http_POST(url, info).content
 			stream_url = self.get_stream_url(data2)
 			if not stream_url:
-				get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data2, re.S|re.DOTALL)
+				get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data2, re.S|re.DOTALL)
 				if get_packedjava:
 					sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
 					stream_url = self.get_stream_url(sUnpacked)
@@ -265,16 +172,25 @@ class get_stream_link:
 			else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def youwatch(self, url):
-		data = self.net.http_GET(url).content
-		stream_url = self.get_stream_url(data)
-		if not stream_url:
-			get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data, re.S|re.DOTALL)
+		print url
+		resp = self.net.http_GET(url)
+		data = resp.content
+		for frm in re.findall('<form[^>]*method="POST"[^>]*action=\'\'[^>]*>(.*?)</form>', data, re.S|re.I):
+			info = {}
+			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			info['referer'] = resp.get_url()
+			self.waitmsg(int(10), 'Youwatch')
+			data = self.net.http_POST(resp.get_url(), info).content
+			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.I)
 			if get_packedjava:
-				sUnpacked = cJsUnpacker().unpackByString(get_packedjava[0])
-				stream_url = self.get_stream_url(sUnpacked)
-		if stream_url: return stream_url
-		else: return 'Error: Konnte Datei nicht extrahieren'
-		
+				sJavascript = get_packedjava[0]
+				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
+				if sUnpacked:
+					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
+					if stream_url: return stream_url[0]
+					else: return 'Error: Konnte Datei nicht extrahieren'
+
 	def movreel(self, url):
 		data = self.net.http_GET(url).content
 		id = re.findall('<input type="hidden" name="id".*?value="(.*?)">', data)
@@ -359,7 +275,7 @@ class get_stream_link:
 		for i in re.finditer('<input.*?name="(.*?)".*?value="(.*?)">', data):
 			info[i.group(1)] = i.group(2)
 		data = self.net.http_POST(url, info).content
-		get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data, re.S|re.DOTALL)
+		get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.DOTALL)
 		if get_packedjava:
 			sJavascript = get_packedjava[1]
 			sUnpacked = cJsUnpacker().unpackByString(sJavascript)
@@ -465,9 +381,9 @@ class get_stream_link:
 			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
 			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
 			info['referer'] = ""
-			self.waitmsg(int(4), "flashx")
+			self.waitmsg(int(5), "flashx")
 			data = self.net.http_POST(resp.get_url(), info).content
-			get_packedjava = re.findall("<script type=.text.javascript.>eval.function(.*?)</script>", data, re.S|re.DOTALL)
+			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.DOTALL)
 			if get_packedjava:
 				sJavascript = get_packedjava[0]
 				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
@@ -487,7 +403,7 @@ class get_stream_link:
 			info = {}
 			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
 			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-			info['referer'] = ""
+			info['referer'] = resp.get_url()
 			self.waitmsg(int(waitseconds), hostername)
 			data = self.net.http_POST(resp.get_url(), info).content
 			if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 

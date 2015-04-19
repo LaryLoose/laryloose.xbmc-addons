@@ -7,55 +7,58 @@ from stream import *
 dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
-baseurl = 'http://www.filmpalast.to'
-settings = xbmcaddon.Addon(id='plugin.video.filmpalast_to')
-maxitems = (int(settings.getSetting("items_per_page"))+1)*32
+baseurl = 'http://movie-paradise.tv'
+settings = xbmcaddon.Addon(id='plugin.video.movie_paradise_tv')
+maxitems = (int(settings.getSetting("items_per_page"))+1)*15
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
 forceViewMode = settings.getSetting("forceViewMode") == 'true'
 viewMode = str(settings.getSetting("viewMode"))
 userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
 
 def START():
-	#addDir('Neu', baseurl, 1, '', True)
-	addDir('Neue Filme', baseurl + '/movies/new', 1, '', True)
-	addDir('Neue Serien', baseurl + '/serien/view', 1, '', True)
-	addDir('Top Filme', baseurl + '/movies/top', 1, '', True)
+	addDir('Neu', baseurl, 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
-	addDir('Alphabetisch', baseurl, 3, '', True)
+	addDir('Archiv', baseurl + '/?page_id=14056&pgno=1', 3, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def CATEGORIES(url):
 	data = getUrl(url)
-	for genre in re.findall('<section id="genre">(.*?)</section>', data, re.S|re.I):
-		for (href, name) in re.findall('<a[^>]*href="([^"]*)">[ ]*([^<]*)</a>', genre, re.S|re.I):
+	for genre in re.findall('<h3>[^<]*Genres[^<]*</h3>[^<]*</div>[^<]*<ul>(.*?)</ul>', data, re.S|re.I):
+		for (href, name) in re.findall('<a[^>]*href="([^"]*)"[^>]*>([^<]*)</a>', genre, re.S|re.I):
 			addDir(clean(name), href, 1, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
-def ALPHA():
-	addDir('#', baseurl + '/search/alpha/0-9', 1, '', True)
-	for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-		addDir(char, baseurl + '/search/alpha/' + char, 1, '', True)
+def SHOWARCHIVE(url):
+	if (dbg): print url
+	data = getUrl(url)
+	for (url, title) in re.findall('<li><a href="([^"]+)"><span class="head">([^<]+)</span></a></li>', data, re.S|re.I):
+		if 'http:' not in url: url =  baseurl + url
+		addLink(clean(title), url, 10, '')
+	nextPage = re.findall('<span class="azlink azdisabled">[^<]*</span>[^<]*<span class="azlink "><a href="([^"]*)"', data, re.S|re.I)
+	if nextPage:
+		if (dbg): print nextPage
+		SHOWARCHIVE(nextPage[0])
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def INDEX(caturl):
 	if (dbg): print caturl
 	global itemcnt
 	data = getUrl(caturl)
-	for entry in re.findall('id="content"[^>]*>(.+?)<[^>]*id="paging"', data, re.S|re.I):
-		if (dbg): print entry
-		for url, title, image in re.findall('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*src=["\']([^"\']*)["\'][^>]*>', entry, re.S|re.I):
-			if 'http:' not in url: url =  baseurl + url
-			if 'http:' not in image: image =  baseurl + image
-			addLink(clean(title), url, 10, image)
-			itemcnt = itemcnt + 1
-	nextPage = re.findall('<a[^>]*class="[^"]*pageing[^"]*"[^>]*href=["\']([^"\']*)["\'][^>]*>[ ]*vorw', data, re.S|re.I)
+	for url, title, image in re.findall('<div class=[\'"]post-body[\'"]>[^<]*<a href="([^"]+)"[^>]*title="([^"]+)">[^<]*<img[^>]*src="([^"]+)"', data, re.S|re.I):
+		if 'http:' not in url: url =  baseurl + url
+		if 'http:' not in image: image =  baseurl + image
+		addLink(clean(title), clean(url), 10, clean(image))
+		itemcnt = itemcnt + 1
+	nextPage = re.findall('<a class="next page-numbers" href="([^"]+)">Weiter &raquo;</a>', data, re.S|re.I)
 	if nextPage:
 		if (dbg): print nextPage
-		if itemcnt >= maxitems: addDir('Weiter >>', nextPage[0], 1, '',  True)
-		else: INDEX(nextPage[0])
+		np = clean(nextPage[0])
+		if itemcnt >= maxitems: addDir('Weiter >>', np, 1, '',  True)
+		else: INDEX(np)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def clean(s):
+	s = re.sub('Permalink to ', '', s)
 	matches = re.findall("&#\d+;", s)
 	for hit in set(matches):
 		try: s = s.replace(hit, unichr(int(hit[2:-1])))
@@ -75,10 +78,19 @@ def PLAYVIDEO(url):
 	data = getUrl(url)
 	if not data: return
 	videos = []
-	for stream in re.findall('<ul[^>]*class="currentStreamLinks"[^>]*>(.*?)</ul>', data, re.S|re.I|re.DOTALL):
-		for (hoster, stream) in re.findall('<p[^>]*class="hostName">([^<]*)</p>.*?<span[^>]*class="streamEpisodeTitle"[^>]*>[^<]*<a[^>]*href=["\']([^"\']*)["\'][^>]*>', stream, re.S|re.I|re.DOTALL):
-			if filterUnknownHoster and get_stream_link().get_hostername(stream) == 'Not Supported': continue
-			videos += [(hoster, stream)]
+	for streams in re.findall('<div[^>]*id="main_content">(.*?)<div[^>]*class="related-posts">', data, re.S|re.I|re.DOTALL):
+		for (stream) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>', streams, re.S|re.I|re.DOTALL):
+			hoster = get_stream_link().get_hostername(stream)
+			if filterUnknownHoster and hoster == 'Not Supported': continue
+			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]
+		for (stream, title) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>([^<]*)</a>', streams, re.S|re.I|re.DOTALL):
+			hoster = get_stream_link().get_hostername(stream)
+			if filterUnknownHoster and hoster == 'Not Supported': continue
+			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ' + title, stream)]
+		for (stream) in re.findall('<iframe[^>]*src="([^"]*)"', streams, re.S|re.I):
+			hoster = get_stream_link().get_hostername(stream)
+			if filterUnknownHoster and hoster == 'Not Supported': continue
+			videos += [(hoster, stream)]	
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
@@ -99,6 +111,8 @@ def GetStream(url):
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Hoster nicht unterstützt, 4000)")
 	elif re.match('^Error: ', stream_url, re.S|re.I):
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, " + re.sub('^Error: ','',stream_url) + ", 4000)")
+	elif re.match('plugin:', stream_url, re.S|re.I):
+		return stream_url
 	else:
 		req = urllib2.Request(stream_url)
 		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
@@ -155,7 +169,7 @@ except: pass
 if mode==None or url==None or len(url)<1: START()
 elif mode==1: INDEX(url)
 elif mode==2: CATEGORIES(url)
-elif mode==3: ALPHA()
+elif mode==3: SHOWARCHIVE(url)
 elif mode==10: PLAYVIDEO(url)
 
 xbmcplugin.endOfDirectory(pluginhandle)

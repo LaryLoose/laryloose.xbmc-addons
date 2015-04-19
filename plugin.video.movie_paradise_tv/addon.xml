@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.8" provider-name="Lary_Loose">
+<addon id="plugin.video.movie_paradise_tv" name="Movie-Paradise" version="0.1.0" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -8,8 +8,8 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">FilmPalast.to FiLME &amp; SERiEN sofort &amp; kostenlos online ansehen!</summary>
-        <summary lang="en">FilmPalast.to MOViS &amp; SERiES, watch online instantly &amp; free!</summary>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
         <description lang="de"></description>
         <description lang="en"></description>
     </extension>

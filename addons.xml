@@ -32,7 +32,7 @@
 </extension>
 </addon>
 
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.7" provider-name="Lary_Loose">
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.8" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -108,7 +108,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.3.9" provider-name="dirtylion / Lary_Loose">
+<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.3.10" provider-name="dirtylion / Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -246,6 +246,22 @@
         <language>de</language>
         <description lang="de">Longplays of various Computer Games</description>
         <description lang="en">Longplays of various Computer Games</description>
+    </extension>
+</addon>
+
+<addon id="plugin.video.movie_paradise_tv" name="Movie-Paradise" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="script.module.t0mm0.common" version="1.1.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"></summary>
+        <summary lang="en"></summary>
+        <description lang="de"></description>
+        <description lang="en"></description>
     </extension>
 </addon>
 

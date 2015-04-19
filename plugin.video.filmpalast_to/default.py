@@ -22,6 +22,7 @@ def START():
 	addDir('Top Filme', baseurl + '/movies/top', 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
 	addDir('Alphabetisch', baseurl, 3, '', True)
+	addDir('Suche...', baseurl+'/search/title/', 4, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def CATEGORIES(url):
@@ -54,6 +55,13 @@ def INDEX(caturl):
 		if itemcnt >= maxitems: addDir('Weiter >>', nextPage[0], 1, '',  True)
 		else: INDEX(nextPage[0])
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
+
+def SEARCH(url):
+    keyboard = xbmc.Keyboard('', 'Suche')
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+		search_string = urllib.quote(keyboard.getText())
+		INDEX(url + search_string)
 
 def clean(s):
 	matches = re.findall("&#\d+;", s)
@@ -156,6 +164,7 @@ if mode==None or url==None or len(url)<1: START()
 elif mode==1: INDEX(url)
 elif mode==2: CATEGORIES(url)
 elif mode==3: ALPHA()
+elif mode==4: SEARCH(url)
 elif mode==10: PLAYVIDEO(url)
 
 xbmcplugin.endOfDirectory(pluginhandle)

@@ -31,3 +31,6 @@
 
 0.3.10
 * update younow resolver
+
+0.4.0
+* search feature added

@@ -18,6 +18,7 @@ def CATEGORIES():
 	data = getUrl(baseurl)
 	cats = re.findall('<a[^>]*?class="CatInf"[^>]*?href="(.*?)"[^>]*?>.*?<div class="CatNumInf">(.*?)</div>[^<]*?<div[^>]*?class="CatNameInf">(.*?)</div>', data, re.S|re.I)
 	addDir('Letzte Updates', baseurl, 1, '', True)
+	addDir('Suche...', baseurl + '/publ', 4, '', True)
 	addDir('Serien', baseurl + '/load', 0, '', True)
 	for (url, num, name) in cats:
 	    if 'http:' not in url: url =  baseurl + url
@@ -33,11 +34,11 @@ def SERIES(url):
 	    addDir(name + '  [COLOR=blue](' + num + ')[/COLOR]', url, 1, '', True)
 	xbmc.executebuiltin("Container.SetViewMode(400)")
 
-def INDEX(url):
+def INDEX(url, search=None):
 	global itemcnt
 	nextPageUrl = re.sub('-[\d]+$', '', url)
 	print url
-	data = getUrl(url)
+	data = getUrl(url, search)
 	movies = re.findall('<div class="ImgWrapNews">[^<]*<a[^<]*<img[^>]*src="([^"]*.[jpg|png])"[^>]*alt="([^"]*)"[^>]*>.*?class="[^"]*entryLink[^"]*".*?href="([^"]*)"', data, re.S|re.I)
 	if movies:
 		for (image, title, url) in movies:
@@ -86,6 +87,13 @@ def VIDEOLINKS(url, image):
 			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename
 			addLink(entry, clean(stream), 3, image)
 
+def SEARCH(url):
+    keyboard = xbmc.Keyboard('', 'Suche')
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+        search_string = keyboard.getText()
+        INDEX(url, search_string)
+
 def clean(s):
 	try: s = htmlparser.unescape(s)
 	except: print "could not unescape string '%s'"%(s)
@@ -110,10 +118,15 @@ def GETLINK(url):
 			listitem = xbmcgui.ListItem(path=stream_url)
 			return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
 
-def getUrl(url):
+def getUrl(url, query=None):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	response = urllib2.urlopen(req)
+	print query
+	if query:	
+		values = { 'query' : query, 'a' : '2' }
+		response = urllib2.urlopen(req, urllib.urlencode(values))
+	else:
+		response = urllib2.urlopen(req)
 	data = response.read()
 	response.close()
 	return data
@@ -163,5 +176,6 @@ elif mode==0: SERIES(url)
 elif mode==1: INDEX(url)
 elif mode==2: VIDEOLINKS(url, image)
 elif mode==3: GETLINK(url)
+elif mode==4: SEARCH(url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

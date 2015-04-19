@@ -19,6 +19,7 @@ def START():
 	addDir('Neue Filme', baseurl, 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
 	addDir('Archiv', baseurl + '/?page_id=14056&pgno=1', 3, '', True)
+	addDir('Suche...', baseurl+'/?s=', 4, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def CATEGORIES(url):
@@ -57,14 +58,22 @@ def INDEX(caturl):
 		else: INDEX(np)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
+def SEARCH(url):
+    keyboard = xbmc.Keyboard('', 'Suche')
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+		search_string = urllib.quote(keyboard.getText())
+		INDEX(url + search_string)
+
 def clean(s):
 	s = re.sub('Permalink to ', '', s)
 	s = re.sub('<[^>]*>', '', s)
+	s = s.replace('&amp;', '&')
 	matches = re.findall("&#\d+;", s)
 	for hit in set(matches):
 		try: s = s.replace(hit, unichr(int(hit[2:-1])))
 		except ValueError: pass
-	return urllib.unquote_plus(s)
+	return urllib.unquote(s)
 
 def selectVideoDialog(videos):
 	titles = []
@@ -167,6 +176,7 @@ if mode==None or url==None or len(url)<1: START()
 elif mode==1: INDEX(url)
 elif mode==2: CATEGORIES(url)
 elif mode==3: SHOWARCHIVE(url)
+elif mode==4: SEARCH(url)
 elif mode==10: PLAYVIDEO(url)
 
 xbmcplugin.endOfDirectory(pluginhandle)

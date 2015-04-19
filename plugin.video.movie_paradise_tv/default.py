@@ -59,6 +59,7 @@ def INDEX(caturl):
 
 def clean(s):
 	s = re.sub('Permalink to ', '', s)
+	s = re.sub('<[^>]*>', '', s)
 	matches = re.findall("&#\d+;", s)
 	for hit in set(matches):
 		try: s = s.replace(hit, unichr(int(hit[2:-1])))
@@ -79,18 +80,14 @@ def PLAYVIDEO(url):
 	if not data: return
 	videos = []
 	for streams in re.findall('<div[^>]*id="main_content">(.*?)<div[^>]*class="related-posts">', data, re.S|re.I|re.DOTALL):
-		for (stream) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>', streams, re.S|re.I|re.DOTALL):
+		for (stream, title) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>(.*?)</a>', streams, re.S|re.I|re.DOTALL):
 			hoster = get_stream_link().get_hostername(stream)
 			if filterUnknownHoster and hoster == 'Not Supported': continue
-			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]
-		for (stream, title) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>([^<]*)</a>', streams, re.S|re.I|re.DOTALL):
-			hoster = get_stream_link().get_hostername(stream)
-			if filterUnknownHoster and hoster == 'Not Supported': continue
-			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ' + title, stream)]
+			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ' + clean(title), stream)]
 		for (stream) in re.findall('<iframe[^>]*src="([^"]*)"', streams, re.S|re.I):
 			hoster = get_stream_link().get_hostername(stream)
 			if filterUnknownHoster and hoster == 'Not Supported': continue
-			videos += [(hoster, stream)]	
+			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]	
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")

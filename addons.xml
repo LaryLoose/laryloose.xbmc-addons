@@ -234,6 +234,22 @@
   </extension>
 </addon>
 
+<addon id="plugin.video.silverkino_to" name="Silverkino" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="script.module.t0mm0.common" version="1.1.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de"> Kostenlos 20.000 movies und 2.000 serien Online anschauen</summary>
+        <summary lang="en"></summary>
+        <description lang="de"> Kostenlos 20.000 movies und 2.000 serien Online anschauen</description>
+        <description lang="en"></description>
+    </extension>
+</addon>
+
 <addon id="plugin.video.recordedgames" name="Recorded Games" version="0.1.0" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">

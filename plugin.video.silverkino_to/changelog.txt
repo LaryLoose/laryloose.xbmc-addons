@@ -1,3 +1,6 @@
+0.1.1
+ - bugfixes
+ - PromptFile support
 
 0.1.0
  - first try

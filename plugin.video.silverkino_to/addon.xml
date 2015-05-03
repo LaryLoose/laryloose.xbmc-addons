@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.silverkino_to" name="Silverkino" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.silverkino_to" name="Silverkino" version="0.1.1" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -8,9 +8,9 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de"> Kostenlos 20.000 movies und 2.000 serien Online anschauen</summary>
+        <summary lang="de">Kostenlos 20.000 movies und 2.000 serien Online anschauen</summary>
         <summary lang="en"></summary>
-        <description lang="de"> Kostenlos 20.000 movies und 2.000 serien Online anschauen</description>
+        <description lang="de">Hier findest du aktuelle Kinofilme und TV-Serien gratis als Stream. Filme kostenlos online schauen und Serien herunterladen.</description>
         <description lang="en"></description>
     </extension>
 </addon>

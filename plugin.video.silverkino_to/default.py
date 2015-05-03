@@ -5,7 +5,7 @@ from stream import *
 import HTMLParser
 html_parser = HTMLParser.HTMLParser()
 
-dbg = False
+dbg = True
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://silverkino.to'
@@ -30,11 +30,11 @@ def INDEX(url, search=None, value=None, id=None):
 	data = getUrl(url, search, value, id)
 	for moviesection in re.findall('<div[^>]*id="movie_list"[^>]*>(.*?)<div[^>]*id="paging"', data, re.S|re.I):
 		for movie in re.findall('(<a[^>]*>[^<]*<div[^>]*id="mov[\d]*".*?</a>)', moviesection, re.S|re.I):
-			if (dbg): print movie
+			#if (dbg): print movie
 			url = find('<a[^>]*href="([^"]*)"', movie)
 			title = find('<div[^>]*class="more"[^>]*id="mov[\d]*_info">([^<]*)<', movie)
 			image = find('<img[^>]*src="(img_movies[^"]+)"[^>]*>', movie)
-			if (dbg): print clean(title), makeurl(url), makeurl(image)
+			if (dbg): print title, makeurl(url), makeurl(image)
 			addLink(clean(title), makeurl(url), 10, makeurl(image))
 			itemcnt = itemcnt + 1
 	nextPage = find('<div id="paging">.*?<a href="([^"]+)">></a>', data)
@@ -112,20 +112,17 @@ def clean(s):
 
 def selectVideoDialog(videos):
 	titles = []
-	for name, src in videos:
-		titles.append(name)
+	for name, src in videos: titles.append(name)
 	idx = xbmcgui.Dialog().select("", titles)
 	if idx > -1: return videos[idx][1]
 
 def GetStream(url):
 	if (dbg): print url
-	if baseurl in url:
-		req = urllib2.Request(url)
-		req.add_header('User-Agent', userAgent)
-		response = urllib2.urlopen(req)
-		url = response.geturl()
-		response.close()
+	if baseurl in url: url = resolveUrl(url)
 	if (dbg): print url
+	if 'watch_embeded.php' in url: url = findembed(url)
+	if (dbg): print url
+	
 	stream_url = get_stream_link().get_stream(url)
 	if (dbg): print stream_url
 	if stream_url is None:
@@ -137,13 +134,23 @@ def GetStream(url):
 	elif re.match('plugin:', stream_url, re.S|re.I):
 		return stream_url
 	else:
-		req = urllib2.Request(stream_url)
-		req.add_header('User-Agent', userAgent)
-		response = urllib2.urlopen(req)
-		stream_url = response.geturl()
-		response.close()
-		return stream_url
+		return resolveUrl(stream_url)
 
+def findembed(url):
+	if (dbg): print url
+	data = getUrl(url)
+	if not data: return
+	print data
+	return find('<a[^>]*href="([^"]+)">[^<]*hier![^<]*</a>', data)
+	
+def resolveUrl(url):
+	req = urllib2.Request(url)
+	req.add_header('User-Agent', userAgent)
+	response = urllib2.urlopen(req)
+	url = response.geturl()
+	response.close()
+	return url
+	
 def getUrl(url, query=None, value=None, id=None):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', userAgent)

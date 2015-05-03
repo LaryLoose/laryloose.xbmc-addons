@@ -25,7 +25,7 @@ hosterlist = [
 	('videoslasher', '.*www\.videoslasher\.com/embed/'),
 	('faststream', '.*faststream\.in'),
 	('flashx', '.*flashx\.tv'),
-	('vk', '.*vk\.(me|com)/'),
+	('vk', '.*vk\.(?:me|com)/'),
 	('streamcloud', '.*streamcloud\.eu'),
 	('vidstream', '.*vidstream\.in'),
 	('xvidstage', '.*xvidstage\.com'),
@@ -45,7 +45,8 @@ hosterlist = [
 	('sharedsx', '.*shared\.sx'),
 	('vivosx', '.*vivo\.sx'),
 	('cloudyvideos', '.*cloudyvideos\.com'),
-	('vidx', '.*vidx\.to')]
+	('vidx', '.*vidx\.to'),
+	('promptfile', '.*promptfile\.com')]
 
 
 std_headers = {
@@ -90,6 +91,7 @@ class get_stream_link:
 		elif hoster == 'sharedsx': return self.generic1(link, 'Shared.sx', 0, 1)
 		elif hoster == 'vivosx': return self.generic1(link, 'Vivo.sx', 0, 1)
 		elif hoster == 'cloudyvideos': return self.generic1(link, 'CloudyVideos', 2, 2)
+		elif hoster == 'promptfile': return self.promptfile(link)
 		return 'Not Supported'
 
 	def getUrl(self, url):
@@ -99,7 +101,7 @@ class get_stream_link:
 		data = response.read()
 		response.close()
 		return data
-		
+	
 	def get_adfly_link(self, adflink):
 		print 'resolving adfly url: \'%s\' using http://dead.comuv.com/bypasser/process.php' % (adflink)
 		data = self.net.http_POST('http://dead.comuv.com/bypasser/process.php', {'url':adflink}, {'Referer':'http://dead.comuv.com/', 'X-Requested-With':'XMLHttpRequest'}).content
@@ -178,7 +180,7 @@ class get_stream_link:
 		for frm in re.findall('<form[^>]*method="POST"[^>]*action=\'\'[^>]*>(.*?)</form>', data, re.S|re.I):
 			info = {}
 			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
 			info['referer'] = resp.get_url()
 			self.waitmsg(int(10), 'Youwatch')
 			data = self.net.http_POST(resp.get_url(), info).content
@@ -294,7 +296,7 @@ class get_stream_link:
 		info = {}
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2)
-		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+		if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
 		print 'URL: '+ url, info
 		data = self.net.http_POST(url, info).content
 		if re.match('.*?not found', data, re.S|re.I): return 'Error: Datei nicht gefunden'
@@ -309,7 +311,7 @@ class get_stream_link:
 		if re.match('.*?No such file with this filename', data, re.S|re.I): return 'Error: Dateiname nicht bekannt'
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2).replace('download1', 'download2')
-		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+		if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
 		#wait required
 		#print "POSTDATA: " + str(info)
 		#self.waitmsg(10, "Streamcloud")
@@ -336,7 +338,7 @@ class get_stream_link:
 				if 'ok' in data: return stream_url[1]
 				else: return 'Error: konnte stream nicht bestaetigen'
 			else: return 'Error: Stream-URL nicht gefunden'
-		else: return 'Error: konnte Logindaten nicht extrahieren'
+		else: return 'Error: konnte Formulardaten nicht extrahieren'
 
 	def streamPutlockerSockshare(self, url, provider):
 		data = self.getUrl(url.replace('/file/','/embed/'))
@@ -375,11 +377,11 @@ class get_stream_link:
 	def flashx(self, url):
 		print 'flashx: ' + url
 		resp = self.net.http_GET(url)
-		data = resp.content								
+		data = resp.content						
 		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
 			info = {}
 			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
 			info['referer'] = ""
 			self.waitmsg(int(5), "flashx")
 			data = self.net.http_POST(resp.get_url(), info).content
@@ -392,6 +394,20 @@ class get_stream_link:
 					if stream_url: return stream_url[0]
 					else: return 'Error: Konnte Datei nicht extrahieren'
 
+	def promptfile(self, url):
+		print 'promptfile: ' + url
+		resp = self.net.http_GET(url)
+		data = resp.content
+		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
+			info = {}
+			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+			if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
+			info['referer'] = ""
+			data = self.net.http_POST(resp.get_url(), info).content
+			print data
+		match = re.search('<a[^>]*href="([^"]+)"[^>]*>[^<]*Download[^<]*File', data, re.S|re.I|re.DOTALL)
+		if match: return match.group(1)
+		
 	def generic1(self, url, hostername, waitseconds, filerexid):
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 
@@ -402,7 +418,7 @@ class get_stream_link:
 		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
 			info = {}
 			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			if len(info) == 0: return 'Error: konnte Formulardaten nicht extrahieren'
 			info['referer'] = resp.get_url()
 			self.waitmsg(int(waitseconds), hostername)
 			data = self.net.http_POST(resp.get_url(), info).content

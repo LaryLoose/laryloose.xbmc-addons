@@ -250,6 +250,21 @@
     </extension>
 </addon>
 
+<addon id="plugin.image.egotastic_com" name="Egotastic!" version="0.1.0" provider-name="Lary_Loose">
+  <requires>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>image</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="de">Egotastic! The Sexy Side Of Celebrity Gossip</summary>
+    <summary lang="en">Egotastic! The Sexy Side Of Celebrity Gossipr</summary>
+    <description lang="de">Egotastic! The Sexy Side Of Celebrity Gossip</description>
+    <description lang="en">Egotastic! The Sexy Side Of Celebrity Gossip</description>
+  </extension>
+</addon>
+
 <addon id="plugin.video.recordedgames" name="Recorded Games" version="0.1.0" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">

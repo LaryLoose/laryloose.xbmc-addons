@@ -1,0 +1,8 @@
+<?xml version ="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <category label="30000">
+    <setting id="force_viewmode" type="bool" label="30100" default="false"/>
+    <setting id="cache_to_disc" type="bool" label="30101" default="true"/>
+	<setting id="items_per_page" type="enum" label="30102" values="15|30|45|60|75|90|105|150|300|600" default="1"/>
+  </category>
+</settings>

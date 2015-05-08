@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.onlinefilme_to" name="OnlineFilme" version="0.1.0" provider-name="Lary_Loose">
+    <requires>
+        <import addon="script.module.t0mm0.common" version="1.1.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="de">Online filme und serien online schauen</summary>
+        <summary lang="en"></summary>
+        <description lang="de">Online filme und serien online schauen</description>
+        <description lang="en"></description>
+    </extension>
+</addon>

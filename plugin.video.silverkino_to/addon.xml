@@ -12,5 +12,7 @@
         <summary lang="en"></summary>
         <description lang="de">Hier findest du aktuelle Kinofilme und TV-Serien gratis als Stream. Filme kostenlos online schauen und Serien herunterladen.</description>
         <description lang="en"></description>
+		<broken lang="de">ersetzt durch das OnlineFilme addon</broken>
+		<broken lang="en">replaced by OnlineFilme addon</broken>
     </extension>
 </addon>

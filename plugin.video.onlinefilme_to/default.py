@@ -5,7 +5,7 @@ from stream import *
 import HTMLParser
 html_parser = HTMLParser.HTMLParser()
 
-dbg = True
+dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://onlinefilme.to'
@@ -118,11 +118,15 @@ def selectVideoDialog(videos):
 	if idx > -1: return videos[idx][1]
 
 def GetStream(url):
-	if (dbg): print url
+	target = None
+	if (dbg): print "resolveUrl("+url+")"
 	if baseurl in url: url = resolveUrl(url)
-	if (dbg): print url
-	if 'watch_embeded.php' in url: url = findembed(url)
-	if (dbg): print url
+	if (dbg): print "findembed("+url+")"
+	if 'watch_embeded.php' in url: target = findembed(url)
+	if (dbg): print "target:" + str(target)
+	if not target: target = findembed(url)
+	if (dbg): print "target2:" + str(target)
+	if target: url = target
 	
 	stream_url = get_stream_link().get_stream(url)
 	if (dbg): print stream_url
@@ -141,8 +145,7 @@ def findembed(url):
 	if (dbg): print url
 	data = getUrl(url)
 	if not data: return
-	print data
-	return find('<a[^>]*href="([^"]+)">[^<]*hier![^<]*</a>', data)
+	return find('<a[^>]*href="([^"]+)"[^>]*>[^<]*hier![^<]*</a>', data)
 	
 def resolveUrl(url):
 	req = urllib2.Request(url)

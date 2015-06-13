@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
-from jsunpacker import cJsUnpacker
 from stream import *
 
-dbg = False
+dbg = True
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://movie-paradise.tv'
@@ -16,45 +15,28 @@ viewMode = str(settings.getSetting("viewMode"))
 userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
 
 def START():
-	addDir('Neue Filme', baseurl, 1, '', True)
+	addDir('Neue Filme', prepUrl('/?page_id=5&more=recent'), 1, '', True)
 	addDir('Kategorien', baseurl, 2, '', True)
-	addDir('Archiv', baseurl + '/?page_id=14056&pgno=1', 3, '', True)
-	addDir('Suche...', baseurl+'/?s=', 4, '', True)
+	addDir('Suche...', prepUrl('/?page_id=5&video_search='), 4, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def CATEGORIES(url):
 	data = getUrl(url)
-	for genre in re.findall('<h3>[^<]*Genres[^<]*</h3>[^<]*</div>[^<]*<ul>(.*?)</ul>', data, re.S|re.I):
-		for (href, name) in re.findall('<a[^>]*href="([^"]*)"[^>]*>([^<]*)</a>', genre, re.S|re.I):
-			addDir(clean(name), href, 1, '', True)
-	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
-
-def SHOWARCHIVE(url):
-	if (dbg): print url
-	data = getUrl(url)
-	for (url, title) in re.findall('<li><a href="([^"]+)"><span class="head">([^<]+)</span></a></li>', data, re.S|re.I):
-		if 'http:' not in url: url =  baseurl + url
-		addLink(clean(title), url, 10, '')
-	nextPage = re.findall('<span class="azlink azdisabled">[^<]*</span>[^<]*<span class="azlink "><a href="([^"]*)"', data, re.S|re.I)
-	if nextPage:
-		if (dbg): print nextPage
-		SHOWARCHIVE(nextPage[0])
+	for (href, genre) in re.findall('<a[^>]*class="videoHname[ ]*"[^>]*href="([^"]+playid[^"]+)"[^>]*>([^<]*)</a>', data, re.S|re.I):
+		addDir(clean(genre), prepUrl(href), 1, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
 def INDEX(caturl):
 	if (dbg): print caturl
 	global itemcnt
-	data = getUrl(caturl)
-	for url, title, image in re.findall('<div class=[\'"]post-body[\'"]>[^<]*<a href="([^"]+)"[^>]*title="([^"]+)">[^<]*<img[^>]*src="([^"]+)"', data, re.S|re.I):
-		if 'http:' not in url: url =  baseurl + url
-		if 'http:' not in image: image =  baseurl + image
-		addLink(clean(title), clean(url), 10, clean(image))
+	data = getUrl(caturl)										
+	for url, title, image in re.findall('<li[^>]*class="video-block"[^>]*>[^<]*<div[^>]*>[^<]*<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*>[^<]*<img[^>]*src="([^"]+)"[^>]*>', data, re.S|re.I):
+		addLink(clean(title), prepUrl(url), 10, prepUrl(image))
 		itemcnt = itemcnt + 1
-	nextPage = re.findall('<a class="next page-numbers" href="([^"]+)">Weiter &raquo;</a>', data, re.S|re.I)
+	nextPage = re.findall('<a[^>]*class="next page-numbers"[^>]*href="([^"]+)"[^>]*>', data, re.S|re.I)
 	if nextPage:
 		if (dbg): print nextPage
-		np = clean(nextPage[0])
-		if itemcnt >= maxitems: addDir('Weiter >>', np, 1, '',  True)
+		if itemcnt >= maxitems: addDir('Weiter >>', prepUrl(nextPage[0]), 1, '',  True)
 		else: INDEX(np)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
@@ -65,6 +47,11 @@ def SEARCH(url):
 		search_string = urllib.quote(keyboard.getText())
 		INDEX(url + search_string)
 
+def prepUrl(url):
+	url = clean(url)
+	if 'http:' not in url: url =  baseurl + url
+	return url
+	
 def clean(s):
 	s = re.sub('Permalink to ', '', s)
 	s = re.sub('<[^>]*>', '', s)
@@ -88,15 +75,15 @@ def PLAYVIDEO(url):
 	data = getUrl(url)
 	if not data: return
 	videos = []
-	for streams in re.findall('<div[^>]*id="main_content">(.*?)<div[^>]*class="related-posts">', data, re.S|re.I|re.DOTALL):
-		for (stream, title) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>(.*?)</a>', streams, re.S|re.I|re.DOTALL):
-			hoster = get_stream_link().get_hostername(stream)
+	for streams in re.findall('<div[^>]*class="video-page-desc">(.*?)</div>', data, re.S|re.I|re.DOTALL):
+		for (stream) in re.findall('<a[^>]*href=["\']([^"\']*)["\'][^>]*>', streams, re.S|re.I|re.DOTALL):
+			hoster = get_stream_link().get_hostername(stream).title()
 			if filterUnknownHoster and hoster == 'Not Supported': continue
-			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ' + clean(title), stream)]
-		for (stream) in re.findall('<iframe[^>]*src="([^"]*)"', streams, re.S|re.I):
-			hoster = get_stream_link().get_hostername(stream)
-			if filterUnknownHoster and hoster == 'Not Supported': continue
-			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]	
+			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]
+#		for (stream) in re.findall('<iframe[^>]*src="([^"]*)"', streams, re.S|re.I):
+#			hoster = get_stream_link().get_hostername(stream)
+#			if filterUnknownHoster and hoster == 'Not Supported': continue
+#			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]	
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")

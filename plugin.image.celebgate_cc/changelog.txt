@@ -1,3 +1,6 @@
+0.1.5
+	- settings bug fixed 
+	
 0.1.4
 	- limit pictures per site
 

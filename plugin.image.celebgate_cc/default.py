@@ -3,7 +3,7 @@
 import urllib, urllib2, re, xbmcplugin, xbmcgui, sys, xbmcaddon, base64
 
 thisPlugin = int(sys.argv[1])
-settings = xbmcaddon.Addon(id='plugin.video.celebgate_cc')
+settings = xbmcaddon.Addon(id='plugin.image.celebgate_cc')
 translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("force_viewmode") == "true"
 useCacheToDisc = settings.getSetting("cache_to_disc") == "true"

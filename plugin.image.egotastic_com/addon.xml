@@ -11,5 +11,7 @@
     <summary lang="en">Egotastic! The Sexy Side Of Celebrity Gossipr</summary>
     <description lang="de">Egotastic! The Sexy Side Of Celebrity Gossip</description>
     <description lang="en">Egotastic! The Sexy Side Of Celebrity Gossip</description>
+	<broken lang="de">defekt</broken>
+    <broken lang="en">defect</broken>
   </extension>
 </addon>

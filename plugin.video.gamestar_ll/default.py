@@ -53,14 +53,14 @@ def INDEX(url):
 	if dbg: print url
 	global itemcnt
 	data = getUrl(url)
-	for url, img, title in re.findall('<div[^>]*class="videoPreview"[^>]*>[^<]*<a[^>]*class="imageLink"[^>]*href="([^"]*)"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*title="([^"]*)"[^>]*>', data, re.S|re.I):
+	for url, img, title in re.findall('<div[^>]*class="videoPreview"[^>]*>[^<]*<a[^>]*class="imageLink"[^>]*href="([^"]*)"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*(?:title|alt)="([^"]*)"[^>]*>', data, re.S|re.I):
 		if 'http' not in url: url =  baseurl + url
 		title = clean(filter(title))
 		title = re.sub(r'(^.*?) - ', r'[COLOR=blue]\g<1>[/COLOR] - ', title)
 		if dbg: print url, img, title
 		addLink(title, url, 2, renamepic(img), renamepic(img, True))
 		itemcnt = itemcnt + 1
-	nextPage = re.findall('<a[^>]*href="([^"]*)"[^>]*>[^<]*<img[^>]*src="[^"]*btnNextPage.png"[^>]*>', data, re.S)
+	nextPage = re.findall('<a[^>]*href="([^"]*)"[^>]*>[^<]*<img[^>]*src="[^"]*btnNextPage.png', data, re.S)
 	if nextPage:
 		url = nextPage[0]
 		if 'http' not in url: url =  baseurl + url

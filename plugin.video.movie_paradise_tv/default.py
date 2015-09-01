@@ -3,7 +3,7 @@
 import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
 from stream import *
 
-dbg = True
+dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://movie-paradise.tv'
@@ -22,7 +22,7 @@ def START():
 
 def CATEGORIES(url):
 	data = getUrl(url)
-	for (href, genre) in re.findall('<a[^>]*class="videoHname[ ]*"[^>]*href="([^"]+playid[^"]+)"[^>]*>([^<]*)</a>', data, re.S|re.I):
+	for (href, genre) in re.findall('<td[^>]*>[^<]*<a[^>]*href="([^"]*)"[^>]*><button[^>]*>([^<]+)</button></a></td>', data, re.S|re.I):
 		addDir(clean(genre), prepUrl(href), 1, '', True)
 	if forceViewMode: xbmc.executebuiltin("Container.SetViewMode("+viewMode+")")
 
@@ -80,10 +80,6 @@ def PLAYVIDEO(url):
 			hoster = get_stream_link().get_hostername(stream).title()
 			if filterUnknownHoster and hoster == 'Not Supported': continue
 			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]
-#		for (stream) in re.findall('<iframe[^>]*src="([^"]*)"', streams, re.S|re.I):
-#			hoster = get_stream_link().get_hostername(stream)
-#			if filterUnknownHoster and hoster == 'Not Supported': continue
-#			videos += [('[COLOR=blue]' + hoster + '[/COLOR] ', stream)]	
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
@@ -162,7 +158,6 @@ except: pass
 if mode==None or url==None or len(url)<1: START()
 elif mode==1: INDEX(url)
 elif mode==2: CATEGORIES(url)
-elif mode==3: SHOWARCHIVE(url)
 elif mode==4: SEARCH(url)
 elif mode==10: PLAYVIDEO(url)
 

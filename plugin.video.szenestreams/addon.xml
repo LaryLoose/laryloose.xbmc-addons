@@ -12,5 +12,7 @@
         <summary lang="en">Szene-Streams.com</summary>
         <description lang="de">Filme und Serien von Szene-Streams.com</description>
         <description lang="en">Movies and series from Szene-Streams.com</description>
+	<broken lang="de">Seite down</broken>
+	<broken lang="en">Site down</broken>
     </extension>
 </addon>

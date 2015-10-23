@@ -1,8 +1,7 @@
-import re, urllib2, cookielib, time, xbmcgui, socket, xbmc, os
+import re, cookielib, time, xbmcgui, xbmc, os, urllib2
 from urllib2 import Request, URLError, urlopen as urlopen2
 from urlparse import parse_qs
-from urllib import quote, urlencode
-from urllib import quote, unquote_plus, unquote, urlencode
+from urllib import quote, urlencode, unquote_plus, unquote
 from httplib import HTTPConnection, CannotSendRequest, BadStatusLine, HTTPException
 from socket import gaierror, error
 from t0mm0.common.net import Net
@@ -47,14 +46,6 @@ hosterlist = [
 	('cloudyvideos', '.*cloudyvideos\.com'),
 	('vidx', '.*vidx\.to')]
 
-
-std_headers = {
-	'User-Agent': 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100627 Firefox/3.6.6',
-	'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Language': 'en-us,en;q=0.5',
-}
-
 class get_stream_link:
 
 	def __init__(self):
@@ -94,7 +85,7 @@ class get_stream_link:
 
 	def getUrl(self, url):
 		req = urllib2.Request(url)
-		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0')
 		response = urllib2.urlopen(req)
 		data = response.read()
 		response.close()
@@ -391,7 +382,7 @@ class get_stream_link:
 					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
 					if stream_url: return stream_url[0]
 					else: return 'Error: Konnte Datei nicht extrahieren'
-
+	
 	def generic1(self, url, hostername, waitseconds, filerexid):
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 

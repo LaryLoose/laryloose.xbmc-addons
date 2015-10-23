@@ -32,7 +32,7 @@
 </extension>
 </addon>
 
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.9" provider-name="Lary_Loose">
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.10" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -121,6 +121,8 @@
         <summary lang="en">Szene-Streams.com</summary>
         <description lang="de">Filme und Serien von Szene-Streams.com</description>
         <description lang="en">Movies and series from Szene-Streams.com</description>
+	<broken lang="de">Seite down</broken>
+	<broken lang="en">Site down</broken>
     </extension>
 </addon>
 

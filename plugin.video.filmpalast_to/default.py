@@ -13,7 +13,7 @@ maxitems = (int(settings.getSetting("items_per_page"))+1)*32
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
 forceViewMode = settings.getSetting("forceViewMode") == 'true'
 viewMode = str(settings.getSetting("viewMode"))
-userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:18.0) Gecko/20100101 Firefox/18.0'
+userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 def START():
 	#addDir('Neu', baseurl, 1, '', True)
@@ -27,6 +27,7 @@ def START():
 
 def CATEGORIES(url):
 	data = getUrl(url)
+	
 	for genre in re.findall('<section id="genre">(.*?)</section>', data, re.S|re.I):
 		for (href, name) in re.findall('<a[^>]*href="([^"]*)">[ ]*([^<]*)</a>', genre, re.S|re.I):
 			addDir(clean(name), href, 1, '', True)
@@ -108,12 +109,13 @@ def GetStream(url):
 	elif re.match('^Error: ', stream_url, re.S|re.I):
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, " + re.sub('^Error: ','',stream_url) + ", 4000)")
 	else:
-		req = urllib2.Request(stream_url)
-		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-		response = urllib2.urlopen(req)
-		stream_url = response.geturl()
-		response.close()
-		return stream_url
+		#req = urllib2.Request(stream_url)
+		#req.add_header('User-Agent', userAgent)
+		#req.add_header('Referer', url)
+		#response = urllib2.urlopen(req)
+		#stream_url = response.geturl()
+		#response.close()
+		return stream_url + '|User-Agent=' + userAgent +'&Referer=' + url
 
 def getUrl(url):
 	req = urllib2.Request(url)

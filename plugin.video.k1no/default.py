@@ -15,33 +15,32 @@ movieViewMode = str(settings.getSetting("movieViewMode"))
 dbg = False
 
 def CATEGORIES(idx):
-	#data = getUrl(baseurl+'/load')
-	#addDir('Hauptseite', baseurl, 1, '', True)
-	#addDir('Filmverzeichnis', baseurl+'/load/0-1', 1, '', True)
+	data = getUrl(baseurl+'/load')
+	addDir('Neue Filme', baseurl+'/load/?page1', 1, '', True)
 	#addDir('Update 100', baseurl+'/index/top_filme/0-30', 1, '', True)
 	#addDir('Update 200', baseurl+'/index/update_200/0-44', 1, '', True)
 	#addDir('Serien', baseurl, 0, '', True)
-	#for cats in re.findall('<table[^>]*class="catsTable"[^>]*>(.*?)</table>', data, re.S|re.I|re.DOTALL):
-	#	for url, name in re.findall('<a[^>]*href="([^"]+)"[^>]*class="catName"[^>]*>([^<]*)</a>', cats, re.S|re.I|re.DOTALL):
-	#		if 'http:' not in url: url =  baseurl + url
-	#		addDir(name, url, 1, '', True)
+	for cats in re.findall('<table[^>]*class="catsTable"[^>]*>(.*?)</table>', data, re.S|re.I|re.DOTALL):
+		for url, name in re.findall('<a[^>]*href="([^"]+)"[^>]*class="catName"[^>]*>([^<]*)</a>', cats, re.S|re.I|re.DOTALL):
+			if re.match('Suche|DVD.*s|Neue Film-Update.*s|Wunschfilm|Filme 2.*|Filme Ab 18', name, re.S|re.I): continue
+			if 'http:' not in url: url =  baseurl + url
+			addDir(name, url, 1, '', True)
 	#xbmc.executebuiltin("Container.SetViewMode(400)")
-	INDEX(baseurl+'/load/0-1')
 
 def INDEX(url):
 	global itemcnt
-	nextPageUrl = re.sub('-[\d]+$', '', url)
-	print url
+	if dbg: print url
 	data = getUrl(url)
 	for (title, url, image) in re.findall('<div[^>]*class="grid"[^>]*>.*?<a[^>]*>[^<]*<span[^>]*>([^<]*)<.*?<div class="grid-col">[^<]*<a href="([^"]*)"[^>]*>[^<]*<img[^>]*src="([^"]*)"[^>]*>', data, re.I|re.S|re.DOTALL):
 		if 'http' not in url: url =  baseurl + url
 		if 'http' not in image: image =  baseurl + image
 		addLink(clean(title), url, 10, image)
 		itemcnt = itemcnt + 1
-	nextPage = re.findall('<a class="swchItem"[^>]*? onclick="spages\(\'(\d+)\'[^>]*?"><span>&raquo;</span></a>', data, re.S)
+	nextPage = re.findall('<a[^>]*class="swchItem"[^>]*href="([^"]+)"[^>]*><span>&raquo;</span>', data, re.S)
 	if nextPage:
-		if itemcnt >= maxitems: addDir('Weiter >>', nextPageUrl + '-' + nextPage[0], 1, '',  True)
-		else: INDEX(nextPageUrl + '-' + nextPage[0])
+		if 'http' not in nextPage[0]: nextPage[0] =  baseurl + nextPage[0]
+		if itemcnt >= maxitems: addDir('Weiter >>', nextPage[0], 1, '',  True)
+		else: INDEX(nextPage[0])
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
 def selectVideoDialog(videos):
@@ -52,13 +51,14 @@ def selectVideoDialog(videos):
 	return videos[idx][1]
 
 def PLAYVIDEO(url):
-	print url
+	if dbg: print url
 	data = getUrl(url)
 	if not data: return
 	videos = []
 	for (host, stream) in re.findall('<object[^>]*data="([^"]*)/[^"]*"[^>]*>.*?<param[^>]*value="flv=([^"&;]*)', data, re.S|re.I|re.DOTALL):
-		print 'host: '+host
-		print 'stream: '+cleanUrl(stream)
+		host = get_stream_link().get_hostername(cleanUrl(stream))
+		if dbg: print 'host: '+host
+		if dbg: print 'stream: '+cleanUrl(stream)
 		videos += [(host, cleanUrl(stream))]
 	for stream in re.findall('freevideocoding\.com.flvplayer\.swf\?file=([^>"\'&]*)["&\']', data, re.S|re.I|re.DOTALL):
 		videos += [('freevideocoding', cleanUrl(stream))]

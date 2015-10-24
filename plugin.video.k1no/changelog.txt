@@ -1,5 +1,8 @@
+0.1.10
+* adjustments due to site changes
+
 0.1.9
-* adjustments caused by page changes
+* adjustments due to site changes
 
 0.1.7
 * add new player

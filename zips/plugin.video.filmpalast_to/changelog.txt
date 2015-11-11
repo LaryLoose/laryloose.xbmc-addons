@@ -1,3 +1,7 @@
+0.1.11
+ - fixes due to page changes
+ - cloudyvideo fixed again
+
 0.1.10
  - cloudyvideo fixed
 

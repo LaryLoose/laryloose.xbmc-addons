@@ -163,7 +163,6 @@ class get_stream_link:
 			else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def youwatch(self, url):
-		print url
 		resp = self.net.http_GET(url)
 		data = resp.content
 		for frm in re.findall('<form[^>]*method="POST"[^>]*action=\'\'[^>]*>(.*?)</form>', data, re.S|re.I):
@@ -301,9 +300,6 @@ class get_stream_link:
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2).replace('download1', 'download2')
 		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-		#wait required
-		#print "POSTDATA: " + str(info)
-		#self.waitmsg(10, "Streamcloud")
 		data = self.net.http_POST(url, info).content
 		if re.match('.*?This video is encoding now', data, re.S): return 'Error: Das Video wird aktuell konvertiert'
 		if re.match('.*?The file you were looking for could not be found', data, re.S): return 'Error: Die Datei existiert nicht'
@@ -387,7 +383,7 @@ class get_stream_link:
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 
 					'data-url=[\'\"]([^\'\"]+)[\"\']',
-					'<a[^>]*href="([^"]+)">[^<]*<input[^>]*value="Click for your file">' ]
+					'<a[^>]*href="([^"]*)">[^<]*<input[^>]*value="Download"[^>]*>' ]
 		resp = self.net.http_GET(url)
 		data = resp.content
 		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):

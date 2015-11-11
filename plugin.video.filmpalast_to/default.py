@@ -4,10 +4,11 @@ import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
 from jsunpacker import cJsUnpacker
 from stream import *
 
-dbg = False
+dbg = True
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://www.filmpalast.to'
+streamurl = 'http://www.filmpalast.to/stream/{id}/1'
 settings = xbmcaddon.Addon(id='plugin.video.filmpalast_to')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*32
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
@@ -78,16 +79,23 @@ def selectVideoDialog(videos):
 	idx = xbmcgui.Dialog().select("", titles)
 	if idx > -1: return videos[idx][1]
 
+def getStreamSRC(id):
+	from t0mm0.common.net import Net
+	net = Net()
+	data = net.http_POST(streamurl.replace('{id}', id), {'streamID':id}, {'Referer':baseurl, 'X-Requested-With':'XMLHttpRequest'}).content
+	for url in re.findall('"url":"([^"]+)"', data, re.S|re.I): return url.replace('\\','')
+
 def PLAYVIDEO(url):
 	global filterUnknownHoster
 	print url
 	data = getUrl(url)
 	if not data: return
 	videos = []
-	for stream in re.findall('<ul[^>]*class="currentStreamLinks"[^>]*>(.*?)</ul>', data, re.S|re.I|re.DOTALL):
-		for (hoster, stream) in re.findall('<p[^>]*class="hostName">([^<]*)</p>.*?<span[^>]*class="streamEpisodeTitle"[^>]*>[^<]*<a[^>]*href=["\']([^"\']*)["\'][^>]*>', stream, re.S|re.I|re.DOTALL):
-			if filterUnknownHoster and get_stream_link().get_hostername(stream) == 'Not Supported': continue
-			videos += [(hoster, stream)]
+	for streamid in re.findall('<a[^>]*class="[^"]*stream-src[^"]*"[^>]*data-id="([^"]+)"[^>]*>', data, re.S|re.I|re.DOTALL):
+		stream = getStreamSRC(streamid)
+		hoster = get_stream_link().get_hostername(stream)
+		if filterUnknownHoster and hoster == 'Not Supported': continue
+		videos += [(hoster, stream)]
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
@@ -120,6 +128,7 @@ def GetStream(url):
 def getUrl(url):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', userAgent)
+	req.add_header('Referer', url)
 	response = urllib2.urlopen(req, timeout=30)
 	data = response.read()
 	response.close()

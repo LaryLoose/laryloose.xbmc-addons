@@ -12,20 +12,21 @@ maxitems = (int(settings.getSetting("items_per_page"))+1)*10
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
 forceMovieViewMode = settings.getSetting("forceMovieViewMode") == 'true'
 movieViewMode = str(settings.getSetting("movieViewMode"))
-dbg = False
+dbg = True
 
 def CATEGORIES(idx):
-	data = getUrl(baseurl+'/load')
-	addDir('Neue Filme', baseurl+'/load/?page1', 1, '', True)
-	#addDir('Update 100', baseurl+'/index/top_filme/0-30', 1, '', True)
-	#addDir('Update 200', baseurl+'/index/update_200/0-44', 1, '', True)
-	#addDir('Serien', baseurl, 0, '', True)
-	for cats in re.findall('<table[^>]*class="catsTable"[^>]*>(.*?)</table>', data, re.S|re.I|re.DOTALL):
-		for url, name in re.findall('<a[^>]*href="([^"]+)"[^>]*class="catName"[^>]*>([^<]*)</a>', cats, re.S|re.I|re.DOTALL):
-			if re.match('Suche|DVD.*s|Neue Film-Update.*s|Wunschfilm|Filme 2.*|Filme Ab 18', name, re.S|re.I): continue
-			if 'http:' not in url: url =  baseurl + url
-			addDir(name, url, 1, '', True)
-	#xbmc.executebuiltin("Container.SetViewMode(400)")
+	INDEX(baseurl+'/load/?page1')	
+#	data = getUrl(baseurl+'/load')
+#	addDir('Neue Filme', baseurl+'/load/?page1', 1, '', True)
+#	#addDir('Update 100', baseurl+'/index/top_filme/0-30', 1, '', True)
+#	#addDir('Update 200', baseurl+'/index/update_200/0-44', 1, '', True)
+#	#addDir('Serien', baseurl, 0, '', True)
+#	for cats in re.findall('<table[^>]*class="catsTable"[^>]*>(.*?)</table>', data, re.S|re.I|re.DOTALL):
+#		for url, name in re.findall('<a[^>]*href="([^"]+)"[^>]*class="catName"[^>]*>([^<]*)</a>', cats, re.S|re.I|re.DOTALL):
+#			if re.match('Suche|DVD.*s|Neue Film-Update.*s|Wunschfilm|Filme 2.*|Filme Ab 18', name, re.S|re.I): continue
+#			if 'http:' not in url: url =  baseurl + url
+#			addDir(name, url, 1, '', True)
+#	#xbmc.executebuiltin("Container.SetViewMode(400)")
 
 def INDEX(url):
 	global itemcnt
@@ -55,11 +56,11 @@ def PLAYVIDEO(url):
 	data = getUrl(url)
 	if not data: return
 	videos = []
-	for (host, stream) in re.findall('<object[^>]*data="([^"]*)/[^"]*"[^>]*>.*?<param[^>]*value="flv=([^"&;]*)', data, re.S|re.I|re.DOTALL):
+	for (hoster, stream) in re.findall('<object[^>]*data="([^"]*)/[^"]*"[^>]*>.*?<param[^>]*value="flv=([^"&;]*)', data, re.S|re.I|re.DOTALL):
 		host = get_stream_link().get_hostername(cleanUrl(stream))
-		if dbg: print 'host: '+host
-		if dbg: print 'stream: '+cleanUrl(stream)
-		videos += [(host, cleanUrl(stream))]
+		if dbg: print 'hoster: ' + hoster
+		if dbg: print 'stream: ' + cleanUrl(stream)
+		videos += [(hoster, stream)]
 	for stream in re.findall('freevideocoding\.com.flvplayer\.swf\?file=([^>"\'&]*)["&\']', data, re.S|re.I|re.DOTALL):
 		videos += [('freevideocoding', cleanUrl(stream))]
 	for stream in re.findall('<iframe[^>"]*src="([^"]*)"', data, re.S|re.I|re.DOTALL):

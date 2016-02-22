@@ -41,10 +41,11 @@ hosterlist = [
 	('uploadc', '.*uploadc\.com'),
 	('youwatch', '.*youwatch\.org'),
 	('yandex', '.*yandex\.ru'),
-#	('K1no HD', '.*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'),
 	('sharedsx', '.*shared\.sx'),
 	('vivosx', '.*vivo\.sx'),
 	('cloudyvideos', '.*cloudyvideos\.com'),
+	#('openload', '.*openload\.co'),
+	('rapidvideo', '.*rapidvideo\.ws'),
 	('vidx', '.*vidx\.to')]
 
 
@@ -86,10 +87,11 @@ class get_stream_link:
 		elif hoster == 'youwatch': return self.youwatch(link)
 		elif hoster == 'yandex': return self.generic1(link, 'Yandex', 0, 0)
 		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10, 0)
-		elif hoster == 'K1no HD': return link
 		elif hoster == 'sharedsx': return self.generic1(link, 'Shared.sx', 0, 1)
 		elif hoster == 'vivosx': return self.generic1(link, 'Vivo.sx', 0, 1)
 		elif hoster == 'cloudyvideos': return self.generic1(link, 'CloudyVideos', 2, 2)
+		elif hoster == 'openload': return self.openload(link)
+		elif hoster == 'rapidvideo': return self.rapidvideo(link)
 		return 'Not Supported'
 
 	def getUrl(self, url):
@@ -303,16 +305,16 @@ class get_stream_link:
 		else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def streamcloud(self, url):
+		print url
 		data = self.net.http_GET(url).content
 		info = {}
-		print url
 		if re.match('.*?No such file with this filename', data, re.S|re.I): return 'Error: Dateiname nicht bekannt'
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2).replace('download1', 'download2')
 		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
 		#wait required
-		#print "POSTDATA: " + str(info)
 		#self.waitmsg(10, "Streamcloud")
+		#print "POSTDATA: " + str(info)
 		data = self.net.http_POST(url, info).content
 		if re.match('.*?This video is encoding now', data, re.S): return 'Error: Das Video wird aktuell konvertiert'
 		if re.match('.*?The file you were looking for could not be found', data, re.S): return 'Error: Die Datei existiert nicht'
@@ -392,11 +394,36 @@ class get_stream_link:
 					if stream_url: return stream_url[0]
 					else: return 'Error: Konnte Datei nicht extrahieren'
 
+	def openload(self, url):
+		print 'flashx: ' + url
+		resp = self.net.http_GET(url)
+		data = resp.content
+		return 'Error: Konnte Datei nicht extrahieren'
+		
+	def rapidvideo(self, url):
+		print 'rapidvideo: ' + url
+		resp = self.net.http_GET(url)
+		data = resp.content
+		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
+			info = {}
+			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+			info['referer'] = resp.get_url()
+			self.waitmsg(10, "Rapidvideo")
+			data = self.net.http_POST(resp.get_url(), info).content
+			if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 
+			packed = re.findall('(eval\(function\(p,a,c,k,e,d\).*?)</script', data, re.S|re.I)
+			if packed: unpacked = cJsUnpacker().unpackByString(packed[0])
+			if unpacked: stream_url = re.findall('file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', unpacked, re.S|re.I)	
+			if stream_url: return stream_url[0]
+			else: return 'Error: Konnte Datei nicht extrahieren'
+	
+	
 	def generic1(self, url, hostername, waitseconds, filerexid):
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 
 					'data-url=[\'\"]([^\'\"]+)[\"\']',
-					'<a[^>]*href="([^"]+)">[^<]*<input[^>]*value="Click for your file">' ]
+					'<a[^>]*href="([^"]+)">[^<]*<input[^>]*value="Click for your file">']
 		resp = self.net.http_GET(url)
 		data = resp.content
 		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):

@@ -59,6 +59,7 @@ def VIDEOLINKS(url, image):
 	raw = re.findall('(<fieldset[^>]*>[^<]*<legend>.*?</fieldset>)', data, re.S)
 	if raw:
 		for each in raw:
+			if "Film Tipps" in each: continue
 			series = re.findall('<div class="spoiler"><font[^>]*><b[^>]*>(.+?)</b>(.*?)<input', each, re.S|re.I)
 			if not series: series = re.findall('<legend>(.+?)</legend>[^<]*<div class="spoiler">(.*?)<input', each, re.S|re.I)
 			if not series: series = re.findall('<legend>(.+?)</legend>.*?(<iframe.*?</iframe>|<a[^>]*href=".+"[^>]*>).*', each, re.S|re.I)
@@ -82,10 +83,12 @@ def VIDEOLINKS(url, image):
 				streams += re.findall('<font[^>]*>.*?src=".*?/player/(.*?)\..{3}".*?</font>.*?target="_blank" href=["|\'](.*?)["|\']', each, re.S|re.I)
 	if streams:
 		for (filename, stream) in streams:
+			stream = cleanURL(stream)
+			if dbg: print "filename: " + str(filename) + ", stream: " + str(stream)
 			hoster = get_stream_link().get_hostername(stream)
 			if filterUnknownHoster and hoster == 'Not Supported': continue
 			entry = '[COLOR=blue](' + hoster + ')[/COLOR] ' + filename
-			addLink(entry, clean(stream), 3, image)
+			addLink(entry, cleanURL(stream), 3, image)
 
 def SEARCH(url):
     keyboard = xbmc.Keyboard('', 'Suche')
@@ -105,6 +108,14 @@ def clean(s):
 		except ValueError: pass
 	return s.strip('\n').strip()
 
+def cleanURL(s):
+	s = re.sub('<[^>]*>', '', s)
+	s = re.sub('[ ]+', ' ', s)
+	for hit in set(re.findall("&#\d+;", s)):
+		try: s = s.replace(hit, unichr(int(hit[2:-1])))
+		except ValueError: pass
+	return s.strip('\n').strip()
+	
 def extractFilename(path):
     path = re.sub('^.*/', '',clean(path)).replace('.html', '').replace('_', ' ')
     return re.sub('\.[a-zA-Z]{3}', '', path)

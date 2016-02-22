@@ -34,3 +34,7 @@
 
 0.4.0
 * search feature added
+
+0.4.1
+* homepage back again
+* Rapidvideo support

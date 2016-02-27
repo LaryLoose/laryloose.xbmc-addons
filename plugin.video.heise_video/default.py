@@ -70,7 +70,7 @@ def playVideo(url):
 	content = getUrl(url)
 	videos = []
 	video = None	
-	for datac, datas in re.compile('id="videoplayerjw-"[^>]*data-container="([0-9]+)"[^>]*data-sequenz="([0-9]+)"', re.DOTALL).findall(content):
+	for datac, datas in re.compile('id="videoplayerjw[^"]*"[^>]*data-container="([0-9]+)"[^>]*data-sequenz="([0-9]+)"', re.DOTALL).findall(content):
 		data = getUrl(vidout.replace('{c}', datac).replace('{s}', datas))
 		for url, qly, frm in re.compile('file="([^"]+)"[ ]*label="([^"]+)"[ ]*type="video/([^"]+)"', re.DOTALL).findall(data):
 			videos += [(frm, qly, url)]

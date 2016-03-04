@@ -1,14 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
-from jsunpacker import cJsUnpacker
 from stream import *
 
 dbg = True
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
-baseurl = 'http://www.filmpalast.to'
-streamurl = 'http://www.filmpalast.to/stream/{id}/1'
+baseurl = 'http://filmpalast.to'
+streamurl = 'http://filmpalast.to/stream/{id}/1'
 settings = xbmcaddon.Addon(id='plugin.video.filmpalast_to')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*32
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
@@ -117,12 +116,6 @@ def GetStream(url):
 	elif re.match('^Error: ', stream_url, re.S|re.I):
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, " + re.sub('^Error: ','',stream_url) + ", 4000)")
 	else:
-		#req = urllib2.Request(stream_url)
-		#req.add_header('User-Agent', userAgent)
-		#req.add_header('Referer', url)
-		#response = urllib2.urlopen(req)
-		#stream_url = response.geturl()
-		#response.close()
 		return stream_url + '|User-Agent=' + userAgent +'&Referer=' + url
 
 def getUrl(url):

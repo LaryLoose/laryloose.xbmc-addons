@@ -17,7 +17,7 @@ dbg = False
 def CATEGORIES():
 	data = getUrl(baseurl)
 	cats = re.findall('<a[^>]*?class="CatInf"[^>]*?href="(.*?)"[^>]*?>.*?<div class="CatNumInf">(.*?)</div>[^<]*?<div[^>]*?class="CatNameInf">(.*?)</div>', data, re.S|re.I)
-	addDir('Letzte Updates', baseurl, 1, '', True)
+	addDir('Letzte Updates', baseurl + '/publ/?page1', 1, '', True)
 	addDir('Suche...', baseurl + '/publ', 4, '', True)
 	addDir('Serien', baseurl + '/load', 0, '', True)
 	for (url, num, name) in cats:
@@ -36,21 +36,24 @@ def SERIES(url):
 
 def INDEX(url, search=None):
 	global itemcnt
-	nextPageUrl = re.sub('-[\d]+$', '', url)
-	print url
+	if (dbg): print url
 	data = getUrl(url, search)
 	movies = re.findall('<div class="ImgWrapNews">[^<]*<a[^<]*<img[^>]*src="([^"]*.[jpg|png])"[^>]*alt="([^"]*)"[^>]*>.*?class="[^"]*entryLink[^"]*".*?href="([^"]*)"', data, re.S|re.I)
 	if movies:
-		for (image, title, url) in movies:
-			if 'http:' not in url: url =  baseurl + url
-			addDir(clean(title), url, 2, image, True)
+		for (m_image, m_title, m_url) in movies:
+			if 'http:' not in m_url: m_url =  baseurl + m_url
+			addDir(clean(m_title), m_url, 2, m_image, True)
 			itemcnt = itemcnt + 1                                       
 	nextPage = re.findall('<a class="swchItem"[^>]*onclick="spages\(\'(\d+)\'[^>]*?"[^>]*><span>&raquo;</span>', data, re.S)
 	if nextPage:
-		if itemcnt >= maxitems:
-		    addDir('Weiter >>', nextPageUrl + '-' + nextPage[0], 1, '',  True)
+		if '?page' in url:
+			nextPageUrl = re.sub('\?page[\d]+$', '?page' + nextPage[0], url)
 		else:
-		    INDEX(nextPageUrl + '-' + nextPage[0])
+			nextPageUrl = re.sub('-[\d]+$', '-' +  nextPage[0], url)
+		if itemcnt >= maxitems:
+		    addDir('Weiter >>', nextPageUrl, 1, '',  True)
+		else:
+		    INDEX(nextPageUrl)
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
 def VIDEOLINKS(url, image):
@@ -132,7 +135,7 @@ def GETLINK(url):
 def getUrl(url, query=None):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	print query
+	if (dbg): print query
 	if query:	
 		values = { 'query' : query, 'a' : '2' }
 		response = urllib2.urlopen(req, urllib.urlencode(values))

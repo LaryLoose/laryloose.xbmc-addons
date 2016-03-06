@@ -91,6 +91,8 @@
         <summary lang="en">Watch Movies for free from k1no.do.am</summary>
         <description lang="de"></description>
         <description lang="en"></description>
+		<broken lang="de">defekt</broken>
+		<broken lang="en">defect</broken>
     </extension>
 </addon>
 

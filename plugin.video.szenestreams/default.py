@@ -48,8 +48,10 @@ def INDEX(url, search=None):
 	if nextPage:
 		if '?page' in url:
 			nextPageUrl = re.sub('\?page[\d]+$', '?page' + nextPage[0], url)
-		else:
+		elif re.search('[\d]+-[\d]+$', url):
 			nextPageUrl = re.sub('-[\d]+$', '-' +  nextPage[0], url)
+		else:
+			nextPageUrl = url + "-" + nextPage[0]
 		if itemcnt >= maxitems:
 		    addDir('Weiter >>', nextPageUrl, 1, '',  True)
 		else:

@@ -1,8 +1,9 @@
-import re, urllib2, cookielib, time, xbmcgui, socket, xbmc, os
+# -*- coding: utf-8 -*-
+
+import re, cookielib, time, xbmcgui, xbmc, os, urllib2
 from urllib2 import Request, URLError, urlopen as urlopen2
 from urlparse import parse_qs
-from urllib import quote, urlencode
-from urllib import quote, unquote_plus, unquote, urlencode
+from urllib import quote, urlencode, unquote_plus, unquote
 from httplib import HTTPConnection, CannotSendRequest, BadStatusLine, HTTPException
 from socket import gaierror, error
 from t0mm0.common.net import Net
@@ -41,27 +42,18 @@ hosterlist = [
 	('uploadc', '.*uploadc\.com'),
 	('youwatch', '.*youwatch\.org'),
 	('yandex', '.*yandex\.ru'),
+	('K1no', '.*k1-city\.com'),
 	('sharedsx', '.*shared\.sx'),
 	('vivosx', '.*vivo\.sx'),
 	('cloudyvideos', '.*cloudyvideos\.com'),
-	#('openload', '.*openload\.co'),
-	('rapidvideo', '.*rapidvideo\.ws'),
+	('openload', '.*openload\.'),
 	('vidx', '.*vidx\.to')]
-
-
-std_headers = {
-	'User-Agent': 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100627 Firefox/3.6.6',
-	'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Language': 'en-us,en;q=0.5',
-}
 
 class get_stream_link:
 
 	def __init__(self):
-		#self._callback = None
 		self.net = Net()
-
+	
 	def get_stream(self, link):
 		hoster = self.get_hostername(link)
 		if   hoster == 'putlocker': return self.streamPutlockerSockshare(link, 'putlocker')
@@ -87,16 +79,16 @@ class get_stream_link:
 		elif hoster == 'youwatch': return self.youwatch(link)
 		elif hoster == 'yandex': return self.generic1(link, 'Yandex', 0, 0)
 		elif hoster == 'vidx': return self.generic1(link, 'ViDX', 10, 0)
+		elif hoster == 'K1no': return link
 		elif hoster == 'sharedsx': return self.generic1(link, 'Shared.sx', 0, 1)
 		elif hoster == 'vivosx': return self.generic1(link, 'Vivo.sx', 0, 1)
 		elif hoster == 'cloudyvideos': return self.generic1(link, 'CloudyVideos', 2, 2)
 		elif hoster == 'openload': return self.openload(link)
-		elif hoster == 'rapidvideo': return self.rapidvideo(link)
 		return 'Not Supported'
 
 	def getUrl(self, url):
 		req = urllib2.Request(url)
-		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0')
 		response = urllib2.urlopen(req)
 		data = response.read()
 		response.close()
@@ -144,7 +136,69 @@ class get_stream_link:
 		if not stream_url: stream_url = re.findall("file','(.*?)'", sUnpacked, re.S|re.I|re.DOTALL)
 		if not stream_url: stream_url = re.findall('file:"(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
 		if stream_url: return stream_url[0]
+		
+	def openload(self, url):
+		html = self.getUrl(url) 
+		aastring = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE).group(1)
+		aastring = aastring.replace(
+			"(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+",
+			"")
+		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9").replace("((ﾟｰﾟ) + (ﾟｰﾟ))", "8").replace("((ﾟｰﾟ) + (o^_^o))", "7").replace("((o^_^o) +(o^_^o))", "6")
+		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))", "5").replace("(ﾟｰﾟ)", "4").replace("((o^_^o) - (ﾟΘﾟ))", "2").replace("(o^_^o)", "3").replace("(ﾟΘﾟ)", "1")
+		aastring = aastring.replace("(+!+[])", "1").replace("(c^_^o)", "0").replace("(0+0)", "0").replace("(ﾟДﾟ)[ﾟεﾟ]", "\\").replace("(3 +3 +0)", "6")
+		aastring = aastring.replace("(3 - 1 +0)", "2").replace("(!+[]+!+[])", "2").replace("(-~-~2)", "4").replace("(-~-~1)", "3").replace("(-~0)", "1")
+		aastring = aastring.replace("(-~1)", "2").replace("(-~3)", "4").replace("(0-0)", "0")
 
+		decodestring = re.search(r"\\\+([^(]+)", aastring, re.DOTALL | re.IGNORECASE).group(1)
+		decodestring = "\\+" + decodestring
+		decodestring = decodestring.replace("+", "").replace(" ", "")
+
+		decodestring = self.decode_ol(decodestring)
+		decodestring = decodestring.replace("\\/", "/")
+
+		if 'toString' in decodestring:
+			base = int(re.compile('toString\\(a\\+(\\d+)', re.DOTALL | re.IGNORECASE).findall(decodestring)[0])
+			match = re.compile('(\\(\\d[^)]+\\))', re.DOTALL | re.IGNORECASE).findall(decodestring)
+			for rep1 in match:
+				match1 = re.compile('(\\d+),(\\d+)', re.DOTALL | re.IGNORECASE).findall(rep1)
+				base2 = base + int(match1[0][0])
+				rep12 = self.base10toN(int(match1[0][1]), base2)
+				decodestring = decodestring.replace(rep1, rep12)
+			decodestring = decodestring.replace('+', '')
+			decodestring = decodestring.replace('"', '')
+			videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE).group(1)
+		else:
+			videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
+		return videourl
+
+
+	def decode_ol(self, encoded):
+		for octc in (c for c in re.findall(r'\\(\d{2,3})', encoded)):
+			encoded = encoded.replace(r'\%s' % octc, chr(int(octc, 8)))
+		return encoded.decode('utf8')
+
+
+	def base10toN(self, num, n):
+		num_rep = {
+			10: 'a', 11: 'b', 12: 'c', 13: 'd', 14: 'e', 15: 'f', 16: 'g', 17: 'h', 18: 'i',
+			19: 'j', 20: 'k', 21: 'l', 22: 'm', 23: 'n', 24: 'o', 25: 'p', 26: 'q', 27: 'r',
+			28: 's', 29: 't', 30: 'u', 31: 'v', 32: 'w', 33: 'x', 34: 'y', 35: 'z'
+			}
+
+		new_num_string = ''
+		current = num
+		while current != 0:
+			remainder = current % n
+			if 36 > remainder > 9:
+				remainder_string = num_rep[remainder]
+			elif remainder >= 36:
+				remainder_string = '(' + str(remainder) + ')'
+			else:
+				remainder_string = str(remainder)
+			new_num_string = remainder_string + new_num_string
+			current = current / n
+		return new_num_string
+		
 	def youtube(self, url):
 		print url
 		match = re.compile('youtube.com/embed/([^\?]+)', re.DOTALL).findall(url)
@@ -174,24 +228,35 @@ class get_stream_link:
 			else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def youwatch(self, url):
-		print url
-		resp = self.net.http_GET(url)
-		data = resp.content
-		for frm in re.findall('<form[^>]*method="POST"[^>]*action=\'\'[^>]*>(.*?)</form>', data, re.S|re.I):
-			info = {}
-			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-			info['referer'] = resp.get_url()
-			self.waitmsg(int(10), 'Youwatch')
-			data = self.net.http_POST(resp.get_url(), info).content
-			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.I)
-			if get_packedjava:
-				sJavascript = get_packedjava[0]
-				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
-				if sUnpacked:
-					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
-					if stream_url: return stream_url[0]
-					else: return 'Error: Konnte Datei nicht extrahieren'
+		i = 0
+		while not url == '' and i <= 3:
+			i = i + 1
+			print url
+			data = self.net.http_GET(url).content
+			print data
+			stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', data)
+			if stream_url: return stream_url[0]
+			match = re.search('<iframe[^>]*src="([^"]*)"', data, re.S|re.I|re.DOTALL)
+			if match: 
+				url = re.sub('^//', 'http://', match.group(1))
+				
+			
+			
+#			info = {}
+#			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
+#			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
+#			info['referer'] = resp.get_url()
+#			self.waitmsg(int(10), 'Youwatch')
+#			data = self.net.http_POST(resp.get_url(), info).content
+#			print data
+#			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.I)
+#			if get_packedjava:
+#				sJavascript = get_packedjava[0]
+#				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
+#				if sUnpacked:
+#					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
+#					if stream_url: return stream_url[0]
+#					else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def movreel(self, url):
 		data = self.net.http_GET(url).content
@@ -305,16 +370,13 @@ class get_stream_link:
 		else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def streamcloud(self, url):
-		print url
 		data = self.net.http_GET(url).content
 		info = {}
+		print url
 		if re.match('.*?No such file with this filename', data, re.S|re.I): return 'Error: Dateiname nicht bekannt'
 		for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)">', data):
 			info[i.group(1)] = i.group(2).replace('download1', 'download2')
 		if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-		#wait required
-		#self.waitmsg(10, "Streamcloud")
-		#print "POSTDATA: " + str(info)
 		data = self.net.http_POST(url, info).content
 		if re.match('.*?This video is encoding now', data, re.S): return 'Error: Das Video wird aktuell konvertiert'
 		if re.match('.*?The file you were looking for could not be found', data, re.S): return 'Error: Die Datei existiert nicht'
@@ -393,37 +455,12 @@ class get_stream_link:
 					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
 					if stream_url: return stream_url[0]
 					else: return 'Error: Konnte Datei nicht extrahieren'
-
-	def openload(self, url):
-		print 'flashx: ' + url
-		resp = self.net.http_GET(url)
-		data = resp.content
-		return 'Error: Konnte Datei nicht extrahieren'
-		
-	def rapidvideo(self, url):
-		print 'rapidvideo: ' + url
-		resp = self.net.http_GET(url)
-		data = resp.content
-		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):
-			info = {}
-			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-			info['referer'] = resp.get_url()
-			self.waitmsg(10, "Rapidvideo")
-			data = self.net.http_POST(resp.get_url(), info).content
-			if re.match('.*Video is processing now', data, re.S|re.I): return "Error: Die Datei wird aktuell konvertiert" 
-			packed = re.findall('(eval\(function\(p,a,c,k,e,d\).*?)</script', data, re.S|re.I)
-			if packed: unpacked = cJsUnpacker().unpackByString(packed[0])
-			if unpacked: stream_url = re.findall('file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', unpacked, re.S|re.I)	
-			if stream_url: return stream_url[0]
-			else: return 'Error: Konnte Datei nicht extrahieren'
-	
 	
 	def generic1(self, url, hostername, waitseconds, filerexid):
 		print hostername + ': ' + url
 		filerex = [ 'file:[ ]*[\'\"]([^\'\"]+(?:mkv|mp4|avi|mov|flv|mpg|mpeg))[\"\']', 
 					'data-url=[\'\"]([^\'\"]+)[\"\']',
-					'<a[^>]*href="([^"]+)">[^<]*<input[^>]*value="Click for your file">']
+					'<a[^>]*href="([^"]*)">[^<]*<input[^>]*value="Download"[^>]*>' ]
 		resp = self.net.http_GET(url)
 		data = resp.content
 		for frm in re.findall('<form[^>]*method="POST"[^>]*>(.*?)</form>', data, re.S|re.I):

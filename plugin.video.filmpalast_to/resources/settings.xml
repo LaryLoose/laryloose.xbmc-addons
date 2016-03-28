@@ -3,7 +3,4 @@
    <setting id="forceViewMode" type="bool" label="30102" default="true"/>
    <setting id="viewMode" type="number" label="30103" default="400"/>
    <setting id="items_per_page" type="enum" label="30104" values="32|64|96|128|256|512" default="0"/>
-   <setting id="showMovieInfo" type="bool" label="30105" default="ture"/>
-   <setting id="showRating" type="bool" label="30106" default="ture"/>
-   <setting id="showVotes" type="bool" label="30107" default="false"/>
 </settings>

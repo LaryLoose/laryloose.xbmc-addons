@@ -3,7 +3,7 @@
 import urllib, urllib2, re, xbmcaddon, xbmcplugin, xbmcgui, xbmc
 from stream import *
 
-dbg = True
+dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://filmpalast.to'
@@ -13,6 +13,9 @@ maxitems = (int(settings.getSetting("items_per_page"))+1)*32
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
 forceViewMode = settings.getSetting("forceViewMode") == 'true'
 viewMode = str(settings.getSetting("viewMode"))
+showRating = settings.getSetting("showRating") == 'true'
+showVotes = settings.getSetting("showVotes") == 'true'
+showMovieInfo = settings.getSetting("showMovieInfo") == 'true'
 userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 def START():
@@ -27,7 +30,6 @@ def START():
 
 def CATEGORIES(url):
 	data = getUrl(url)
-	
 	for genre in re.findall('<section id="genre">(.*?)</section>', data, re.S|re.I):
 		for (href, name) in re.findall('<a[^>]*href="([^"]*)">[ ]*([^<]*)</a>', genre, re.S|re.I):
 			addDir(clean(name), href, 1, '', True)
@@ -45,9 +47,15 @@ def INDEX(caturl):
 	data = getUrl(caturl)
 	for entry in re.findall('id="content"[^>]*>(.+?)<[^>]*id="paging"', data, re.S|re.I):
 		if (dbg): print entry
-		for url, title, image in re.findall('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*src=["\']([^"\']*)["\'][^>]*>', entry, re.S|re.I):
-			if 'http:' not in url: url =  baseurl + url
-			if 'http:' not in image: image =  baseurl + image
+		for rating, url, title, image in re.findall('</cite>(.*?)<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*src=["\']([^"\']*)["\'][^>]*>', entry, re.S|re.I):
+ 			if 'http:' not in url: url =  baseurl + url
+ 			if 'http:' not in image: image =  baseurl + image
+			if showRating:
+				stars = len(re.findall('star_on.png',rating,re.S|re.I))
+				title = title + "  [COLOR=blue]"+str(stars)+"/10[/COLOR]"
+			if showVotes:
+				votes = re.findall('<sm.*?p;(.*?)&nbsp.*?ll>',rating, re.S|re.I)
+				title = title + "  [COLOR=blue](" +str(votes[0])+ " votes)[/COLOR]"
 			addLink(clean(title), url, 10, image)
 			itemcnt = itemcnt + 1
 	nextPage = re.findall('<a[^>]*class="[^"]*pageing[^"]*"[^>]*href=["\']([^"\']*)["\'][^>]*>[ ]*vorw', data, re.S|re.I)
@@ -71,12 +79,37 @@ def clean(s):
 		except ValueError: pass
 	return urllib.unquote_plus(s)
 
-def selectVideoDialog(videos):
+def selectVideoDialog(videos, data):
 	titles = []
+	infostring = ""
 	for name, src in videos:
 		titles.append(name)
-	idx = xbmcgui.Dialog().select("", titles)
+	if showMovieInfo:
+		info = getInfos(data)
+		infostring = "FP: {0}/10 Imdb: {1}/10 Jahr: {2}\nDauer: {3} Genre: {4}".format(info['fp'],info['imdb'],info['year'],info['runtime'],info['genres'])
+	idx = xbmcgui.Dialog().select(infostring, titles)
 	if idx > -1: return videos[idx][1]
+
+def getInfos(data):
+	info = {'fp':'','imdb':'','genres':'','actors':'','year':'','runtime':'','description':''}
+	match = re.search('average">([0-9,.]{0,3})<.*?; Imdb: ([0-9,.]{0,3})/10', data, re.S|re.I)
+	if match: 
+		info['fp'] = match.group(1)
+		info['imdb'] = match.group(2)
+	match = re.search('>Ver&ouml;ffentlicht: ([^\n]*).*?>Spielzeit:.*?>(.*?)<', data, re.S|re.I)
+	if match: 
+		info['year'] = match.group(1).replace('false','')
+		info['runtime'] = match.group(2)
+	match = re.search('itemprop="description">(.*?)<', data, re.S|re.I)
+	if match: 
+		info['description'] = match.group(1)
+	for genre in re.findall('class="rb"[^>]*genre/(.*?)"', data, re.S|re.I|re.DOTALL):
+		info['genres'] = info['genres'] + genre + " / "
+	for actor in re.findall('class="rb".*?"/search/title/(.*?)"', data, re.S|re.I|re.DOTALL):
+		info['actors'] = info['actors'] + actor + " / "	
+	info['actors'] = info['actors'].rstrip(' /');
+	info['genres'] = info['genres'].rstrip(' /');
+	return info
 
 def getStreamSRC(id):
 	from t0mm0.common.net import Net
@@ -99,7 +132,9 @@ def PLAYVIDEO(url):
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
 		return
-	url = selectVideoDialog(videos) if lv > 1 else videos[0][1]
+	infodata = re.search('id="star-rate"(.*?)<[^>]*class="currentTabInfo">', data, re.S|re.I)
+	if infodata: data = infodata.group(1)
+	url = selectVideoDialog(videos, data) if lv > 1 else videos[0][1]
 	if url:
 		stream_url = GetStream(url)
 		if stream_url:

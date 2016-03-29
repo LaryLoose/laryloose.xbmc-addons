@@ -1,3 +1,7 @@
+0.1.14
+ - additional movie info (rating/votes/genre/runtime/year)
+   configurable in addon settings
+
 0.1.13
  - openload support
 

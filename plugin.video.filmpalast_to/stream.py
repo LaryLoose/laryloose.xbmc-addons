@@ -138,11 +138,11 @@ class get_stream_link:
 		if stream_url: return stream_url[0]
 		
 	def openload(self, url):
-		html = self.getUrl(url) 
-		aastring = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE).group(1)
-		aastring = aastring.replace(
-			"(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+",
-			"")
+		html = self.getUrl(url)
+		encstring = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE)
+		if not encstring: return "Error: Video nicht vorhanden!"
+		aastring = encstring.group(1)
+		aastring = aastring.replace("(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+", "")
 		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9").replace("((ﾟｰﾟ) + (ﾟｰﾟ))", "8").replace("((ﾟｰﾟ) + (o^_^o))", "7").replace("((o^_^o) +(o^_^o))", "6")
 		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))", "5").replace("(ﾟｰﾟ)", "4").replace("((o^_^o) - (ﾟΘﾟ))", "2").replace("(o^_^o)", "3").replace("(ﾟΘﾟ)", "1")
 		aastring = aastring.replace("(+!+[])", "1").replace("(c^_^o)", "0").replace("(0+0)", "0").replace("(ﾟДﾟ)[ﾟεﾟ]", "\\").replace("(3 +3 +0)", "6")
@@ -166,10 +166,13 @@ class get_stream_link:
 				decodestring = decodestring.replace(rep1, rep12)
 			decodestring = decodestring.replace('+', '')
 			decodestring = decodestring.replace('"', '')
-			videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE).group(1)
+			videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE)
 		else:
-			videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
-		return videourl
+			videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE)
+		if videourl:
+			return videourl.group(1)
+		else:
+			return "Error: Video nicht gefunden!";
 
 
 	def decode_ol(self, encoded):

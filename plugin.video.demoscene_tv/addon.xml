@@ -12,4 +12,6 @@
         <description lang="de">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
         <description lang="en">Demoscene.tv strives to share and broadcast artwork urging from demoscene artists and stakeholders. DTV offers a video stream and associated services to allow groups belonging to the digital artscene to diffuse their creations.</description>
     </extension>
+	<broken lang="de">defekt</broken>
+    <broken lang="en">defect</broken>
 </addon>

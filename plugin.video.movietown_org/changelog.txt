@@ -1,9 +1,6 @@
-0.1.5
+0.1.4
  - openload fix
  
-0.1.4
- - openload support
-
 0.1.3
  - some bugfixes
  - support few new hosters

@@ -139,40 +139,38 @@ class get_stream_link:
 		
 	def openload(self, url):
 		html = self.getUrl(url)
-		encstring = re.search(r"<video(?:.|\s)*?<script\s[^>]*?>((?:.|\s)*?)</script", html, re.DOTALL | re.IGNORECASE)
-		if not encstring: return "Error: Video nicht vorhanden!"
-		aastring = encstring.group(1)
-		aastring = aastring.replace("(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+", "")
-		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9").replace("((ﾟｰﾟ) + (ﾟｰﾟ))", "8").replace("((ﾟｰﾟ) + (o^_^o))", "7").replace("((o^_^o) +(o^_^o))", "6")
-		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))", "5").replace("(ﾟｰﾟ)", "4").replace("((o^_^o) - (ﾟΘﾟ))", "2").replace("(o^_^o)", "3").replace("(ﾟΘﾟ)", "1")
-		aastring = aastring.replace("(+!+[])", "1").replace("(c^_^o)", "0").replace("(0+0)", "0").replace("(ﾟДﾟ)[ﾟεﾟ]", "\\").replace("(3 +3 +0)", "6")
-		aastring = aastring.replace("(3 - 1 +0)", "2").replace("(!+[]+!+[])", "2").replace("(-~-~2)", "4").replace("(-~-~1)", "3").replace("(-~0)", "1")
-		aastring = aastring.replace("(-~1)", "2").replace("(-~3)", "4").replace("(0-0)", "0")
 
-		decodestring = re.search(r"\\\+([^(]+)", aastring, re.DOTALL | re.IGNORECASE).group(1)
-		decodestring = "\\+" + decodestring
-		decodestring = decodestring.replace("+", "").replace(" ", "")
+		for aastring in re.findall('(ﾟωﾟﾉ=.*?\(\'_\'\));', html, re.DOTALL|re.S|re.I):
+			aastring = aastring.replace("(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+", "")
+			aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9").replace("((ﾟｰﾟ) + (ﾟｰﾟ))", "8").replace("((ﾟｰﾟ) + (o^_^o))", "7").replace("((o^_^o) +(o^_^o))", "6")
+			aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))", "5").replace("(ﾟｰﾟ)", "4").replace("((o^_^o) - (ﾟΘﾟ))", "2").replace("(o^_^o)", "3").replace("(ﾟΘﾟ)", "1")
+			aastring = aastring.replace("(+!+[])", "1").replace("(c^_^o)", "0").replace("(0+0)", "0").replace("(ﾟДﾟ)[ﾟεﾟ]", "\\").replace("(3 +3 +0)", "6")
+			aastring = aastring.replace("(3 - 1 +0)", "2").replace("(!+[]+!+[])", "2").replace("(-~-~2)", "4").replace("(-~-~1)", "3").replace("(-~0)", "1")
+			aastring = aastring.replace("(-~1)", "2").replace("(-~3)", "4").replace("(0-0)", "0")
 
-		decodestring = self.decode_ol(decodestring)
-		decodestring = decodestring.replace("\\/", "/")
+			decodestring = re.search(r"\\\+([^(]+)", aastring, re.DOTALL | re.IGNORECASE).group(1)
+			decodestring = "\\+" + decodestring
+			decodestring = decodestring.replace("+", "").replace(" ", "")
+			decodestring = self.decode_ol(decodestring)
+			decodestring = decodestring.replace("\\/", "/")
 
-		if 'toString' in decodestring:
-			base = int(re.compile('toString\\(a\\+(\\d+)', re.DOTALL | re.IGNORECASE).findall(decodestring)[0])
-			match = re.compile('(\\(\\d[^)]+\\))', re.DOTALL | re.IGNORECASE).findall(decodestring)
-			for rep1 in match:
-				match1 = re.compile('(\\d+),(\\d+)', re.DOTALL | re.IGNORECASE).findall(rep1)
-				base2 = base + int(match1[0][0])
-				rep12 = self.base10toN(int(match1[0][1]), base2)
-				decodestring = decodestring.replace(rep1, rep12)
-			decodestring = decodestring.replace('+', '')
-			decodestring = decodestring.replace('"', '')
-			videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE)
-		else:
-			videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE)
-		if videourl:
-			return videourl.group(1)
-		else:
-			return "Error: Video nicht gefunden!";
+			if 'toString' in decodestring:
+				base = int(re.compile('toString\\(a\\+(\\d+)', re.DOTALL | re.IGNORECASE).findall(decodestring)[0])
+				match = re.compile('(\\(\\d[^)]+\\))', re.DOTALL | re.IGNORECASE).findall(decodestring)
+				for rep1 in match:
+					match1 = re.compile('(\\d+),(\\d+)', re.DOTALL | re.IGNORECASE).findall(rep1)
+					base2 = base + int(match1[0][0])
+					rep12 = self.base10toN(int(match1[0][1]), base2)
+					decodestring = decodestring.replace(rep1, rep12)
+				decodestring = decodestring.replace('+', '')
+				decodestring = decodestring.replace('"', '')
+				videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE)
+			else:
+				videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE)
+				
+			if videourl: return videourl.group(1)
+
+		return "Error: Video nicht gefunden!";
 
 
 	def decode_ol(self, encoded):

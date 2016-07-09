@@ -8,7 +8,7 @@ html_parser = HTMLParser.HTMLParser()
 dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
-baseurl = 'http://onlinefilme.biz'
+baseurl = 'http://onlinefilme.to'
 settings = xbmcaddon.Addon(id='plugin.video.onlinefilme_to')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*16
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
@@ -64,33 +64,41 @@ def SEARCH(url):
 		INDEX(url, search_string)
 
 def PLAYVIDEO(url):
-	global filterUnknownHoster
 	if (dbg): print url
+	global filterUnknownHoster
 	data = getUrl(url)
 	if not data: return False
 	for weiter in re.findall('<div class="small-5 medium-2 columns text-right">[^<]*<a href=["\']([^"\']+)["\'][^>]*>Weiter</a>[^<]*</div>', data, re.S|re.I|re.DOTALL):
-		data = getUrl(weiter)
+		req = urllib2.Request(weiter)
+		req.add_header('User-Agent', userAgent)
+		response = urllib2.urlopen(req)
+		url = response.geturl()
+		data = response.read()
+		response.close()
 		if data: break
 	videos = []
+	try: from urlparse import urljoin  # Python2
+	except ImportError: from urllib.parse import urljoin  # Python3
 	for streams in re.findall('<div[^>]*class="panel">(.*?>Weiter<)', data, re.S|re.I|re.DOTALL):
 		hostqual = find('<div[^>]*class="link_share"[^>]*><a[^>]*title="([^"]+)"', streams)
 		if ' - ' not in hostqual: hoster = hostqual
 		else: (hoster, qual) = hostqual.split('-')
 		views = find('<div[^>]*class="link_views"[^>]*>([^<]*)<', streams)
-		url = find('<a[^>]*href=["\']([^"\']+)["\'][^>]*><[^<]*Weiter', streams)
-		if (dbg): print hoster, views, makeurl(url)
-		videos += [('[COLOR=blue]' + clean(hoster) + '[/COLOR] ' + clean(qual) + ' ' + clean(views) + ' views', makeurl(url))]
+		href = find('<a[^>]*href=["\']([^"\']+)["\'][^>]*><[^<]*Weiter', streams)
+		href = urljoin(url, href)
+		if (dbg): print hoster, views, href
+		videos += [('[COLOR=blue]' + clean(hoster) + '[/COLOR] ' + clean(qual) + ' ' + clean(views) + ' views', href)]
 	lv = len(videos)
 	if lv == 0:
 		xbmc.executebuiltin("XBMC.Notification(Fehler!, Video nicht gefunden, 4000)")
 		return False
-	url = selectVideoDialog(videos) if lv > 1 else videos[0][1]
-	if not url: return False
-	if 'watch-' in url:
-		req = urllib2.Request(url, None, {'User-Agent': userAgent, 'Referer': url})
+	stream = selectVideoDialog(videos) if lv > 1 else videos[0][1]
+	if not stream: return False
+	if 'watch-' in stream:
+		req = urllib2.Request(stream, None, {'User-Agent': userAgent, 'Referer': stream})
 		res = urllib2.urlopen(req)
-		url = res.geturl()
-	stream_url = GetStream(url)
+		stream = res.geturl()
+	stream_url = GetStream(stream)
 	if not stream_url: return False
 	print 'open stream: ' + stream_url
 	listitem = xbmcgui.ListItem(path=stream_url)

@@ -1,3 +1,6 @@
+0.1.8
+ - url resolve fix
+ 
 0.1.7
  - site change fix
 

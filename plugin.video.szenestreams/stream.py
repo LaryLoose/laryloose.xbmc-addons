@@ -89,6 +89,7 @@ class get_stream_link:
 	def getUrl(self, url):
 		req = urllib2.Request(url)
 		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0')
+		req.add_header('Referer', url)
 		response = urllib2.urlopen(req)
 		data = response.read()
 		response.close()
@@ -138,12 +139,21 @@ class get_stream_link:
 		if stream_url: return stream_url[0]
 		
 	def openload(self, url):
+		print url
 		html = self.getUrl(url)
-		aastring = re.compile("<script[^>]+>(ﾟωﾟﾉ[^<]+)<", re.DOTALL | re.IGNORECASE).findall(html)
-		idxdec = self.decodeOpenLoad(aastring[0])
-		idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(idxdec)[0]
-		idx = eval("int" + idx)
-		return self.decodeOpenLoad(aastring[idx])
+		encarray = re.findall('(ﾟωﾟﾉ=.*?\(\'_\'\));', html, re.DOTALL|re.S|re.I)
+		if not encarray: return 'Error: Openload encarray not found'
+		for t in encarray: print self.decodeOpenLoad(t)
+		for i in xrange(0, len(encarray)):
+			idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(self.decodeOpenLoad(encarray[i]))
+			if idx:
+				idx = eval("int" + idx[0])
+				if len(encarray) <= idx+i: return 'Error: idx out or range'
+				vid = self.decodeOpenLoad(encarray[idx+i])
+				req = urllib2.Request(vid, None, {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'})
+				res = urllib2.urlopen(req)
+				return res.geturl()
+		return 'Error: Openload Protection'
 
 	def decodeOpenLoad(self, aastring):
 		# decodeOpenLoad made by mortael, please leave this line for proper credit :)
@@ -190,13 +200,10 @@ class get_stream_link:
 			decodestring = decodestring.replace("+","")
 			decodestring = decodestring.replace("\"","")
 			videourl = re.search(r"(http[^\}]+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
-			#videourl = videourl.replace("https","http")
+			videourl = videourl.replace("https", "http")
+			return videourl
 		else:
 			return decodestring
-			
-		req = urllib2.Request(videourl, None, {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0' })
-		res = urllib2.urlopen(req)
-		return res.geturl()
 	
 	def decode_ol(self, encoded):
 		for octc in (c for c in re.findall(r'\\(\d{2,3})', encoded)):
@@ -264,24 +271,6 @@ class get_stream_link:
 			match = re.search('<iframe[^>]*src="([^"]*)"', data, re.S|re.I|re.DOTALL)
 			if match: 
 				url = re.sub('^//', 'http://', match.group(1))
-				
-			
-			
-#			info = {}
-#			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-#			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-#			info['referer'] = resp.get_url()
-#			self.waitmsg(int(10), 'Youwatch')
-#			data = self.net.http_POST(resp.get_url(), info).content
-#			print data
-#			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.I)
-#			if get_packedjava:
-#				sJavascript = get_packedjava[0]
-#				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
-#				if sUnpacked:
-#					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
-#					if stream_url: return stream_url[0]
-#					else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def movreel(self, url):
 		data = self.net.http_GET(url).content

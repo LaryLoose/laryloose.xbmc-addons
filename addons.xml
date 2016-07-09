@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="plugin.video.streamoase_ll" version="1.1.4" name="Streamoase" provider-name="lary_loose">
-  <requires>
-   <import addon="script.module.t0mm0.common" version="1.1.0"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-   <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary>Watch HD-Movies from streamoase</summary>
-    <description></description>
-    <platform>all</platform>
-    <broken lang="de">defekt</broken>
-	<broken lang="en">defect</broken>
-</extension>
-</addon>
-
-<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.16" provider-name="Lary_Loose">
+<addon id="plugin.video.filmpalast_to" name="FilmPalast" version="0.1.17" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -62,24 +46,6 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.k1no" name="K1no" version="0.1.11" provider-name="Lary_Loose">
-    <requires>
-        <import addon="script.module.t0mm0.common" version="1.1.0"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">Filme gratis und online Filme gucken, streamen und downloaden auf k1no.do.am</summary>
-        <summary lang="en">Watch Movies for free from k1no.do.am</summary>
-        <description lang="de"></description>
-        <description lang="en"></description>
-		<broken lang="de">defekt</broken>
-		<broken lang="en">defect</broken>
-    </extension>
-</addon>
-
 <addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.5" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
@@ -94,7 +60,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.4.6" provider-name="Lary_Loose">
+<addon id="plugin.video.szene-streams" name="Szene-Streams" version="0.4.7" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -144,24 +110,6 @@
     <broken lang="en">defect</broken>
 </addon>
 
-<addon id="plugin.video.mlehd" name="MLE-HD" version="0.1.9" provider-name="Lary_Loose">
-    <requires>
-        <import addon="xbmc.python" version="2.0"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">MLE-HD (Movies live erleben)</summary>
-        <summary lang="en">MLE-HD (movies live erleben)</summary>
-        <description lang="de">HD Filme von mle-hd.se (Movies Live Erleben)</description>
-        <description lang="en">HD movies from mle-hd.se (Movies Live Erleben)</description>
-	<broken lang="de">defekt</broken>
-	<broken lang="en">defect</broken>
-    </extension>
-</addon>
-
 <addon id="repository.laryloose.xbmc-addons" name="Lary_Loose Repository" version="0.1.1" provider-name="Lary_Loose">
 	<extension point="xbmc.addon.repository" name="Lary_Loose Repository">
 		<info compressed="false">https://github.com/LaryLoose/laryloose.xbmc-addons/raw/master/addons.xml</info>
@@ -191,7 +139,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.movietown_org" name="MovieTown" version="0.1.5" provider-name="Lary_Loose">
+<addon id="plugin.video.movietown_org" name="MovieTown" version="0.1.6" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -204,22 +152,6 @@
         <summary lang="en">Ultimate Movie and TV Database</summary>
         <description lang="de">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
         <description lang="en">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
-    </extension>
-</addon>
-
-<addon id="plugin.video.perl_rtr" name="Rudolphs Technik Ratgeber" version="0.1.1" provider-name="Lary_Loose">
-    <requires>
-	<import addon="script.common.plugin.cache" version="0.9.1"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="addon.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de"></summary>
-        <summary lang="en"></summary>
-        <description lang="de"></description>
-        <description lang="en"></description>
     </extension>
 </addon>
 
@@ -238,25 +170,7 @@
   </extension>
 </addon>
 
-<addon id="plugin.video.silverkino_to" name="Silverkino" version="0.1.1" provider-name="Lary_Loose">
-    <requires>
-        <import addon="script.module.t0mm0.common" version="1.1.0"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de">Kostenlos 20.000 movies und 2.000 serien Online anschauen</summary>
-        <summary lang="en"></summary>
-        <description lang="de">Hier findest du aktuelle Kinofilme und TV-Serien gratis als Stream. Filme kostenlos online schauen und Serien herunterladen.</description>
-        <description lang="en"></description>
-		<broken lang="de">ersetzt durch das OnlineFilme addon</broken>
-		<broken lang="en">replaced by OnlineFilme addon</broken>
-    </extension>
-</addon>
-
-<addon id="plugin.video.onlinefilme_to" name="OnlineFilme" version="0.1.8" provider-name="Lary_Loose">
+<addon id="plugin.video.onlinefilme_to" name="OnlineFilme" version="0.1.9" provider-name="Lary_Loose">
     <requires>
         <import addon="script.module.t0mm0.common" version="1.1.0"/>
     </requires>
@@ -301,24 +215,6 @@
         <language>de</language>
         <description lang="de">Longplays of various Computer Games</description>
         <description lang="en">Longplays of various Computer Games</description>
-    </extension>
-</addon>
-
-<addon id="plugin.video.movie_paradise_tv" name="Movie-Paradise" version="0.1.4" provider-name="Lary_Loose">
-	<requires>
-        <import addon="script.module.t0mm0.common" version="1.1.0"/>
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="de"></summary>
-        <summary lang="en"></summary>
-        <description lang="de"></description>
-        <description lang="en"></description>
-		<broken lang="de">defekt</broken>
-		<broken lang="en">defect</broken>
     </extension>
 </addon>
 

@@ -89,6 +89,7 @@ class get_stream_link:
 	def getUrl(self, url):
 		req = urllib2.Request(url)
 		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0')
+		req.add_header('Referer', url)
 		response = urllib2.urlopen(req)
 		data = response.read()
 		response.close()
@@ -137,33 +138,22 @@ class get_stream_link:
 		if not stream_url: stream_url = re.findall('file:"(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
 		if stream_url: return stream_url[0]
 		
-#	def openload(self, url):
-#		html = self.getUrl(url)
-#		aastring = re.compile("<script[^>]+>(ﾟωﾟﾉ[^<]+)<", re.DOTALL | re.IGNORECASE).findall(html)
-#		idxdec = self.decodeOpenLoad(aastring[0])
-#		print idxdec
-#		idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(idxdec)
-#		if idx: 
-#			idx = eval("int" + idx[0])
-#			return self.decodeOpenLoad(aastring[idx])
-#		else:
-#			return idxdec
 	def openload(self, url):
+		print url
 		html = self.getUrl(url)
 		encarray = re.findall('(ﾟωﾟﾉ=.*?\(\'_\'\));', html, re.DOTALL|re.S|re.I)
-		if not encarray: return 'Error: Openload stream array nicht gefunden'
-		for	aastring in encarray:
-			dec = self.decodeOpenLoad(aastring)
-			print dec
-			idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(dec)
-			if idx: 
+		if not encarray: return 'Error: Openload encarray not found'
+		for t in encarray: print self.decodeOpenLoad(t)
+		for i in xrange(0, len(encarray)):
+			idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(self.decodeOpenLoad(encarray[i]))
+			if idx:
 				idx = eval("int" + idx[0])
-				print idx
-				for t in encarray:
-					print self.decodeOpenLoad(t)
-				vid = self.decodeOpenLoad(encarray[idx])
-				if 'Komp+1.mp4' in vid: return 'Error: Openload protection'
-				else: return vid
+				if len(encarray) <= idx+i: return 'Error: idx out or range'
+				vid = self.decodeOpenLoad(encarray[idx+i])
+				req = urllib2.Request(vid, None, {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'})
+				res = urllib2.urlopen(req)
+				return res.geturl()
+		return 'Error: Openload Protection'
 
 	def decodeOpenLoad(self, aastring):
 		# decodeOpenLoad made by mortael, please leave this line for proper credit :)
@@ -210,13 +200,10 @@ class get_stream_link:
 			decodestring = decodestring.replace("+","")
 			decodestring = decodestring.replace("\"","")
 			videourl = re.search(r"(http[^\}]+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
-			#videourl = videourl.replace("https","http")
+			videourl = videourl.replace("https", "http")
+			return videourl
 		else:
 			return decodestring
-			
-		req = urllib2.Request(videourl, None, {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0' })
-		res = urllib2.urlopen(req)
-		return res.geturl()
 	
 	def decode_ol(self, encoded):
 		for octc in (c for c in re.findall(r'\\(\d{2,3})', encoded)):

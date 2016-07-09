@@ -137,13 +137,33 @@ class get_stream_link:
 		if not stream_url: stream_url = re.findall('file:"(.*?)"', sUnpacked, re.S|re.I|re.DOTALL)
 		if stream_url: return stream_url[0]
 		
+#	def openload(self, url):
+#		html = self.getUrl(url)
+#		aastring = re.compile("<script[^>]+>(ﾟωﾟﾉ[^<]+)<", re.DOTALL | re.IGNORECASE).findall(html)
+#		idxdec = self.decodeOpenLoad(aastring[0])
+#		print idxdec
+#		idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(idxdec)
+#		if idx: 
+#			idx = eval("int" + idx[0])
+#			return self.decodeOpenLoad(aastring[idx])
+#		else:
+#			return idxdec
 	def openload(self, url):
 		html = self.getUrl(url)
-		aastring = re.compile("<script[^>]+>(ﾟωﾟﾉ[^<]+)<", re.DOTALL | re.IGNORECASE).findall(html)
-		idxdec = self.decodeOpenLoad(aastring[0])
-		idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(idxdec)[0]
-		idx = eval("int" + idx)
-		return self.decodeOpenLoad(aastring[idx])
+		encarray = re.findall('(ﾟωﾟﾉ=.*?\(\'_\'\));', html, re.DOTALL|re.S|re.I)
+		if not encarray: return 'Error: Openload stream array nicht gefunden'
+		for	aastring in encarray:
+			dec = self.decodeOpenLoad(aastring)
+			print dec
+			idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(dec)
+			if idx: 
+				idx = eval("int" + idx[0])
+				print idx
+				for t in encarray:
+					print self.decodeOpenLoad(t)
+				vid = self.decodeOpenLoad(encarray[idx])
+				if 'Komp+1.mp4' in vid: return 'Error: Openload protection'
+				else: return vid
 
 	def decodeOpenLoad(self, aastring):
 		# decodeOpenLoad made by mortael, please leave this line for proper credit :)
@@ -264,24 +284,6 @@ class get_stream_link:
 			match = re.search('<iframe[^>]*src="([^"]*)"', data, re.S|re.I|re.DOTALL)
 			if match: 
 				url = re.sub('^//', 'http://', match.group(1))
-				
-			
-			
-#			info = {}
-#			for i in re.finditer('<input[^>]*name="([^"]*)"[^>]*value="([^"]*)"', frm): info[i.group(1)] = i.group(2)
-#			if len(info) == 0: return 'Error: konnte Logindaten nicht extrahieren'
-#			info['referer'] = resp.get_url()
-#			self.waitmsg(int(10), 'Youwatch')
-#			data = self.net.http_POST(resp.get_url(), info).content
-#			print data
-#			get_packedjava = re.findall("(\(p,a,c,k,e,d.*?)</script>", data, re.S|re.I)
-#			if get_packedjava:
-#				sJavascript = get_packedjava[0]
-#				sUnpacked = cJsUnpacker().unpackByString(sJavascript)
-#				if sUnpacked:
-#					stream_url = re.findall('file:"([^"]*(?:mkv|mp4|avi|mov|flv|mpg|mpeg))"', sUnpacked)
-#					if stream_url: return stream_url[0]
-#					else: return 'Error: Konnte Datei nicht extrahieren'
 
 	def movreel(self, url):
 		data = self.net.http_GET(url).content

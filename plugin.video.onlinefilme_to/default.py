@@ -8,7 +8,7 @@ html_parser = HTMLParser.HTMLParser()
 dbg = False
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
-baseurl = 'http://onlinefilme.to'
+baseurl = 'http://onlinefilme.biz'
 settings = xbmcaddon.Addon(id='plugin.video.onlinefilme_to')
 maxitems = (int(settings.getSetting("items_per_page"))+1)*16
 filterUnknownHoster = settings.getSetting("filterUnknownHoster") == 'true'
@@ -65,16 +65,19 @@ def SEARCH(url):
 
 def PLAYVIDEO(url):
 	global filterUnknownHoster
-	print url
+	if (dbg): print url
 	data = getUrl(url)
 	if not data: return False
+	for weiter in re.findall('<div class="small-5 medium-2 columns text-right">[^<]*<a href=["\']([^"\']+)["\'][^>]*>Weiter</a>[^<]*</div>', data, re.S|re.I|re.DOTALL):
+		data = getUrl(weiter)
+		if data: break
 	videos = []
-	for streams in re.findall('<div[^>]*class="panel">(.*?>Weiter</a>)', data, re.S|re.I|re.DOTALL):
-		hostqual = find('<span[^>]*data-tooltip[^>]*aria-haspopup[^>]*title="([^"]+)"', streams)
+	for streams in re.findall('<div[^>]*class="panel">(.*?>Weiter<)', data, re.S|re.I|re.DOTALL):
+		hostqual = find('<div[^>]*class="link_share"[^>]*><a[^>]*title="([^"]+)"', streams)
 		if ' - ' not in hostqual: hoster = hostqual
 		else: (hoster, qual) = hostqual.split('-')
-		views = find('<span[^>]*>([^<]*)<span[^>]*>(?:Views|Herunterladen)</span>', streams)
-		url = find('<a[^>]*href=["\']([^"\']+)["\'][^>]*>Weiter', streams)
+		views = find('<div[^>]*class="link_views"[^>]*>([^<]*)<', streams)
+		url = find('<a[^>]*href=["\']([^"\']+)["\'][^>]*><[^<]*Weiter', streams)
 		if (dbg): print hoster, views, makeurl(url)
 		videos += [('[COLOR=blue]' + clean(hoster) + '[/COLOR] ' + clean(qual) + ' ' + clean(views) + ' views', makeurl(url))]
 	lv = len(videos)
@@ -83,6 +86,10 @@ def PLAYVIDEO(url):
 		return False
 	url = selectVideoDialog(videos) if lv > 1 else videos[0][1]
 	if not url: return False
+	if 'watch-' in url:
+		req = urllib2.Request(url, None, {'User-Agent': userAgent, 'Referer': url})
+		res = urllib2.urlopen(req)
+		url = res.geturl()
 	stream_url = GetStream(url)
 	if not stream_url: return False
 	print 'open stream: ' + stream_url

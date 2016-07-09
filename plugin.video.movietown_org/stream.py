@@ -139,45 +139,69 @@ class get_stream_link:
 		
 	def openload(self, url):
 		html = self.getUrl(url)
+		aastring = re.compile("<script[^>]+>(ﾟωﾟﾉ[^<]+)<", re.DOTALL | re.IGNORECASE).findall(html)
+		idxdec = self.decodeOpenLoad(aastring[0])
+		idx = re.compile(r"welikekodi_ya_rly = Math.round([^;]+);", re.DOTALL | re.IGNORECASE).findall(idxdec)[0]
+		idx = eval("int" + idx)
+		return self.decodeOpenLoad(aastring[idx])
 
-		for aastring in re.findall('(ﾟωﾟﾉ=.*?\(\'_\'\));', html, re.DOTALL|re.S|re.I):
-			aastring = aastring.replace("(\xef\xbe\x9f\xd0\x94\xef\xbe\x9f)[\xef\xbe\x9f\xce\xb5\xef\xbe\x9f]+(o\xef\xbe\x9f\xef\xbd\xb0\xef\xbe\x9fo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (\xef\xbe\x9f\xd0\x94\xef\xbe\x9f) ['c']+ (-~-~1)+", "")
-			aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9").replace("((ﾟｰﾟ) + (ﾟｰﾟ))", "8").replace("((ﾟｰﾟ) + (o^_^o))", "7").replace("((o^_^o) +(o^_^o))", "6")
-			aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))", "5").replace("(ﾟｰﾟ)", "4").replace("((o^_^o) - (ﾟΘﾟ))", "2").replace("(o^_^o)", "3").replace("(ﾟΘﾟ)", "1")
-			aastring = aastring.replace("(+!+[])", "1").replace("(c^_^o)", "0").replace("(0+0)", "0").replace("(ﾟДﾟ)[ﾟεﾟ]", "\\").replace("(3 +3 +0)", "6")
-			aastring = aastring.replace("(3 - 1 +0)", "2").replace("(!+[]+!+[])", "2").replace("(-~-~2)", "4").replace("(-~-~1)", "3").replace("(-~0)", "1")
-			aastring = aastring.replace("(-~1)", "2").replace("(-~3)", "4").replace("(0-0)", "0")
+	def decodeOpenLoad(self, aastring):
+		# decodeOpenLoad made by mortael, please leave this line for proper credit :)
+		aastring = aastring.replace("(ﾟДﾟ)[ﾟεﾟ]+(oﾟｰﾟo)+ ((c^_^o)-(c^_^o))+ (-~0)+ (ﾟДﾟ) ['c']+ (-~-~1)+","")
+		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ) + (ﾟΘﾟ))", "9")
+		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟｰﾟ))","8")
+		aastring = aastring.replace("((ﾟｰﾟ) + (o^_^o))","7")
+		aastring = aastring.replace("((o^_^o) +(o^_^o))","6")
+		aastring = aastring.replace("((ﾟｰﾟ) + (ﾟΘﾟ))","5")
+		aastring = aastring.replace("(ﾟｰﾟ)","4")
+		aastring = aastring.replace("((o^_^o) - (ﾟΘﾟ))","2")
+		aastring = aastring.replace("(o^_^o)","3")
+		aastring = aastring.replace("(ﾟΘﾟ)","1")
+		aastring = aastring.replace("(+!+[])","1")
+		aastring = aastring.replace("(c^_^o)","0")
+		aastring = aastring.replace("(0+0)","0")
+		aastring = aastring.replace("(ﾟДﾟ)[ﾟεﾟ]","\\")
+		aastring = aastring.replace("(3 +3 +0)","6")
+		aastring = aastring.replace("(3 - 1 +0)","2")
+		aastring = aastring.replace("(!+[]+!+[])","2")
+		aastring = aastring.replace("(-~-~2)","4")
+		aastring = aastring.replace("(-~-~1)","3")
+		aastring = aastring.replace("(-~0)","1")
+		aastring = aastring.replace("(-~1)","2")
+		aastring = aastring.replace("(-~3)","4")
+		aastring = aastring.replace("(0-0)","0")
 
-			decodestring = re.search(r"\\\+([^(]+)", aastring, re.DOTALL | re.IGNORECASE).group(1)
-			decodestring = "\\+" + decodestring
-			decodestring = decodestring.replace("+", "").replace(" ", "")
-			decodestring = self.decode_ol(decodestring)
-			decodestring = decodestring.replace("\\/", "/")
+		decodestring = re.search(r"\\\+([^(]+)", aastring, re.DOTALL | re.IGNORECASE).group(1)
+		decodestring = "\\+"+ decodestring
+		decodestring = decodestring.replace("+","")
+		decodestring = decodestring.replace(" ","")
+		decodestring = self.decode_ol(decodestring)
+		decodestring = decodestring.replace("\\/","/")
 
-			if 'toString' in decodestring:
-				base = int(re.compile('toString\\(a\\+(\\d+)', re.DOTALL | re.IGNORECASE).findall(decodestring)[0])
-				match = re.compile('(\\(\\d[^)]+\\))', re.DOTALL | re.IGNORECASE).findall(decodestring)
-				for rep1 in match:
-					match1 = re.compile('(\\d+),(\\d+)', re.DOTALL | re.IGNORECASE).findall(rep1)
-					base2 = base + int(match1[0][0])
-					rep12 = self.base10toN(int(match1[0][1]), base2)
-					decodestring = decodestring.replace(rep1, rep12)
-				decodestring = decodestring.replace('+', '')
-				decodestring = decodestring.replace('"', '')
-				videourl = re.search('(http[^\\}]+)', decodestring, re.DOTALL | re.IGNORECASE)
-			else:
-				videourl = re.search(r"vr\s?=\s?\"|'([^\"']+)", decodestring, re.DOTALL | re.IGNORECASE)
-				
-			if videourl: return videourl.group(1)
-
-		return "Error: Video nicht gefunden!";
-
-
+		if 'toString' in decodestring:
+			base = re.compile(r"toString\(a\+(\d+)", re.DOTALL | re.IGNORECASE).findall(decodestring)[0]
+			base = int(base)
+			match = re.compile(r"(\(\d[^)]+\))", re.DOTALL | re.IGNORECASE).findall(decodestring)
+			for repl in match:
+				match1 = re.compile(r"(\d+),(\d+)", re.DOTALL | re.IGNORECASE).findall(repl)
+				base2 = base + int(match1[0][0])
+				repl2 = self.base10toN(int(match1[0][1]),base2)
+				decodestring = decodestring.replace(repl,repl2)
+			decodestring = decodestring.replace("+","")
+			decodestring = decodestring.replace("\"","")
+			videourl = re.search(r"(http[^\}]+)", decodestring, re.DOTALL | re.IGNORECASE).group(1)
+			#videourl = videourl.replace("https","http")
+		else:
+			return decodestring
+			
+		req = urllib2.Request(videourl, None, {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0' })
+		res = urllib2.urlopen(req)
+		return res.geturl()
+	
 	def decode_ol(self, encoded):
 		for octc in (c for c in re.findall(r'\\(\d{2,3})', encoded)):
 			encoded = encoded.replace(r'\%s' % octc, chr(int(octc, 8)))
 		return encoded.decode('utf8')
-
 
 	def base10toN(self, num, n):
 		num_rep = {

@@ -1,5 +1,8 @@
+0.1.6
+	- update due to site changes
+	- google resize service removed
 0.1.5
-	update due to site changes
+	- update due to site changes
 0.1.4
 	- wrong links fixed
 0.1.3 

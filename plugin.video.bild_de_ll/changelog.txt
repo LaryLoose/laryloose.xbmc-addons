@@ -1,3 +1,6 @@
+0.2.4
+- complete rework due to homepage changes
+
 0.2.2
 - url fixes
 

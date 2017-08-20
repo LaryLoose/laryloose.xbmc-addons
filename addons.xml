@@ -31,18 +31,17 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.2" provider-name="Lary_Loose">
-    <extension point="xbmc.python.pluginsource" library="default.py">
+<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.4" provider-name="Lary_Loose">
+	<extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
+        <language>de</language>
         <summary lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</summary>
         <summary lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</summary>
-        <language>de</language>
         <description lang="de">News, Politik, Unterhaltung, Sport, Auto und Lifestyle</description>
         <description lang="en">News, Politics, Entertainment, Sports, Cars and Lifestyle</description>
-    <platform>all</platform>
     </extension>
 </addon>
 

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon
 
-#dbg = False 
-dbg = True
+dbg = False 
+#dbg = True
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.mrskin')
 translation = settings.getLocalizedString
@@ -13,15 +13,16 @@ maxViewPages = int(settings.getSetting("maxViewPages"))*2
 if maxViewPages == 0: maxViewPages = 1
 viewMode = str(settings.getSetting("viewMode"))
 
-startpage = 'http://www.mrskin.com'
-playlisturl = 'http://www.mrskin.com/playlist/<pid>.xml'
-contrex = ['"file":"([^"]+-hd[^"]*)"', '"file":"([^"]+-sd[^"]*)"', '"file":"([^"]+)"']
+startpage = 'https://www.mrskin.com'
+playlisturl = 'https://www.mrskin.com/playlist/<pid>'
+contrex = ['file&quot;:&quot;([^}]*?)&quot;', '"file":"([^"]+-hd[^"]*)"', '"file":"([^"]+-sd[^"]*)"', '"file":"([^"]+)"']
 userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 def index():
-	addDir('Original Videos', '', 'origVideos', '')
-	addDir('Playlists', '', 'indexPlaylists', '')
-	xbmcplugin.endOfDirectory(pluginhandle)
+	#addDir('Skin Videos', '', 'origVideos', '')
+	#addDir('Playlists', '', 'indexPlaylists', '')
+	#xbmcplugin.endOfDirectory(pluginhandle)
+	origVideos()
 	
 def indexPlaylists():
 	url = startpage + '/playlists'
@@ -52,10 +53,10 @@ def showPlaylists(url):
 
 def showPlVideos(url):
 	if dbg: print 'parsing ' + url
-	url = playlisturl.replace('<pid>', find('p([0-9]+)$', url))
+	url = playlisturl.replace('<pid>', find('p([0-9]+)\?', url))
 	if dbg: print 'open ' + url
 	content = getUrl(url)
-	print content
+	if dbg: print content
 	for item in re.compile('<item>(.*?)</item>', re.DOTALL).findall(content):
 		bitrate = 0
 		title = cleanTitle(find('<title>([^<]*)</title>', item))
@@ -103,7 +104,16 @@ def getVideoUrl(content):
 	for rex in contrex:
 		if dbg: print 'try search with ' + rex
 		match = re.compile(rex, re.DOTALL).findall(content)
-		if match: return match[0]
+		if match: 
+			vid = match[0]
+			break
+	if '.m3u8' in vid:
+		m3u8content = getUrl(vid)
+		for line in m3u8content.splitlines():
+			line = line.strip()
+			if not line or line.startswith('#'): continue
+			vid = line
+	return vid
 	
 def playVideo(url):
 	if dbg: print 'play video: ' + url
@@ -120,7 +130,7 @@ def playVideo(url):
 	    xbmc.executebuiltin('Notification(Video not found., 5000)')
 
 def cleanTitle(title):
-	title = title.replace('&lt;','<').replace('&gt;','>').replace('&amp;','&').replace('&quot;','"').replace('&szlig;','ß').replace('&ndash;','-').replace('&nbsp;', ' ')
+	title = title.replace('&lt;','<').replace('&gt;','>').replace('&amp;','&').replace('&quot;','"').replace('&szlig;','ß').replace('&ndash;','-').replace('&nbsp;', ' ').replace('&#39;', "'")
 	title = re.sub('\s+', ' ', title)
 	return title.strip()
 

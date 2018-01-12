@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
 	<string id="30000">Allgemein</string>
-	<string id="30100">Erzwinge Thumbnail Ansicht</string>
+	<string id="30100">Erzwinge Thumbnail Ansicht für Bilderübersicht</string>
 	<string id="30101">Cache to Disc</string>
 	<string id="30102">Bilder pro Seite</string>
 	<string id="30201">Neue Bilder</string>
 	<string id="30202">Alphabetisch</string>
-	<string id="30203">Top 100 des Tages</string>
-	<string id="30204">Top 100 des Monats</string>
-	<string id="30205">Top 100 aller Zeiten</string>
+	<string id="30203">Meist Gesehen (Heute)</string>
+	<string id="30204">Meist Gesehen (Monat)</string>
+	<string id="30205">Meist Gesehen (Allzeit)</string>
+	<string id="30206">Deutsche Stars</string>
+	<string id="30207">Amerikanische Stars</string>
+	<string id="30208">Geburtstage</string>
+	<string id="30209">Musikerinnen</string>
+	<string id="30210">Schauspielerinnen</string>
 	<string id="30301">Weiter</string>
+	<string id="30302">Suche</string>
 </strings>

@@ -1,4 +1,9 @@
-0.1.5
+0.1.7 
+	- code adaptations due to site changes
+	- additional categories added
+	- new search feature
+	
+0.1.5 
 	- settings bug fixed 
 	
 0.1.4

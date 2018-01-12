@@ -137,7 +137,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.5" provider-name="Lary_Loose">
+<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.7" provider-name="Lary_Loose">
   <requires>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
@@ -145,10 +145,10 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="de">Stars nackt >> Bilder Videos Wallpaper</summary>
-    <summary lang="en">Nude Stars >> Pictures Videos Wallpaper</summary>
-    <description lang="de">Stars nackt >> Bilder Videos Wallpaper</description>
-    <description lang="en">Nude Stars >> Pictures Videos Wallpaper</description>
+    <summary lang="de">Stars nackt, Playboy Nacktbilder &amp; Paparazzi Fotos. Videos, Fakes &amp; Wallpaper</summary>
+    <summary lang="en">Nude celebs, naked pictures. Playboy &amp; paparazzi photos. Videos, Fakes &amp; Wallpaper</summary>
+    <description lang="de">Stars nackt. Kostenlose Nacktfotos, Playboy Bilder und Fakes. Sex Szenen und Sextapes, sowie Fotos von Paparazzis auf Celebgate.</description>
+    <description lang="en">Nude pictures of every celeb. Free galleries, fakes, naked sex scenes of vips and all leaked images. Watch your favorit playboy pics on Celebgate.</description>
   </extension>
 </addon>
 

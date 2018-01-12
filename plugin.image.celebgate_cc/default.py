@@ -2,84 +2,104 @@
 # -*- coding: utf-8 -*-
 import urllib, urllib2, re, xbmcplugin, xbmcgui, sys, xbmcaddon, base64
 
+dbg = False
 thisPlugin = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.image.celebgate_cc')
 translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("force_viewmode") == "true"
 useCacheToDisc = settings.getSetting("cache_to_disc") == "true"
-maxPerSite = (['10','13','20','28','30','40','43','50','100','9999'])[int(settings.getSetting("max_per_site"))]
-
-baseurl = 'http://www.celeb.gate.cc'
-thumburl = 'http://files.celeb.gate.cc/headshots/preview/'
-piclisturl = 'http://www.celeb.gate.cc/de/<name>/pictures/list.xml?name=<name>&first=1&last=' + maxPerSite
-picsurl = 'http://files.celeb.gate.cc/pictures/'
-prevurl = 'http://files.celeb.gate.cc/pictures/preview/'
+maxPerSite = (['42','84','168','336','672','1344','2688','5076','-1'])[int(settings.getSetting("max_per_site"))]
+baseurl = 'http://celeb.gate.cc'
+itemcnt = 0
 
 def index():
-	addDir(translation(30201), baseurl + '/de/home.html', 'showUpdateFolders', '')
-	addDir(translation(30202), baseurl + '/de/home.html', 'showAlphaFolders', '')
-	addDir(translation(30203), baseurl + '/de/misc/top_daily.html', 'showTopFolders', '')
-	addDir(translation(30204), baseurl + '/de/misc/top_monthly.html', 'showTopFolders', '')
-	addDir(translation(30205), baseurl + '/de/misc/top_alltime.html', 'showTopFolders', '')
+	addDir(translation(30201), fixUrl('/de/recent.html'), 'showUpdateFolders', '')
+	addDir(translation(30208), baseurl, 'birthdays', '')
+	addDir(translation(30206), fixUrl('/country/DE.html?sort=c.firstname&direction=asc&page=1'), 'showNameFolders', '')
+	addDir(translation(30207), fixUrl('/country/US.html?sort=c.firstname&direction=asc&page=1'), 'showNameFolders', '')
+	addDir(translation(30210), fixUrl('/de/profession/actress.html?sort=c.firstname&direction=asc&page=1'), 'showNameFolders', '')
+	addDir(translation(30209), fixUrl('/de/profession/musician.html?sort=c.firstname&direction=asc&page=1'), 'showNameFolders', '')
+	addDir('Model', fixUrl('/de/profession/model.html?sort=c.firstname&direction=asc&page=1'), 'showNameFolders', '')
+	addDir('Playboy', fixUrl('/tag/playboy.html?page=1'), 'showNameFolders', '')
+	addDir('The Fappening', fixUrl('/blog/5/the-fappening-leaked-icloud-nude-pics'), 'showNameFolders', '')
+	addDir(translation(30203), fixUrl('/de/top.html?sort=c.clicksDay&page=1'), 'showNameFolders', '')
+	addDir(translation(30204), fixUrl('/de/top.html?sort=c.clicksMonth&page=1'), 'showNameFolders', '')
+	addDir(translation(30205), fixUrl('/de/top.html?sort=c.clicksTotal&page=1'), 'showNameFolders', '')
+	addDir(translation(30202), fixUrl('/de/home.html'), 'showAlphaFolders', '')
+	addDir(translation(30302), fixUrl('/search?q='), 'search', '')
 	xbmcplugin.endOfDirectory(thisPlugin)
+
+def search(url):
+    keyboard = xbmc.Keyboard('', translation(30302))
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+        search_string = keyboard.getText()
+        showNameFolders(url+search_string)
+
+def birthdays(url):
+	content = getUrl(url)
+	for match in re.compile('<div[^>]*id="birthday-carousel"[^>]*>(.*)href="#birthday-carousel"', re.DOTALL).findall(content):
+		for a in re.compile('(<a.*?<a.*?/a>.*?/a>)', re.DOTALL).findall(match):
+			thumb, name = re.findall('<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*', a, re.S|re.I)[0]
+			href = re.findall('<a[^>]*data-id=[^>]*href="([^"]*)"', a, re.S|re.I)[0]
+			desc = re.findall('<p>(.*)</p>', a, re.S|re.I)[0]
+			addDir(name + " (" + cleanString(desc) + ")", fixUrl(href), 'showPictures', thumb)
 
 def showAlphaFolders(url):
+	if dbg: print "open " + url
 	content = getUrl(url)
-	match = re.compile('<ul class="letters">(.*?)</ul>', re.DOTALL).findall(content)
-	letters = re.compile('<li>[^<]*<a href="(.*?)" title="(.*?)">([A-Za-z])</a>[^<]*</li>', re.DOTALL).findall(match[0])
-	for i in range(0, len(letters), 1):
-		addDir(letters[i][2] + '    (' + letters[i][1].replace(' &#10;', ', ') + ')', baseurl + letters[i][0], 'showNameFolders', '')
-	xbmcplugin.endOfDirectory(thisPlugin)
-
-def showTopFolders(url):
-	content = getUrl(url)
-	lists = re.compile('<ul[^>]*class="list"[^<]*>(.*?)</ul>', re.DOTALL).findall(content)
-	for l in range(0, len(lists), 1):
-		names = re.compile('<li>([^<]*)<a[^>]*href="(.*?)"[^>]*name="(.*?)"[^>]*>(.*?)</a>[^<]*</li>', re.DOTALL).findall(lists[l])
-		for n in range(0, len(names), 1):
-			addDir(names[n][0] + ' ' + names[n][3], baseurl + names[n][1], 'showPictures', thumburl + names[n][2] + '.jpg')
-	xbmcplugin.endOfDirectory(thisPlugin)
-
-def showNameFolders(url):
-	content = getUrl(url)
-	lists = re.compile('<ul[^>]*class="list"[^<]*>(.*?)</ul>', re.DOTALL).findall(content)
-	for l in range(0, len(lists), 1):
-		names = re.compile('<li>[^<]*<a[^>]*href="(.*?)"[^>]*name="(.*?)"[^>]*>(.*?)</a>[^<]*</li>', re.DOTALL).findall(lists[l])
-		for n in range(0, len(names), 1):
-			addDir(names[n][2], baseurl + names[n][0], 'showPictures', thumburl + names[n][1] + '.jpg')
-	xbmcplugin.endOfDirectory(thisPlugin)
+	for match in re.compile('<[^>]*id="list-nav">[^<]*<ul[^>]*>(.*?)</ul>', re.DOTALL).findall(content):
+		for href,letter in re.compile('<li>[^<]*<a href="(.*?)"[^>]*>([A-Za-z])</a>[^<]*</li>', re.DOTALL).findall(match):
+			addDir(letter, fixUrl(href) + "?sort=c.firstname&direction=asc&page=1", 'showNameFolders', '')
 	
-def showUpdateFolders(url):
+def showNameFolders(url):
+	if dbg: print "open " + url
+	global itemcnt
 	content = getUrl(url)
-	updates = re.compile('<div class="updatebox_day">(.*?)<div class="clear">', re.DOTALL).findall(content)
-	for u in range(0, len(updates), 1):
-		updateinfo = re.compile('<div class="update_info">[^<]*<h[0-9]>(.*?)</h[0-9]>[^<]*<h[0-9]>(.*?)</h[0-9]>', re.DOTALL).findall(updates[u])
-		names = re.compile('<li>[^<]*<a[^>]*href="(.*?)"[^>]*name="(.*?)"[^>]*>(.*?)</a>[^<]*</li>', re.DOTALL).findall(updates[u])
-		for n in range(0, len(names), 1):
-			addDir(updateinfo[0][0] + ' ' + updateinfo[0][1] + ' ' + names[n][2], baseurl + names[n][0], 'showPictures', thumburl + names[n][1] + '.jpg')
-	xbmcplugin.endOfDirectory(thisPlugin)
+	cnt = 0
+	for l in re.compile('<ol[^>]*class="gallery"[^<]*>(.*?)</ol>', re.DOTALL).findall(content):
+		for href,img,caption in re.compile('<li>[^<]*<a[^>]*href="([^"]*)"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]*)"[^>]*>[^<]*<figcaption>([^<]*)</figcaption>[^<]*</figure>[^<]*</a>[^<]*</li>', re.DOTALL).findall(l):
+			addDir(fixString(caption), fixUrl(href), 'showPictures', img)
+			cnt = cnt + 1
+	page = re.compile('.*page=([0-9]+)').findall(url)
+	if page: 
+		next = re.sub('page=([0-9]+)', 'page=' + str(int(page[0])+1), url)
+		if cnt == 0: return
+		itemcnt = itemcnt + cnt
+		if maxPerSite == -1 or int(itemcnt) < int(maxPerSite): showNameFolders(next)
+		else: addDir(translation(30301), fixUrl(next), 'showNameFolders', '')
+
+def showUpdateFolders(url):
+	if dbg: print "open " + url
+	content = getUrl(url)
+	for href,img,name in re.compile('<a[^>]*href="([^"]+)"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]+)"[^>]*alt="([^"]+)"', re.DOTALL).findall(content):
+		href = re.sub('gallery', 'pictures', href)
+		addDir(name, fixUrl(href), 'showPictures', img)
 
 def showPictures(url):
-	namematch = re.compile(baseurl + '/de/(.*?)/[^/]*html', re.DOTALL).findall(url)
-	url = piclisturl.replace('<name>', namematch[0])
-	addPictures(url)
-	
-def addPictures(url):
-	#print('get pictures from ' + url)
-	for (first, last) in re.compile('&first=([\d]*)&last=([\d]*)', re.DOTALL).findall(url):
-		content = getUrl(url)
-		first = int(first)
-		total = re.compile('<total>([^<]*)</total>', re.DOTALL).findall(content)[0]
-		for pic in re.compile('<id2>([^<]*)</id2>', re.DOTALL).findall(content):
-			picname = base64.standard_b64decode(pic)
-			addPicture(picname, picsurl + picname, prevurl + picname)
-			first = first+1
-		if (first < int(total)):
-			url = re.sub('&first=[\d]*', '&first='+str(first), url)
-			url = re.sub('&last=[\d]*', '&last='+str(int(last)+int(maxPerSite)), url)
-			addDir(translation(30301), url, 'addPictures', '')
+	if dbg: print "getting pictures from " + url
+	content = getUrl(url)
+	for img in re.compile('<a[^>]*class="headshot preview"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]+)"', re.DOTALL).findall(content):
+		picname = re.compile('.*/([^/]+.[^/]+)$', re.DOTALL).findall(img)
+		href = re.sub('headshot', 'original', img)
+		addPicture(picname[0], href, img)
+	for max,next,cur in re.compile('<a[^>]*>([0-9]+)</a>[^<]*</li>[^<]*<li>[^<]*<a[^>]*rel="next"[^>]*href="([^"]+p=([0-9]+)&[^"]+)"', re.DOTALL).findall(content):
+		addDir(translation(30301) + ' (' + cur + '/' + max +')', fixUrl(next), 'showPictures', '')
 	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode(500)')
-	xbmcplugin.endOfDirectory(handle=thisPlugin, succeeded=True, updateListing=False, cacheToDisc=useCacheToDisc)
+
+def cleanString(str):
+	str = re.sub('<br>', ' -', str)
+	str = re.sub('<[^>]+>', ' ', str)
+	str = re.sub('[\n\r]', ' ', str)
+	str = re.sub('[ ]+', ' ', str)
+	return fixString(str.strip())
+
+def fixString(str):
+	return str.replace('&#039;', "'")
+
+def fixUrl(url):
+	if baseurl not in url: return baseurl + url
+	else: return url
 
 def getUrl(url):
 	req = urllib2.Request(url)
@@ -122,8 +142,8 @@ elif mode == 'showTopFolders': showTopFolders(url)
 elif mode == 'showUpdateFolders': showUpdateFolders(url)
 elif mode == 'showPictures': showPictures(url)
 elif mode == 'addPictures': addPictures(url)
+elif mode == 'search': search(url)
+elif mode == 'birthdays': birthdays(url)
 else: index()
 
-
-
-
+xbmcplugin.endOfDirectory(handle=thisPlugin, cacheToDisc=useCacheToDisc)

@@ -12,5 +12,6 @@
         <summary lang="en">Szene-Streams.com</summary>
         <description lang="de">Filme und Serien von Szene-Streams.com</description>
         <description lang="en">Movies and series from Szene-Streams.com</description>
+		<broken>deprecated</broken>
     </extension>
 </addon>

@@ -79,12 +79,14 @@ def showUpdateFolders(url):
 def showPictures(url):
 	if dbg: print "getting pictures from " + url
 	content = getUrl(url)
-	for img in re.compile('<a[^>]*class="headshot preview"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]+)"', re.DOTALL).findall(content):
-		picname = re.compile('.*/([^/]+.[^/]+)$', re.DOTALL).findall(img)
-		href = re.sub('headshot', 'original', img)
-		addPicture(picname[0], href, img)
-	for max,next,cur in re.compile('<a[^>]*>([0-9]+)</a>[^<]*</li>[^<]*<li>[^<]*<a[^>]*rel="next"[^>]*href="([^"]+p=([0-9]+)&[^"]+)"', re.DOTALL).findall(content):
-		addDir(translation(30301) + ' (' + cur + '/' + max +')', fixUrl(next), 'showPictures', '')
+	for href,img,picname in re.compile('<li[^>]*class="gallery-image"[^>]*>[^<]*<a[^>]*data-orig=["]*([^" ]+)["]*[^>]*>[^<]*<figure*[^>]*>[^<]*<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>', re.DOTALL).findall(content):
+		addPicture(picname, href, img)
+	for cur, max in re.compile('<li[^>]*class="active"[^>]*>[^<]*<span>([0-9]+)</span>[^<]*</li>.*>([0-9])+</a>[^<]*</li>[^<]*<li>[^<]*<a[^>]*rel="next"', re.DOTALL).findall(content):
+		next = int(cur) + 1
+		if next <= max:
+			if 'p=' in url: nexturl = re.sub('p=([0-9]+)', 'p=' + str(next), url)
+			else: nexturl = url + '?p=' + str(next)
+			addDir(translation(30301), fixUrl(nexturl), 'showPictures', '')
 	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode(500)')
 
 def cleanString(str):

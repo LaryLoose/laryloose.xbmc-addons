@@ -1,3 +1,6 @@
+0.1.5
+- site changes fixed
+
 0.1.4
 - site changes fixed
 - playlists removed for now

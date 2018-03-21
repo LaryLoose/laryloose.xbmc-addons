@@ -3,7 +3,6 @@
 import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon
 
 dbg = False 
-#dbg = True
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.mrskin')
 translation = settings.getLocalizedString
@@ -88,12 +87,12 @@ def origVideos():
 def showVideos(url):
 	if dbg: print 'open ' + url
 	content = getUrl(url)
-	for href, img, title in re.compile('<a[^>]*href="([^"]+)">[^<]*<img[^>]*class="img-responsive"[^>]*src="([^"]*)"[^>]*>.*?<[^>]*class=["\']title["\'][^>]*>([^<]+)<', re.DOTALL).findall(content):
+	for href, img, title in re.compile('<a[^>]*href="([^"]+)">[^<]*<img[^>]*class="[^"]*img-responsive[^"]*"[^>]*data-src="([^"]*)"[^>]*>.*?<[^>]*class=["\']title["\'][^>]*>([^<]+)<', re.DOTALL).findall(content):
 		href = startpage + href
 		title = cleanTitle(title)
 		if dbg: print 'add link: title=' + title + ' href=' +href + ' img=' + img
 		addLink(title, href, 'playVideo', img)
-	for nextpage in  re.compile('<span[^>]*class=\'next\'>[^<]*<a[^>]*rel="next"[^>]*href="([^"]+)"[^>]*>', re.DOTALL).findall(content):
+	for nextpage in  re.compile('<span[^>]*class=\'next\'>[^<]*<a[^>]*href="([^"]+)"[^>]*>', re.DOTALL).findall(content):
 		nextpage = startpage + nextpage
 		if dbg: print 'next page ' + nextpage
 		addDir('Next Page', nextpage, 'showVideos')

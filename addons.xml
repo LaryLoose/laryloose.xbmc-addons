@@ -89,7 +89,7 @@
         <language>de</language>
         <description lang="de"></description>
         <description lang="en"></description>
-    <platform>all</platform>
+		<broken>Über Youtube Addon verfügbar</broken>
     </extension>
 </addon>
 
@@ -135,6 +135,7 @@
         <summary lang="en">Ultimate Movie and TV Database</summary>
         <description lang="de">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
         <description lang="en">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
+		<broken>deprecated</broken>
     </extension>
 </addon>
 

@@ -12,6 +12,6 @@
         <language>de</language>
         <description lang="de"></description>
         <description lang="en"></description>
-    <platform>all</platform>
+		<broken>Über Youtube Addon verfügbar</broken>
     </extension>
 </addon>

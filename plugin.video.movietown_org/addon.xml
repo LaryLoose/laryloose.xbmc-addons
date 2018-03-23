@@ -12,5 +12,6 @@
         <summary lang="en">Ultimate Movie and TV Database</summary>
         <description lang="de">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
         <description lang="en">Movietown - Kostenlos Filme &amp; Serien online anschauen</description>
+		<broken>deprecated</broken>
     </extension>
 </addon>

@@ -12,5 +12,6 @@
         <summary lang="en">FilmPalast.to MOViS &amp; SERiES, watch online instantly &amp; free!</summary>
         <description lang="de"></description>
         <description lang="en"></description>
+		<broken>deprecated</broken>
     </extension>
 </addon>

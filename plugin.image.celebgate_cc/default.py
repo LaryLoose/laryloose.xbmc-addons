@@ -9,7 +9,7 @@ translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("force_viewmode") == "true"
 useCacheToDisc = settings.getSetting("cache_to_disc") == "true"
 maxPerSite = (['42','84','168','336','672','1344','2688','5076','-1'])[int(settings.getSetting("max_per_site"))]
-baseurl = 'http://celeb.gate.cc'
+baseurl = 'https://celeb.gate.cc'
 itemcnt = 0
 
 def index():
@@ -43,7 +43,7 @@ def birthdays(url):
 			thumb, name = re.findall('<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*', a, re.S|re.I)[0]
 			href = re.findall('<a[^>]*data-id=[^>]*href="([^"]*)"', a, re.S|re.I)[0]
 			desc = re.findall('<p>(.*)</p>', a, re.S|re.I)[0]
-			addDir(name + " (" + cleanString(desc) + ")", fixUrl(href), 'showPictures', thumb)
+			addDir(name + " (" + cleanString(desc) + ")", fixUrl(href), 'showPictures', fixImg(thumb))
 
 def showAlphaFolders(url):
 	if dbg: print "open " + url
@@ -59,7 +59,7 @@ def showNameFolders(url):
 	cnt = 0
 	for l in re.compile('<ol[^>]*class="gallery"[^<]*>(.*?)</ol>', re.DOTALL).findall(content):
 		for href,img,caption in re.compile('<li>[^<]*<a[^>]*href="([^"]*)"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]*)"[^>]*>[^<]*<figcaption>([^<]*)</figcaption>[^<]*</figure>[^<]*</a>[^<]*</li>', re.DOTALL).findall(l):
-			addDir(fixString(caption), fixUrl(href), 'showPictures', img)
+			addDir(fixString(caption), fixUrl(href), 'showPictures', fixImg(img))
 			cnt = cnt + 1
 	page = re.compile('.*page=([0-9]+)').findall(url)
 	if page: 
@@ -74,13 +74,13 @@ def showUpdateFolders(url):
 	content = getUrl(url)
 	for href,img,name in re.compile('<a[^>]*href="([^"]+)"[^>]*>[^<]*<figure>[^<]*<img[^>]*src="([^"]+)"[^>]*alt="([^"]+)"', re.DOTALL).findall(content):
 		href = re.sub('gallery', 'pictures', href)
-		addDir(name, fixUrl(href), 'showPictures', img)
+		addDir(name, fixUrl(href), 'showPictures', fixImg(img))
 
 def showPictures(url):
 	if dbg: print "getting pictures from " + url
 	content = getUrl(url)
 	for href,img,picname in re.compile('<li[^>]*class="gallery-image"[^>]*>[^<]*<a[^>]*data-orig=["]*([^" ]+)["]*[^>]*>[^<]*<figure*[^>]*>[^<]*<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>', re.DOTALL).findall(content):
-		addPicture(picname, href, img)
+		addPicture(picname, fixImg(href), fixImg(img))
 	for cur, max in re.compile('<li[^>]*class="active"[^>]*>[^<]*<span>([0-9]+)</span>[^<]*</li>.*>([0-9])+</a>[^<]*</li>[^<]*<li>[^<]*<a[^>]*rel="next"', re.DOTALL).findall(content):
 		next = int(cur) + 1
 		if next <= max:
@@ -103,6 +103,9 @@ def fixUrl(url):
 	if baseurl not in url: return baseurl + url
 	else: return url
 
+def fixImg(url):
+	return re.sub('^//', 'https://', url)
+	
 def getUrl(url):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0')

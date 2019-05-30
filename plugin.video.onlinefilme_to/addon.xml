@@ -12,5 +12,6 @@
         <summary lang="en"></summary>
         <description lang="de">Online filme und serien online schauen</description>
         <description lang="en"></description>
+		<broken>deprecated</broken>
     </extension>
 </addon>

@@ -1,0 +1,7 @@
+<settings>
+   <setting id="useThumbAsFanart" type="bool" label="30101" default="true"/>
+   <setting id="forceViewMode" type="bool" label="30102" default="true"/>
+   <setting id="viewModeVideos" type="number" label="30103" default="500"/>
+   <setting id="viewModeLists" type="number" label="30104" default="400"/>
+   <setting id="maxItemsToView" type="enum" label="30105" values="10|20|30|50|100|150|200|500|All" default="2"/>
+</settings>

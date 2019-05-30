@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.videocelebs.net" name="VideoCelebs.Net" version="0.1.0" provider-name="Lary_Loose">
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="en"></summary>
+        <language>en</language>
+        <description lang="en"></description>
+    </extension>
+</addon>

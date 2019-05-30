@@ -47,7 +47,7 @@ class Generator:
 		if e.errno != 2: print "Excluding %s for %s" % ( _path, e, )
         # clean and add closing tag
         addons_xml = addons_xml.strip() + u"\n</addons>\n"
-        # save file
+        # save file 
         self._save_file( addons_xml.encode( "UTF-8" ), file="addons.xml" )
 
     def _generate_md5_file( self ):

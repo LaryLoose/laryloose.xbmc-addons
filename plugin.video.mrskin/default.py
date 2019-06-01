@@ -14,7 +14,7 @@ viewMode = str(settings.getSetting("viewMode"))
 
 startpage = 'https://www.mrskin.com'
 playlisturl = 'https://www.mrskin.com/playlist/<pid>'
-contrex = ['file&quot;:&quot;([^}]*?)&quot;', '"file":"([^"]+-hd[^"]*)"', '"file":"([^"]+-sd[^"]*)"', '"file":"([^"]+)"']
+contrex = ['file&quot;:&quot;([^};]*?.mp4)&quot;','file&quot;:&quot;([^}]*?)&quot;', '"file":"([^"]+-hd[^"]*)"', '"file":"([^"]+-sd[^"]*)"', '"file":"([^"]+)"']
 userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 def index():

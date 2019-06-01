@@ -217,7 +217,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.mrskin" name="MrSkin" version="0.1.5" provider-name="Lary_Loose">
+<addon id="plugin.video.mrskin" name="MrSkin" version="0.1.6" provider-name="Lary_Loose">
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>

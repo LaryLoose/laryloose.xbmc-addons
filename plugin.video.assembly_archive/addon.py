@@ -11,19 +11,19 @@ baseurl = 'http://archive.assembly.org/'
 def index():
 		content = getUrl(baseurl)
 		for href,year in re.compile('class="mediacategory".*?href="([^"]+)"[^>]*><span>(.*?)</span>', re.DOTALL).findall(content):
-			addDir(year,href,'showFolders','')
+			addDir(year,fixUrl(href),'showFolders','')
 		xbmcplugin.endOfDirectory(pluginhandle)
 
 def showFolders(url):
 		content = getUrl(url)
-		for href,category in re.compile('class="mediacategory".*?href="([^"]+)"[^>]*>(.*?)</a>', re.DOTALL).findall(content):
-			addDir(cleanTitle(category),href,'showVideos','')
+		for href,category in re.compile('class="mediacategory"[^>]*>[^<]*<[^>]*>[^<]*<[^>]*href="([^"]+)"[^>]*>[^<]*<span>([^<]+)<', re.DOTALL).findall(content):
+			addDir(cleanTitle(category),fixUrl(href),'showVideos','')
 		xbmcplugin.endOfDirectory(pluginhandle)
 
 def showVideos(url):
 		content = getUrl(url)
-		for href,img,name,by in re.compile('class="video".*?href="(.*?)"[^<]*>[^<]*<img[^<]*src="(.*?)"[^<]*alt="(.*?)"[^<]*>[^<]*<span class="by">(.*?)</span>', re.DOTALL).findall(content):
-			addLink(cleanTitle(name + ' by ' + by), href, 'playVideo', img)
+		for href,name,img in re.compile('class="[^"]*video[^"]*"[^>]*>[^<]*<[^>]*class="[^"]*thumbnail[^"]*"[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*>[^<]*<picture>[^<]*<[^>]*>[^<]*<[^>]*class="[^"]*thumbnail-image[^"]*"[^>]*src="([^"]+)"[^>]*>', re.DOTALL).findall(content):
+			addLink(cleanTitle(name), fixUrl(href), 'playVideo', img)
 		if forceViewMode:
 			xbmc.executebuiltin('Container.SetViewMode(500)')
 		xbmcplugin.endOfDirectory(pluginhandle)
@@ -35,6 +35,10 @@ def cleanTitle(text):
 		text = re.sub('\s+', ' ', text)
 		return re.sub('^\s|\s$', '', text).strip()
 
+def fixUrl(url):
+		if url in 'http://': return url
+		else: return baseurl + url
+	
 def playVideo(url):
 		content = getUrl(url)
 		for youtubeID in re.compile('<[^>]*id="ytplayerembed"[^>]*src="[^"]*youtube.com/embed/([^"]+)"', re.DOTALL).findall(content):
@@ -80,7 +84,7 @@ def addDir(name,url,mode,iconimage):
 params=parameters_string_to_dict(sys.argv[2])
 mode=params.get('mode')
 url=params.get('url')
-if type(url)==type(str()): url=urllib.unquote_plus(url)
+if type(url )== type(str()) : url = urllib.unquote_plus(url)
 
 if mode == 'showFolders': showFolders(url)
 elif mode == 'showVideos': showVideos(url)

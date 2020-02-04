@@ -17,7 +17,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.6" provider-name="Lary_Loose">
+<addon id="plugin.video.gamestar_ll" name="GameStar" version="0.1.7" provider-name="Lary_Loose">
     <requires></requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
@@ -112,7 +112,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.9" provider-name="Lary_Loose">
+<addon id="plugin.image.celebgate_cc" name="Celebgate" version="0.1.10" provider-name="Lary_Loose">
   <requires>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
@@ -127,7 +127,7 @@
   </extension>
 </addon>
 
-<addon id="plugin.video.videocelebs.net" name="VideoCelebs.Net" version="0.1.0" provider-name="Lary_Loose">
+<addon id="plugin.video.videocelebs.net" name="VideoCelebs.Net" version="0.1.1" provider-name="Lary_Loose">
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>
@@ -139,7 +139,7 @@
     </extension>
 </addon>
 
-<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.4" provider-name="Lary_Loose">
+<addon id="plugin.video.bild_de_ll" name="Bild.de" version="0.2.5" provider-name="Lary_Loose">
 	<extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
     </extension>

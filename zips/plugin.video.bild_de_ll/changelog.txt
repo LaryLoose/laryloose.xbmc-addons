@@ -1,3 +1,6 @@
+0.2.5
+- python3 adaptations
+
 0.2.4
 - complete rework due to homepage changes
 

@@ -1,8 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import urllib,urllib2,re,xbmcaddon,xbmcplugin,xbmcgui,xbmc,HTMLParser
+import sys, re, xbmcplugin, xbmcgui, xbmcaddon
+try:
+	from urllib.request import urlopen, Request
+	from urllib.parse import quote_plus, unquote_plus
+	from html.parser import HTMLParser
+except ImportError:
+	from urllib2 import urlopen, Request
+	from urllib import quote_plus, unquote_plus
+	from HTMLParser import HTMLParser
 
-htmlparser = HTMLParser.HTMLParser()
+htmlparser = HTMLParser()
 pluginhandle = int(sys.argv[1])
 itemcnt = 0
 baseurl = 'http://www.gamestar.de'
@@ -14,16 +22,18 @@ forceMovieViewMode = settings.getSetting("forceMovieViewMode") == 'true'
 useThumbAsFanart = settings.getSetting("useThumbAsFanart") == 'true'
 hirespix = settings.getSetting("useHighresPix") == 'true'
 movieViewMode = str(settings.getSetting("movieViewMode"))
+settings = None
 
 premiumrex = re.compile('^Die Redaktion|^Raumschiff GameStar|^GameStar TV', re.I)
+userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 premium = False
 dbg = False
 
 def CATEGORIES():
-	if dbg: print channelurl
+	dprint(channelurl)
 	data = getUrl(channelurl)
-	#print data
+	#dprint(data)
 	list = {}
 	rex = re.compile('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*>[^<]*<noscript>[^<]*<img[^>]*src="([^"]*)"', re.S|re.I)
 	for url, title, img in rex.findall(data):
@@ -32,22 +42,22 @@ def CATEGORIES():
 		if 'http' not in img: img = 'http:' + img
 		if title in list: continue
 		list[title] = ''
-		if dbg: print url, title, img
+		dprint(url, title, img)
 		addDir(colortitle(title, 'blue'), url, 1, renamepic(img), True)
 	xbmc.executebuiltin("Container.SetViewMode(400)")
 
 def INDEX(url):
-	if dbg: print url
+	dprint(url)
 	global itemcnt
 	data = getUrl(url)
-	#print data
+	#dprint(data)
 	rex = re.compile('<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*<img[^>]*>[^<]*<noscript>[^<]*<img[^>]*src="([^"]*)"', re.S|re.I)
 	for url, title, img in rex.findall(data):
 		if not premium and premiumrex.match(title): continue 
 		if 'http' not in url: url =  baseurl + url
 		if 'http' not in img: img = 'http:' + img
 		title = clean(filter(title))
-		if dbg: print url, img, title
+		dprint(url, img, title)
 		addLink(colortitle(title, 'blue'), url, 2, renamepic(img), renamepic(img, True))
 		itemcnt = itemcnt + 1
 	nextPage = re.findall('<a[^>]*href="([^"]*)"[^>]*>mehr anzeigen', data, re.S)
@@ -59,12 +69,10 @@ def INDEX(url):
 	if forceMovieViewMode: xbmc.executebuiltin("Container.SetViewMode(" + movieViewMode + ")")
 
 def PLAYLINK(url):
-	if dbg: print url
+	dprint(url)
 	for mediaid in re.findall(',([\d]*?)\.htm', url, re.S): 
 		url = getvideourl + mediaid
-		if dbg:
-		    print 'mediaid: ' + mediaid
-		    print 'open stream: ' + url
+		dprint('mediaid: ' + mediaid, 'open stream: ' + url)
 		listitem = xbmcgui.ListItem(path=url)
 		return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)		
 			
@@ -73,7 +81,7 @@ def colortitle(s, color):
 
 def clean(s):
 	try: s = htmlparser.unescape(s)
-	except: print "could not unescape string '%s'"%(s)
+	except: dprint("could not unescape string '%s'"%(s))
 	s = re.sub('<[^>]*>', '', s)
 	s = s.replace('_', ' ')
 	s = re.sub('[ ]+', ' ', s)
@@ -92,12 +100,13 @@ def filter(s):
 	return re.sub('^Video: ', '', s)
 
 def getUrl(url):
-	req = urllib2.Request(url)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	response = urllib2.urlopen(req)
-	data = response.read()
+	req = Request(url)
+	req.add_header('User-Agent', userAgent)
+	req.add_header('Referer', url)
+	response = urlopen(req, timeout=30)
+	link = response.read().decode('utf8')
 	response.close()
-	return data
+	return link
 
 def get_params():
 	param=[]
@@ -116,28 +125,37 @@ def get_params():
 				param[splitparams[0]]=splitparams[1]
 	return param
 
-def addLink(name, url, mode, image, fanart):
-	u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode)
-	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=image)
+def addLink(name, url, mode, iconimage, fanart, duration=0):
+	u = sys.argv[0] + "?url=" + quote_plus(url) + "&mode=" + str(mode)
+	liz = xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultVideo.png", 'thumb': iconimage})
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	liz.setProperty('IsPlayable', 'true')
-	if useThumbAsFanart: liz.setProperty('fanart_image', fanart)
+	if useThumbAsFanart: liz.setArt({'fanart': fanart})
+	if duration>0: liz.setInfo('video', { 'duration' : duration })
 	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz)
 
-def addDir(name, url, mode, image, is_folder=False):
-	u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&image=" + urllib.quote_plus(image)
-	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=image)
-	liz.setInfo( type="Video", infoLabels={ "Title": name } )
+def addDir(name, url, mode, iconimage, is_folder=False):
+	u = sys.argv[0] + "?url=" + quote_plus(url) + "&mode=" + str(mode)
+	dprint(name)
+	liz = xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultFolder.png", 'thumb': iconimage})
+	liz.setInfo(type="Picture", infoLabels={ "Title": name } )
 	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz, isFolder=is_folder)
+
+def dprint(*args):
+	if dbg: 
+		for s in list(args):
+			print('gamestar.de: ' + s)
 
 params = get_params()
 url = mode = image = None
 
-try: url = urllib.unquote_plus(params["url"])
+try: url = unquote_plus(params["url"])
 except: pass
 try: mode = int(params["mode"])
 except: pass
-try: image = urllib.unquote_plus(params["image"])
+try: image = unquote_plus(params["image"])
 except: pass
 
 if mode==None or url==None or len(url)<1: CATEGORIES()

@@ -1,20 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import sys, urllib, urllib2, re, xbmcplugin, xbmcgui, xbmcaddon, json
+import sys, re, xbmcplugin, xbmcgui, xbmcaddon, json
+try:
+	from urllib.request import urlopen, Request
+	from urllib.parse import quote_plus, unquote_plus
+except ImportError:
+	from urllib2 import urlopen, Request
+	from urllib import quote_plus, unquote_plus
 
 dbg = False
 pluginhandle = int(sys.argv[1])
 settings = xbmcaddon.Addon(id='plugin.video.bild_de_ll')
-translation = settings.getLocalizedString
+#translation = settings.getLocalizedString
 forceViewMode = settings.getSetting("forceViewMode") == "true"
 useThumbAsFanart = settings.getSetting("useThumbAsFanart") == "true"
 filterBildPlus = settings.getSetting("filterBildPlus") == "true"
 maxViewPages = int(settings.getSetting("maxViewPages"))*2
 if maxViewPages == 0: maxViewPages = 1
 viewMode = str(settings.getSetting("viewMode"))
+settings = None
 
 base = 'http://www.bild.de'
 videodropdown = base + '/navi/-35652780,contentContextId=15799990,view=dropdown.bild.html'
+userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
 
 def index():
 	for k, v in enumerate(getFolders()):
@@ -23,7 +31,7 @@ def index():
 	if forceViewMode: xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 
 def showVideos(url):
-	if dbg: print 'open ' + url
+	dprint('open ' + url)
 	content = getUrl(url)
 	for d in re.compile('<div[^>]*class="module[^"]*"[^>]*>(.*?)<[^>]*class="socialbar"', re.DOTALL).findall(content):
 		for url,thumb,kicker,headline,duration in re.compile('data-video-json="([^"]+)".*<[^>]*class="photo ondemand"[^>]*data-src="([^"]+)"[^>]*>.*<[^>]*class="kicker"[^>]*>([^<]*)</[^>]*>.*<[^>]*class="headline"[^>]*>([^<]*)<.*<[^>]*class="index"[^>]*>([^<]*)<', re.DOTALL).findall(d):
@@ -43,15 +51,15 @@ def colorize(str, color):
 	
 def getFolders():
 	folders = []
-	if dbg: print 'open URL ' + videodropdown
+	dprint('open URL ' + videodropdown)
 	content = getUrl(videodropdown)
 	for href, cat in re.compile('<li>[^<]*<a href="(/video[^"]*)"[^<]*>([^<]*)</a>[^<]*</li>', re.DOTALL).findall(content):
-		if dbg: print cat + ' --> ' + href
+		dprint(cat + ' --> ' + href)
 		folders.append((0, href, cat))
 	return folders
 
 def playVideo(url):
-	if dbg: print url
+	dprint(url)
 	parsed = json.loads(getUrl(url))
 	match = None
 	for clip in parsed['clipList']:
@@ -64,12 +72,12 @@ def playVideo(url):
 		xbmc.executebuiltin('Notification(Video wurde nicht gefunden., 5000)')
 
 def cleanTitle(title):
-	title = re.sub('<[^>]*>', ' ', title)
-	title = re.sub('&#\d{3};', ' ', title)
-	title = title.replace('&lt;','<').replace('&gt;','>').replace('&amp;','&').replace('&quot;','"').replace('&szlig;','ß').replace('&ndash;','-')
-	title = title.replace('&Auml;','Ä').replace('&Uuml;','Ü').replace('&Ouml;','Ö').replace('&auml;','ä').replace('&uuml;','ü').replace('&ouml;','ö').replace('&nbsp;', ' ')
-	title = title.replace('„','"').replace('“','"')
-	title = re.sub('\s+', ' ', title)
+	title = re.sub(u'<[^>]*>', u' ', title)
+	title = re.sub(u'&#\d{3};', u' ', title)
+	title = title.replace(u'&lt;',u'<').replace(u'&gt;',u'>').replace(u'&amp;',u'&').replace(u'&quot;',u'"').replace(u'&szlig;',u'ß').replace(u'&ndash;',u'-')
+	title = title.replace(u'&Auml;',u'Ä').replace(u'&Uuml;',u'Ü').replace(u'&Ouml;',u'Ö').replace(u'&auml;',u'ä').replace(u'&uuml;',u'ü').replace(u'&ouml;',u'ö').replace(u'&nbsp;', u' ')
+	title = title.replace(u'„',u'"').replace(u'“',u'"')
+	title = re.sub(u'\s+', u' ', title)
 	return title.strip()
 
 def uniq(input):
@@ -80,12 +88,17 @@ def uniq(input):
 	return output
 
 def getUrl(url):
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0')
-        response = urllib2.urlopen(req, timeout=30)
-        link = response.read()
-        response.close()
-        return link
+	req = Request(url)
+	req.add_header('User-Agent', userAgent)
+	req.add_header('Referer', url)
+	response = urlopen(req, timeout=30)
+	try:
+		encoding = response.info().get_param('charset', 'utf8')
+	except:
+		encoding = 'utf8'
+	link = response.read().decode(encoding)
+	response.close()
+	return link
 
 def parameters_string_to_dict(parameters):
         ''' Convert parameters encoded in a URL to a dict. '''
@@ -99,25 +112,32 @@ def parameters_string_to_dict(parameters):
         return paramDict
 
 def addLink(name, url, mode, iconimage, fanart, duration):
-	u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode)
-	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+	u = sys.argv[0] + "?url=" + quote_plus(url) + "&mode=" + str(mode)
+	liz = xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultVideo.png", 'thumb': iconimage})
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	liz.setProperty('IsPlayable', 'true')
-	if useThumbAsFanart: liz.setProperty('fanart_image', fanart)
+	if useThumbAsFanart: liz.setArt({'fanart': fanart})
 	if duration>0: liz.setInfo('video', { 'duration' : duration })
 	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz)
 
 def addDir(name, url, mode, iconimage):
-	u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode)
-	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+	u = sys.argv[0] + "?url=" + quote_plus(url) + "&mode=" + str(mode)
+	liz = xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultVideo.png", 'thumb': iconimage})
 	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=u, listitem=liz, isFolder=True)
 
+def dprint(*args):
+	if dbg: 
+		for s in list(args):
+			print('bild.de: ' + s)
+			
 params = parameters_string_to_dict(sys.argv[2])
 mode = params.get('mode')
 url = params.get('url')
 
-if type(url) == type(str()): url = urllib.unquote_plus(url)
+if type(url) == type(str()): url = unquote_plus(url)
 
 if mode == 'showVideos': showVideos(url)
 elif mode == 'playVideo': playVideo(url)

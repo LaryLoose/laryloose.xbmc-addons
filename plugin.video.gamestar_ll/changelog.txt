@@ -1,3 +1,5 @@
+0.1.7
+	- python3 adaptations
 0.1.6
 	- update due to site changes
 	- google resize service removed

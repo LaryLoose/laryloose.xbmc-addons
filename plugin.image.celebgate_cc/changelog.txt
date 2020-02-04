@@ -1,3 +1,7 @@
+0.1.10
+	- python3 adaptations
+	- code changes due to site changes
+	
 0.1.9
 	- image url fixed
 	
